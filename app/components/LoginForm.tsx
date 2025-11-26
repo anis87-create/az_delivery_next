@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation';
 import { useDispatch } from 'react-redux';
 import { useAppDispatch } from '../hooks';
+import { login } from '@/store/slices/authSlice';
 
 const LoginForm = () => {
 
@@ -17,14 +18,20 @@ const LoginForm = () => {
 
   const onSubmit = (e:any) => {
     e.preventDefault();
-    router.push('/');
+    try {
+      dispatch(login(form));
+      router.push('/');
+    } catch (error) {
+      
+    }
+
   }
   const handleChange = (e:any) => {
     const {name, value} = e.target;
     setForm({
       ...form,
       [name]: value
-    })
+    });
   }
   return (
     <div className="w-1/2 p-8 lg:p-12 flex items-center justify-center">

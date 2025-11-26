@@ -31,10 +31,12 @@ const Avatar = ({
 
   return (
     <>
-      {src ? (
+      {src && src.trim() !== "" ? (
         <Image
           src={src}
           alt="avatar"
+          width={50}
+          height={50}
           className={`${size} rounded-full ${borderClass} ${className}`}
         />
       ) : (

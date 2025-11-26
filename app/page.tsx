@@ -5,6 +5,9 @@ import { useEffect, useMemo, useState } from "react";
 import { useAppDispatch, useAppSelector } from "./hooks";
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi2';
 import Category, { type IconKey } from "./components/layouts/Category";
+import Restaurant from "./Restaurant/page";
+ import { useRouter } from 'next/navigation';
+
 export default function Home() {
 
   type CategoryType = {
@@ -20,6 +23,18 @@ export default function Home() {
     subtitle: string,
     buttonText: string
   }
+  type Restaurant= {
+    id:string,
+    coverImg: string,
+    rate: number,
+    name: string,
+    img: string,
+    tags:string[],
+    userId: string | null | undefined,
+    isActive: boolean,
+    type: string,
+  }
+  const router = useRouter();
   const categories: CategoryType[] = [
   {
       name:'Pizza',
@@ -131,13 +146,13 @@ export default function Home() {
    //dispatch(resetFavorites())
   }, []);
   return (
-    <main className='mt-[8.125rem] flex-1'>
-       <section className='mt-[20px] mb-[60px] my-8 mx-0 md:my-[3rem] md:mx-0 lg:my-16 lg:mx-0'>
+    <main className='mt-32.5 flex-1'>
+       <section className='mt-5 mb-[60px] my-8 mx-0 md:my-12 md:mx-0 lg:my-16 lg:mx-0'>
             <div className='container mx-auto w-[90%]'>
             <div className='flex flex-col lg:flex-row relative'>
                {/**slider content description */}
                <div className='flex flex-1   h-auto border-transparent border-0 lg:flex-row'>
-                  <div className='flex-1 h-full bg-gradient-to-r from-[#22C55E] to-[#15803D] border-0 rounded-tl-[15px] rounded-tr-[15px] text-center py-[10px] text-white flex flex-col justify-center items-center leading-normal md:text-center md:items-center md:pl-10 md:rounded-tl-[15px] md:rounded-tr-[15px] md:rounded-bl-none md:rounded-br-none md:leading-relaxed lg:text-left lg:items-start lg:rounded-tl-lg lg:rounded-bl-lg lg:rounded-tr-none '> 
+                  <div className='flex-1 h-full bg-linear-to-r from-[#22C55E] to-[#15803D] border-0 rounded-tl-[15px] rounded-tr-[15px] text-center py-[10px] text-white flex flex-col justify-center items-center leading-normal md:text-center md:items-center md:pl-10 md:rounded-tl-[15px] md:rounded-tr-[15px] md:rounded-bl-none md:rounded-br-none md:leading-relaxed lg:text-left lg:items-start lg:rounded-tl-lg lg:rounded-bl-lg lg:rounded-tr-none '> 
                     <h3 className='text-xl lg:text-2rem mb-2 sm:mb-4'>{currentSlideData.title}</h3>
                     <span className='mb-4 sm:mb-6 sm:text-base md:text-lg opacity-90 line-clamp-2 sm:line-clamp-none'>{currentSlideData.subtitle}</span>
                     <button className='ring-offset-background focus-visible:outline-hidden focus-visible:ring-ring inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-10 bg-white text-black hover:bg-gray-100 font-medium px-4 sm:px-6 py-2 rounded-full text-sm sm:text-base'>{currentSlideData.buttonText}</button> 
@@ -145,7 +160,9 @@ export default function Home() {
                </div>
                {/**slider content img */}
                <div className='flex-1 relative md:static md:flex-1'>
-                 <Image src={currentSlideData.img} alt="slider" className='w-full h-full object-cover rounded-b-xl lg:rounded-bl-none lg:rounded-br-[15px] lg:rounded-tr-[15px] transition-all duration-500'/>
+                 {currentSlideData.img && (
+                   <Image src={currentSlideData.img} alt="slider" width={800} height={400} className='w-full h-full object-cover rounded-b-xl lg:rounded-bl-none lg:rounded-br-[15px] lg:rounded-tr-[15px] transition-all duration-500'/>
+                 )}
                  {/** slider opacity */}
                  <div className='absolute w-full h-full top-0 left-0 lg:mt-[70px]'>
                     <div className='w-11/12 flex justify-between mt-10 mx-auto md:mt-[120px] md:mx-auto md:mb-0 lg:w-[97%]'>
@@ -369,18 +386,18 @@ export default function Home() {
      {/**cafes and bars section */}
      <>
      <div className='container mx-auto w-[90%]'> 
-       <div className='flex flex-col my-8 mx-0 md:my-12 md:mx-0 lg:my-[4rem] lg:mx-0'>
+       <div className='flex flex-col my-8 mx-0 md:my-12 md:mx-0 lg:my-16 lg:mx-0'>
            <div className="flex justify-between items-center mb-4 sm:mb-6">
              <h2 className='text-xl sm:text-2xl font-bold'>Quick Bites</h2>
              <button
-               onClick={() => navigate('/search?category=quick-bites')}
+               onClick={() => router.push('/search?category=quick-bites')}
                className="text-orange-500 hover:text-orange-600 font-medium text-sm sm:text-base transition-colors duration-200"
              >
                View All
              </button>
            </div>
            <div className='grid lg:grid-cols-3 gap-4 md:grid-cols-2 md:gap-4'>
-            {restaurants.filter(place => place.type === 'quick_bite').slice(0, 3).map(place =>
+            {restaurants.filter((place:any) => place.type === 'quick_bite').slice(0, 3).map((place:Restaurant) =>
               <Restaurant
                 key={place.id}
                 id={place.id}
@@ -390,7 +407,8 @@ export default function Home() {
                 time={'10-30'}
                 tags={place.tags}
                 userId= {currentUser?.id}
-                isActive ={ favoriteIds.has(place.id) }
+                isActive ={ false}
+                deliverySettings={null}
               />
             )}
            </div>
@@ -401,28 +419,29 @@ export default function Home() {
      {/**restaurants section */}
      <>
      <div className='container mx-auto w-[90%]'> 
-       <div className='flex flex-col my-8 mx-0 md:my-12 md:mx-0 lg:my-[4rem] lg:mx-0'>
+       <div className='flex flex-col my-8 mx-0 md:my-12 md:mx-0 lg:my-16 lg:mx-0'>
            <div className="flex justify-between items-center mb-4 sm:mb-6">
              <h2 className='text-xl sm:text-2xl font-bold'>Featured Restaurants</h2>
              <button
-               onClick={() => navigate('/search?category=restaurants')}
+               onClick={() => router.push('/search?category=restaurants')}
                className="text-orange-500 hover:text-orange-600 font-medium text-sm sm:text-base transition-colors duration-200"
              >
                View All
              </button>
            </div>
            <div className='grid lg:grid-cols-3 gap-4 md:grid-cols-2 md:gap-4'>
-            {restaurants.filter(restaurant => restaurant.type === 'restaurant').slice(0, 6).map(restaurant =>
+            {restaurants.filter((restaurant:Restaurant) => restaurant.type === 'restaurant').slice(0, 6).map((restaurant:Restaurant) =>
               <Restaurant
                 key={restaurant.id}
                 id={restaurant.id}
                 img={restaurant.coverImg}
                 name={restaurant.name}
                 rate={restaurant.rate}
-                time={restaurant.deliverySettings.estimatedDeliveryTime}
+                time={'10-30'}
                 tags={restaurant.tags}
                 userId= {currentUser?.id}
-                isActive ={ favoriteIds.has(restaurant.id) }
+                isActive ={ false }
+                deliverySettings={null}
               />
             )}
            </div>

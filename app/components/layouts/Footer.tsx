@@ -75,12 +75,12 @@ const Footer = () => {
               © 2025 AZ Food Delivery. Tous droits réservés.
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0">
-              <a href="/privacy" className="text-gray-400 hover:text-orange-500 text-sm transition-colors">
+              <Link href="/privacy" className="text-gray-400 hover:text-orange-500 text-sm transition-colors">
                 Politique de confidentialité
-              </a>
-              <a href="/terms" className="text-gray-400 hover:text-orange-500 text-sm transition-colors">
+              </Link>
+              <Link href="/terms" className="text-gray-400 hover:text-orange-500 text-sm transition-colors">
                 Conditions d&apos;utilisation
-              </a>
+              </Link>
             </div>
           </div>
         </div>

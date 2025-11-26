@@ -30,7 +30,9 @@ const Category = ({name, icon, img}: CategoryProps) => {
   return (
     <div className="relative overflow-hidden rounded-2xl cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg group w-[117px] h-[117px]">
         <div className="w-full h-full relative">
-          <Image alt={name} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" src={img}/>
+          {img && (
+            <Image alt={name} width={117} height={117} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" src={img}/>
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent group-hover:from-black/70 transition-all duration-300 flex flex-col items-center justify-center">
             <div className="text-center text-white transform transition-transform duration-300 group-hover:scale-110">
               <div className="text-lg sm:text-xl mb-2 drop-shadow-lg flex justify-center">

@@ -38,8 +38,8 @@ const Navbar = () => {
   const dispatch = useAppDispatch();
   return (
      <header className='fixed w-full top-0 shadow-lg bg-white z-50 left-0 right-0'>
-      <div className='w-full px-0'>
-        <div className="flex justify-between items-center py-[30px] px-6">
+      <div className='container mx-auto w-[90%]'>
+        <div className="flex justify-between items-center py-[30px]">
             {/* Header Logo */}
             <div className='flex items-center'>
                 <h1 className='font-bold text-xl leading-7 bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 bg-clip-text text-transparent hover:from-orange-600 hover:via-red-600 hover:to-pink-600 transition-all duration-300 cursor-pointer'>
@@ -61,13 +61,13 @@ const Navbar = () => {
             {/* Desktop Navigation */}
             <nav className='hidden md:flex'>
               <ul className='flex items-center space-x-6'>
-                <li className='inline-block align-middle'>
+                <li>
                   <Link href="/" className='flex items-center p-[10px] hover:text-green-500 transition-colors'>
                     <HiOutlineHome className="w-5 h-5 sm:mr-1.5" />
                     <span className='hidden md:inline md:ml-[6px]'>Home</span>
                   </Link>
                 </li>
-                <li className='inline-block align-middle'>
+                <li>
                   <Link href='/search' className="nav-link search-link flex items-center p-[10px] hover:text-green-500 transition-colors">
                     <HiOutlineMagnifyingGlass className="w-5 h-5 sm:mr-1.5" />
                     <span className='hidden md:inline md:ml-[6px]'>Search</span>
@@ -75,7 +75,7 @@ const Navbar = () => {
                 </li>
                 {isAuth && currentUser && (
                   <>
-                    <li className='inline-block align-middle'>
+                    <li>
                       <Link href="/favorites" className="nav-link flex items-center p-[10px] hover:text-green-500 transition-colors relative">
                         <HiOutlineHeart className="w-5 h-5 sm:mr-1.5" />
                         {/*totalFavorites > 0 && (
@@ -86,7 +86,7 @@ const Navbar = () => {
                         <span className='hidden md:inline md:ml-[6px]'>Favorites</span>
                       </Link>
                     </li>
-                    <li className='inline-block align-middle'>
+                    <li>
                       <Link href="/cart" id="cart" className="nav-link cart-link flex items-center p-[10px] text-green-500 hover:text-green-600 transition-colors relative">
                         <HiOutlineShoppingCart className="w-5 h-5 sm:mr-1.5" />
                         {/*totalQuantity > 0 && (
@@ -97,7 +97,7 @@ const Navbar = () => {
                         <span className='hidden md:inline md:ml-[6px]'>Cart</span>
                       </Link>
                     </li>
-                    <li className='inline-block align-middle'>
+                    <li>
                       <Link href={`/orders`} className='flex items-center p-[10px] hover:text-green-500 transition-colors relative'>
                         <HiOutlineDocumentText className="w-5 h-5 sm:mr-1.5" />
                         {/*numberOfOrders > 0 && (
@@ -110,9 +110,9 @@ const Navbar = () => {
                     </li>
                   </>
                 )}
-                <li className='flex items-center inline-block align-middle ml-[6px] relative'>
+                <li className='flex items-center ml-[6px] relative'>
                   {isAuth && currentUser ? (
-                    <>
+                    <div className='flex items-center'>
                       <span className='text-sm font-medium text-gray-700 mr-3 bg-gray-100 px-3 py-1 rounded-full'>Hello, {currentUser.fullName}</span>
                       <button
                         onClick={toggleProfileMenu}
@@ -122,7 +122,7 @@ const Navbar = () => {
                          fontSize='text-xs'
                         />
                       </button>
-                    </>
+                    </div>
                   ) : (
                     <div className='flex items-center gap-6'>
                       <Link href="/login" className='text-gray-700 font-medium hover:text-gray-900 transition-colors'>
