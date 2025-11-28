@@ -1,12 +1,12 @@
 'use client'
 import Image from "next/image";
 import sliderImg from '../public/images/slider_img.avif';
-import { useEffect, useMemo, useState } from "react";
-import { useAppDispatch, useAppSelector } from "./hooks";
+import { useState } from "react";
+import { useAppSelector } from "./hooks";
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi2';
 import Category, { type IconKey } from "./components/layouts/Category";
-import Restaurant from "./Restaurant/page";
- import { useRouter } from 'next/navigation';
+import RestaurantCard from "./components/RestaurantCard";
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
 
@@ -114,9 +114,6 @@ export default function Home() {
     }
   ];
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [showOrders, setShowOrders] = useState(false);
-  const dispatch = useAppDispatch();
  // const {favorites} = useAppSelector(state => state.favorites);
   const { currentUser } = useAppSelector(state => state.auth);
   const {restaurants } = useAppSelector(state => state.restaurant);
@@ -141,10 +138,6 @@ export default function Home() {
       setCurrentSlide((prev) => (prev - 1 + sliderImages.length) % sliderImages.length);
     }
   };
-  useEffect(() => {
-   //dispatch(clearOrders());
-   //dispatch(resetFavorites())
-  }, []);
   return (
     <main className='mt-32.5 flex-1'>
        <section className='mt-5 mb-[60px] my-8 mx-0 md:my-12 md:mx-0 lg:my-16 lg:mx-0'>
@@ -398,7 +391,7 @@ export default function Home() {
            </div>
            <div className='grid lg:grid-cols-3 gap-4 md:grid-cols-2 md:gap-4'>
             {restaurants.filter((place:any) => place.type === 'quick_bite').slice(0, 3).map((place:Restaurant) =>
-              <Restaurant
+              <RestaurantCard
                 key={place.id}
                 id={place.id}
                 img={place.coverImg}
@@ -408,7 +401,6 @@ export default function Home() {
                 tags={place.tags}
                 userId= {currentUser?.id}
                 isActive ={ false}
-                deliverySettings={null}
               />
             )}
            </div>
@@ -431,7 +423,7 @@ export default function Home() {
            </div>
            <div className='grid lg:grid-cols-3 gap-4 md:grid-cols-2 md:gap-4'>
             {restaurants.filter((restaurant:Restaurant) => restaurant.type === 'restaurant').slice(0, 6).map((restaurant:Restaurant) =>
-              <Restaurant
+              <RestaurantCard
                 key={restaurant.id}
                 id={restaurant.id}
                 img={restaurant.coverImg}
@@ -441,7 +433,6 @@ export default function Home() {
                 tags={restaurant.tags}
                 userId= {currentUser?.id}
                 isActive ={ false }
-                deliverySettings={null}
               />
             )}
            </div>
