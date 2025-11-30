@@ -2,40 +2,16 @@
 import Image from "next/image";
 import sliderImg from '../public/images/slider_img.avif';
 import { useState } from "react";
-import { useAppSelector } from "./hooks";
+import { useAppSelector } from "./hooks.js";
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi2';
-import Category, { type IconKey } from "./components/layouts/Category";
-import RestaurantCard from "./components/RestaurantCard";
+import Category from "./components/layouts/Category.jsx";
+import RestaurantCard from "./components/RestaurantCard.jsx";
 import { useRouter } from 'next/navigation';
 
 export default function Home() {
 
-  type CategoryType = {
-    name: string,
-    icone: IconKey,
-    img: string
-  }
-
-  type sliderImageType = {
-    id: number,
-    img: string|any,
-    title: string,
-    subtitle: string,
-    buttonText: string
-  }
-  type Restaurant= {
-    id:string,
-    coverImg: string,
-    rate: number,
-    name: string,
-    img: string,
-    tags:string[],
-    userId: string | null | undefined,
-    isActive: boolean,
-    type: string,
-  }
   const router = useRouter();
-  const categories: CategoryType[] = [
+  const categories = [
   {
       name:'Pizza',
       icone: 'pizza',
@@ -82,8 +58,8 @@ export default function Home() {
     img:'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8aGVhbHRoeXxlbnwwfHwwfHx8MA%3D%3D'
   }
   ];
-  
-  const sliderImages:sliderImageType[]  = [
+
+  const sliderImages = [
     {
       id: 1,
       img: sliderImg,
@@ -390,7 +366,7 @@ export default function Home() {
              </button>
            </div>
            <div className='grid lg:grid-cols-3 gap-4 md:grid-cols-2 md:gap-4'>
-            {restaurants.filter((place:any) => place.type === 'quick_bite').slice(0, 3).map((place:Restaurant) =>
+            {restaurants.filter((place) => place.type === 'quick_bite').slice(0, 3).map((place) =>
               <RestaurantCard
                 key={place.id}
                 id={place.id}
@@ -422,7 +398,7 @@ export default function Home() {
              </button>
            </div>
            <div className='grid lg:grid-cols-3 gap-4 md:grid-cols-2 md:gap-4'>
-            {restaurants.filter((restaurant:Restaurant) => restaurant.type === 'restaurant').slice(0, 6).map((restaurant:Restaurant) =>
+            {restaurants.filter((restaurant) => restaurant.type === 'restaurant').slice(0, 6).map((restaurant) =>
               <RestaurantCard
                 key={restaurant.id}
                 id={restaurant.id}

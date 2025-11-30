@@ -1,27 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { v4 as uuidv4 } from 'uuid';
 
-interface User {
-    id: string,
-    fullName: string,
-    email:string,
-    password: string,
-    phoneNumber: string,
-    address:string,
-    role:string
-}
-interface UserState  {
-    users: User[],
-    currentUser: User | null,
-    isAuth: boolean
-} 
-
-const getStorageItem = (key: string): string | null => {
+const getStorageItem = (key) => {
     if (typeof window === 'undefined') return null;
     return localStorage.getItem(key);
 };
 
-const initialState: UserState = {
+const initialState = {
     users: JSON.parse(getStorageItem('users') ?? '[]'),
     currentUser: JSON.parse(getStorageItem('currentUser') ?? 'null'),
     isAuth: Boolean(getStorageItem('currentUser')),

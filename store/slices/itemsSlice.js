@@ -23,11 +23,11 @@ const itemsSlice = createSlice({
          localStorage.setItem('items', JSON.stringify(state.items));
        },
        removeItem: (state, {payload}) => {
-         state.items = state.items.filter((item:any) => item.id !== payload.id);
-         localStorage.setItem('items', JSON.stringify(state.items)); 
+         state.items = state.items.filter((item) => item.id !== payload.id);
+         localStorage.setItem('items', JSON.stringify(state.items));
        },
        updateItem: (state, {payload}) => {
-         const index = state.items.findIndex((item:any) => item.id === payload.id);
+         const index = state.items.findIndex((item) => item.id === payload.id);
          state.items[index]= {...payload};
          localStorage.setItem('items', JSON.stringify(state.items));
        },

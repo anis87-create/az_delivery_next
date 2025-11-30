@@ -1,6 +1,4 @@
-import { NextConfig } from 'next';
-
-const nextConfig: NextConfig = {
+const nextConfig = {
   images: {
     domains: ['images.unsplash.com'],
   },

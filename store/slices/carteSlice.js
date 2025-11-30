@@ -4,30 +4,11 @@ import { createSlice, current } from "@reduxjs/toolkit";
  * Redux slice for managing shopping cart state
  * Handles cart items, quantities, and localStorage persistence
  */
-/**
- * Example cart item structure:
- * {
- *   id: string,
- *   name: string,
- *   price: number,
- *   quantity: number,
- *   image: string,
- *   restaurantId: string
- * }
- */
 
-type Item = {
-    id: string,
-    name: string,
-    price: number,
-    quantity: number,
-    imageUrl: string,
-    restaurantId: string
-}
 const isClient = typeof window !== 'undefined';
-const cartFromStorage: string | null = isClient ? localStorage.getItem('cartItems') : null;
-const totalWithFeesFromStorage: string | null = isClient ? localStorage.getItem('totalWithFees') : null;
-const subTotalPriceFromStorage : string | null = isClient ? localStorage.getItem('subTotalPrice') : null;
+const cartFromStorage = isClient ? localStorage.getItem('cartItems') : null;
+const totalWithFeesFromStorage = isClient ? localStorage.getItem('totalWithFees') : null;
+const subTotalPriceFromStorage = isClient ? localStorage.getItem('subTotalPrice') : null;
 export const cartSlice = createSlice({
     name:'cart',
     initialState: {
@@ -42,7 +23,7 @@ export const cartSlice = createSlice({
       )(),
       // Load subtotal from localStorage
       subTotalPrice: (() => {
-        const stored = localStorage.getItem('subTotalPrice');
+        const stored = subTotalPriceFromStorage;
         return stored ? Number(stored) : 0;
       })(),
       // Load total with fees from localStorage
@@ -67,7 +48,7 @@ export const cartSlice = createSlice({
             localStorage.setItem('cartItems', JSON.stringify(state.cartItems));
        },
        updateQuantity: (state, {payload}) => {
-           const itemFound = state.cartItems.find((item:Item) => item.id === payload.id);
+           const itemFound = state.cartItems.find((item) => item.id === payload.id);
            if (itemFound) {
                itemFound.quantity = payload?.quantity;
                // Persist to localStorage
@@ -119,10 +100,10 @@ export const cartSlice = createSlice({
           let totalWithAllFees = 0;
           
           // Calculate total for each restaurant including fees
-          Object.keys(itemsByRestaurant).forEach(restaurantId => {            
-            const restaurant = restaurants.find((r:any) => r.id === Number(restaurantId));
+          Object.keys(itemsByRestaurant).forEach(restaurantId => {
+            const restaurant = restaurants.find((r) => r.id === Number(restaurantId));
             const restaurantItems = itemsByRestaurant[restaurantId];
-            const restaurantSubtotal = restaurantItems.reduce((total:number, item:Item) => total + (item.price * item.quantity), 0);
+            const restaurantSubtotal = restaurantItems.reduce((total, item) => total + (item.price * item.quantity), 0);
             
             const deliveryFee = Number(restaurant?.deliverySettings?.baseFee) || 0;
             

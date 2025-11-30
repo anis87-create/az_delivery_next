@@ -1,25 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { v4 as uuidv4 } from 'uuid';
 
-interface Restaurant {
-    name: '',
-    img: null,
-    coverImg: null,
-    type: '',
-    category: '',
-    tags: [],
-    restaurantAddress: '',
-    restaurantStreet: '',
-    restaurantCity: '',
-    restaurantZipCode: '',
-    restaurantPhone: '',
-    restaurantDescription: '',
-    // Business info fields
-    deliveryZone: '',
-    ownerId:''
-}
 const isClient = typeof window !== 'undefined';
-const restaurantsFromStorage: string | null = isClient ? localStorage.getItem('restaurants') : null;
+const restaurantsFromStorage = isClient ? localStorage.getItem('restaurants') : null;
 
 const storedItems = (() => {
     try {
@@ -65,7 +48,7 @@ const  restaurantSlice = createSlice({
             localStorage.setItem('restaurants', JSON.stringify([]));
         },
         updateRestaurant: (state, {payload}) => {
-           const index = state.restaurants.findIndex((restaurant:Restaurant) => restaurant.name === payload.name); 
+           const index = state.restaurants.findIndex((restaurant) => restaurant.name === payload.name);
            state.restaurants[index] = {
               ...payload
            }
@@ -78,8 +61,8 @@ const  restaurantSlice = createSlice({
 export const { createRestaurant, resetRestaurants, updateRestaurant } = restaurantSlice.actions;
 
 // Selector pour obtenir les restaurants d'un propriétaire
-export const getRestaurantsByOwner = (state:any, ownerId:string) => {   
- return   state.restaurant.restaurants.find((restaurant:Restaurant) => restaurant.ownerId === ownerId) || null;
-}   
+export const getRestaurantsByOwner = (state, ownerId) => {
+ return   state.restaurant.restaurants.find((restaurant) => restaurant.ownerId === ownerId) || null;
+}
 
 export default restaurantSlice.reducer;

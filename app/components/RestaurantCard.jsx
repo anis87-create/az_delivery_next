@@ -4,21 +4,10 @@ import Link from 'next/link';
 import { FaStar } from 'react-icons/fa';
 import { MdAccessTime } from 'react-icons/md';
 import { HiChevronRight, HiOutlineHeart } from 'react-icons/hi';
-import { useAppSelector } from '../hooks';
+import { useAppSelector } from '../hooks.js';
 import Image from 'next/image';
 
-type RestaurantCardProps = {
-    id: string,
-    img: string,
-    name: string,
-    rate: number,
-    time: string,
-    tags: string[],
-    isActive?: boolean,
-    userId?: string | null | undefined,
-};
-
-const RestaurantCard = React.memo(({ id, img, name, rate, time, tags, isActive = false }: RestaurantCardProps) => {
+const RestaurantCard = React.memo(({ id, img, name, rate, time, tags, isActive = false }) => {
   const { isAuth } = useAppSelector(state => state.auth);
 
   return (

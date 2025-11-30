@@ -3,30 +3,30 @@ import React, { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation';
 import { useDispatch } from 'react-redux';
-import { useAppDispatch } from '../hooks';
-import { login } from '@/store/slices/authSlice';
+import { useAppDispatch } from '../hooks.js';
+import { login } from '@/store/slices/authSlice.js';
 
 const LoginForm = () => {
 
   const [form, setForm] = useState({
       email:'',
       password:'',
-  });   
+  });
 
   const router = useRouter();
   const dispatch = useAppDispatch();
 
-  const onSubmit = (e:any) => {
+  const onSubmit = (e) => {
     e.preventDefault();
     try {
       dispatch(login(form));
       router.push('/');
     } catch (error) {
-      
+
     }
 
   }
-  const handleChange = (e:any) => {
+  const handleChange = (e) => {
     const {name, value} = e.target;
     setForm({
       ...form,

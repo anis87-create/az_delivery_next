@@ -2,21 +2,20 @@
 import { FaPaperPlane, FaStar, FaHeart, FaTrash, FaArrowLeft } from 'react-icons/fa';
 import { MdAccessTime } from 'react-icons/md';
 import { HiOutlineHeart } from 'react-icons/hi';
-import { useAppSelector } from '../../hooks';
+import { useAppSelector } from '../../hooks.js';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { updateRestaurant } from '@/store/slices/restaurantSlice';
 import { useDispatch } from 'react-redux';
 import Link from 'next/link';
-import Avatar from '@/app/components/common/Avatar';
-import QuantityContainer from '@/app/components/QuantityContainer';
+import Avatar from '@/app/components/common/Avatar.jsx';
+import QuantityContainer from '@/app/components/QuantityContainer.jsx';
 
 
 const RestaurantPage = () => {
   const { id } = useParams();
   const {restaurants} = useAppSelector(state => state.restaurant);
-  const restaurant = restaurants.find((restaurant:any) => restaurant.id === Number(id));
+  const restaurant = restaurants.find((restaurant) => restaurant.id === Number(id));
 
   const { items }  = useAppSelector(state => state.items);
   //const comments = getCommentsByRestaurantId(parseInt(id))
@@ -53,28 +52,27 @@ const RestaurantPage = () => {
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">Restaurant non trouvé</h2>
           <Link href="/" className="text-orange-500 hover:text-orange-600">
-            Retour à l'accueil
+            Retour à l&apos;accueil
           </Link>
         </div>
       </div>
     )
   }
 
-  const groupedItems = items.filter((item:any) => Number(id) === item.restaurantId).reduce((acc, item) => {
+  const groupedItems = items.filter((item) => Number(id) === item.restaurantId).reduce((acc, item) => {
     if (!acc[item.categoryId]) {
       acc[item.categoryId] = []
     }
     acc[item.categoryId].push(item)
     return acc
   }, {});
-  const findCategoryById = (categoryId: string) => categories?.find((category:string) => category.id === Number(categoryId))?.name;
+  const findCategoryById = (categoryId) => categories?.find((category) => category.id === Number(categoryId))?.name;
 
   /**
    * Fonction pour soumettre un nouveau commentaire
-   * @param {Object} comment - L'objet commentaire contenant restaurantId, userId, userName, comment, rating, etc.
    * Ajoute le commentaire au store Redux et réinitialise le formulaire
    */
-  const reply = (comment:any) => {
+  const reply = (comment) => {
     // dispatch(addComment(comment));
      // Réinitialise le champ de texte du commentaire
      setCommentContent('');
@@ -84,19 +82,16 @@ const RestaurantPage = () => {
 
   /**
    * Gestionnaire d'événement pour le changement du texte du commentaire
-   * @param {Event} e - L'événement de changement du textarea
    * Met à jour l'état local avec le contenu saisi par l'utilisateur
    */
-  const handleChangeComment = (e:any) => {
+  const handleChangeComment = (e) => {
     setCommentContent(e.target.value);
   }
 
   /**
    * Trouve et retourne le nom complet de l'utilisateur qui a écrit un commentaire
-   * @param {Object} comment - L'objet commentaire contenant userId
-   * @returns {string} Le nom complet de l'utilisateur ou undefined si non trouvé
    */
-  const findCommentUserName = (comment:any) => {
+  const findCommentUserName = (comment) => {
     return users?.find(user => comment?.userId ===  user?.id)?.fullName;
   }
 
@@ -166,7 +161,7 @@ const RestaurantPage = () => {
             {findCategoryById(category)}
             </h3>
             <div className="grid gap-4">
-              {categoryItems?.map((item:any) => (
+              {categoryItems?.map((item) => (
                 <div 
                   key={item.id}
                   className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow"
@@ -288,7 +283,7 @@ const RestaurantPage = () => {
                 </label>
                 {/* Textarea contrôlé par commentContent et handleChangeComment */}
                 <textarea
-                  rows="4"
+                  rows={4}
                   placeholder="Partagez votre expérience..."
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors resize-none"
                   onChange={handleChangeComment}
@@ -318,7 +313,7 @@ const RestaurantPage = () => {
                 }
                 >
                   <FaPaperPlane className="text-sm" />
-                  Publier l'avis
+                  Publier l&apos;avis
                 </button>
               </div>
             </form>
@@ -338,10 +333,12 @@ const RestaurantPage = () => {
                   <div className="flex items-start gap-4 mb-4">
                     {/* Affiche l'avatar de l'utilisateur s'il existe, sinon affiche Avatar avec initiales */}
                     {users?.find(user => comment?.userId === user?.id)?.avatar ? (
-                      <img
+                      <Image
                         src={users.find(user => comment?.userId === user?.id).avatar}
                         alt={findCommentUserName(comment)}
                         className="w-[32px] h-[32px] rounded-full object-cover"
+                        width={32}
+                        height={32}
                       />
                     ) : (
                       <Avatar

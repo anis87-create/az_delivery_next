@@ -4,15 +4,7 @@ import { MdHealthAndSafety, MdAccessTime, MdFastfood } from 'react-icons/md';
 import { GiTacos, GiNoodles } from 'react-icons/gi';
 import Image from 'next/image';
 
-export type IconKey = 'pizza' | 'burger' | 'sushi' | 'salad' | 'dessert' | 'mexican' | 'indian' | 'chinese' | 'healthy';
-
-type CategoryProps = {
-    name: string,
-    icon: IconKey,
-    img: string
-}
-
-const iconMap: Record<IconKey, React.ComponentType> = {
+const iconMap = {
   pizza: FaPizzaSlice,
   burger: FaHamburger,
   sushi: FaFish,
@@ -24,7 +16,7 @@ const iconMap: Record<IconKey, React.ComponentType> = {
   healthy: MdHealthAndSafety
 };
 
-const Category = ({name, icon, img}: CategoryProps) => {
+const Category = ({name, icon, img}) => {
   const IconComponent = iconMap[icon];
   
   return (

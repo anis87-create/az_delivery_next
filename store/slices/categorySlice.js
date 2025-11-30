@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 const isClient = typeof window !== 'undefined';
-const categoryFromStorage: string | null = isClient ? localStorage.getItem('categories') : null;
+const categoryFromStorage = isClient ? localStorage.getItem('categories') : null;
 const categorySlice = createSlice({
     name: 'categories',
     initialState: {

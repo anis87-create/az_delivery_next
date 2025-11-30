@@ -2,14 +2,7 @@
 
 import React from 'react';
 import Image from "next/image";
-type ReactProps = {
-    src?: string,
-    name: string,
-    size: string,
-    className?:string,
-    borderClass?: string,
-    fontSize: string
-}
+
 const Avatar = ({
   src,
   name,
@@ -17,8 +10,8 @@ const Avatar = ({
   className = '',
   borderClass = 'border-2 border-green-500',
   fontSize
-}:ReactProps) => {
-  const getInitials = (fullName: string) => {
+}) => {
+  const getInitials = (fullName) => {
     if (!fullName) return 'U';
     const names = fullName.trim().split(' ');
     if (names.length === 1) {

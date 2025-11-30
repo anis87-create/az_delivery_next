@@ -1,29 +1,18 @@
+'use client';
+
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
-import { addToCart, deleteItem, updateQuantity } from '../../store/slices/carteSlice';
-import { useAppSelector } from '../hooks';
-type Item = {
-    id: string,
-    name: string,
-    price: number,
-    quantity: number,
-    imageUrl: string,
-    restaurantId: string,
-    categoryId: string
-}
-type quantityContainerProps = {
-   item: Item,
-   addItem(id: string): void
-}
+import { addToCart, deleteItem, updateQuantity } from '../../store/slices/carteSlice.js';
+import { useAppSelector } from '../hooks.js';
 
-const QuantityContainer = ({item, addItem}: quantityContainerProps) => {
-  const [counter, setCounter] = useState(1); 
+const QuantityContainer = ({item, addItem}) => {
+  const [counter, setCounter] = useState(1);
   const dispatch = useDispatch();
   const {cartItems} = useAppSelector((state) => state.cart);
   const {isAuth, currentUser} = useAppSelector((state) => state.auth);
-  
+
   // Derive isHidden from cartItems instead of using state
-  const itemFound = cartItems.find((i: any) => i.id === item?.id);
+  const itemFound = cartItems.find((i) => i.id === item?.id);
   const isHidden = currentUser?.id && itemFound;
 
 

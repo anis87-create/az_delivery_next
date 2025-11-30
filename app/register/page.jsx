@@ -1,16 +1,16 @@
 'use client';
 import Image from 'next/image';
 import React, { useState } from 'react'
-import RegisterForm from '../components/RegisterForm';
+import RegisterForm from '../components/RegisterForm.jsx';
 import { useDispatch, useSelector } from 'react-redux';
-import { useAppSelector, useAppDispatch } from 'app/hooks';
-import { register } from '@/store/slices/authSlice';
+import { useAppSelector, useAppDispatch } from 'app/hooks.js';
+import { register } from '@/store/slices/authSlice.js';
 import { v4 as uuidv4 } from 'uuid';
 const Register = () => {
   // State to track the current user role for the background image
   const [currentRole, setCurrentRole] = useState('');
 
-  const handleRoleChange = (role: string) => {
+  const handleRoleChange = (role) => {
     setCurrentRole(role);
   };
 

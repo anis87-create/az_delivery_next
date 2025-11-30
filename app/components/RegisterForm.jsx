@@ -2,35 +2,30 @@
 import Link from 'next/link'
 import React, { useRef, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid';
-import { useAppDispatch, useAppSelector } from '../hooks';
-import { register } from '@/store/slices/authSlice';
+import { useAppDispatch, useAppSelector } from '../hooks.js';
+import { register } from '@/store/slices/authSlice.js';
 import { useRouter } from 'next/navigation';
-import { createRestaurant } from '@/store/slices/restaurantSlice';
+import { createRestaurant } from '@/store/slices/restaurantSlice.js';
 
+const RegisterForm = ({ onRoleChange }) => {
 
-interface RegisterFormProps {
-  onRoleChange?: (role: string) => void;
-}
-
-const RegisterForm = ({ onRoleChange }: RegisterFormProps) => {
-  
   const [form, setForm] = useState({
     fullName:'',
-    
+
     email:'',
     password:'',
     phoneNumber:'',
     address:'',
     role:''
   });
-  
+
   const [restaurantForm, setRestaurantForm] = useState({
     name: '',
-    img: null as File | null,
-    coverImg: null as File | null,
+    img: null,
+    coverImg: null,
     type: '',
     category: '',
-    tags: [] as string[],
+    tags: [],
     restaurantAddress: '',
     restaurantStreet: '',
     restaurantCity: '',
@@ -40,29 +35,29 @@ const RegisterForm = ({ onRoleChange }: RegisterFormProps) => {
     deliveryZone: ''
   });
 
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [coverImagePreview, setCoverImagePreview] = useState<string | null>(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [coverImagePreview, setCoverImagePreview] = useState(null);
   const [tagInput, setTagInput] = useState('');
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef(null);
   const dispatch = useAppDispatch();
   const router = useRouter();
   const { users } = useAppSelector(state => state.auth);
 
 
-  const handleChange = (e: any) => {
+  const handleChange = (e) => {
     const {name, value} = e.target;
     setForm({
       ...form,
       [name]: value
     });
-    
+
     // Notify parent component of role changes
     if (name === 'role' && onRoleChange) {
       onRoleChange(value);
     }
   }
 
-  const handleRestaurantChange = (e: any) => {
+  const handleRestaurantChange = (e) => {
     const {name, value} = e.target;
     setRestaurantForm({
       ...restaurantForm,
@@ -76,7 +71,7 @@ const RegisterForm = ({ onRoleChange }: RegisterFormProps) => {
     }
   }
 
-  const handleCoverImageChange = (e: any) => {
+  const handleCoverImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       if (!file.type.startsWith('image/')) {
@@ -96,7 +91,7 @@ const RegisterForm = ({ onRoleChange }: RegisterFormProps) => {
 
       const reader = new FileReader();
       reader.onloadend = () => {
-        setCoverImagePreview(reader.result as string);
+        setCoverImagePreview(reader.result);
       };
       reader.readAsDataURL(file);
     }
@@ -113,21 +108,21 @@ const RegisterForm = ({ onRoleChange }: RegisterFormProps) => {
     }
   }
 
-  const handleRemoveTag = (tagToRemove: string) => {
+  const handleRemoveTag = (tagToRemove) => {
     setRestaurantForm({
       ...restaurantForm,
       tags: restaurantForm.tags.filter(tag => tag !== tagToRemove)
     });
   }
 
-  const handleTagKeyDown = (e: any) => {
+  const handleTagKeyDown = (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       handleAddTag();
     }
   }
 
-  const onSubmit = (e: any) => {
+  const onSubmit = (e) => {
     e.preventDefault();
     
     // Form validation
