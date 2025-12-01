@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useLayoutEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { HiOutlineHome, HiOutlineMagnifyingGlass, HiOutlineShoppingCart, HiOutlineDocumentText, HiOutlineUser, HiOutlineCog, HiOutlineArrowRightOnRectangle, HiOutlineHeart } from 'react-icons/hi2';
 import Link from 'next/link';
 import Avatar from '../common/Avatar';
@@ -10,13 +10,17 @@ import { logout } from '../../../store/slices/authSlice';
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const { currentUser, isAuth } = useSelector(state => state.auth);
   const { cartItems } = useSelector(state => state.cart);
   //const { favorites } = useSelector(state => state.favorites);
   //const { orders } = useSelector(state => state.order);
 
   // Check if we're on the client side
-  const isMounted = typeof window !== 'undefined';
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsMounted(true);
+  }, []);
 
   const totalQuantity = currentUser?.id ? cartItems.filter(item => item.userId === currentUser.id).reduce((acc, item) => acc + item.quantity, 0) : 0;
   //const totalFavorites = currentUser?.id ? favorites.filter(favorite => favorite.userId === currentUser.id).length : 0;

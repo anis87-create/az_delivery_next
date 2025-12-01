@@ -26,6 +26,7 @@ const RestaurantPage = () => {
   // Récupère la liste des utilisateurs pour afficher les noms dans les commentaires
   const { users } = useAppSelector(state => state.auth);
   const [buttonHidden, setButtonHidden] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const dispatch = useDispatch();
   // État local pour stocker le contenu du commentaire en cours de rédaction
   const [commentContent, setCommentContent] = useState('');
@@ -34,16 +35,31 @@ const RestaurantPage = () => {
   // État local pour stocker les commentaires filtrés appartenant au restaurant actuel
   const [commentsFiltredByRestaurant, setCommentsFiltredByRestaurant] = useState([]);
   const {categories} = useAppSelector(state => state.categories);
- 
-  
+
+
   /**
    * Effect hook pour filtrer les commentaires du restaurant et calculer la note moyenne
    * S'exécute à chaque changement de la liste des commentaires, de l'ID du restaurant ou du dispatch
    */
-  useEffect(() => {}, []);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsMounted(true);
+  }, []);
   
   const addItem = () => {
     setButtonHidden(true);
+  }
+
+  // Show loading state while mounting to prevent hydration mismatch
+  if (!isMounted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Chargement...</p>
+        </div>
+      </div>
+    )
   }
 
   if (!restaurant) {
