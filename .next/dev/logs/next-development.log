@@ -1,0 +1,185 @@
+[00:00:00.641] Server  ERROR   (node:32385) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/anis.zarrouk/Documents/Projects/azfooddeliveryappp/next.config.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /Users/anis.zarrouk/Documents/Projects/azfooddeliveryappp/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[00:00:00.881] Server  LOG      ✓ Ready in 584ms
+[00:00:58.715] Server  WARN     ⚠ ./public/images/slider_img.avif
+AVIF image not supported
+This version of Turbopack does not support AVIF images, will emit without optimization or encoding
+
+Import trace:
+  Client Component SSR:
+    ./public/images/slider_img.avif
+    ./app/page.jsx [Client Component SSR]
+    ./app/page.jsx [Server Component]
+
+
+[00:00:59.443] Server  WARN     ⚠ ./public/images/slider_img.avif
+AVIF image not supported
+This version of Turbopack does not support AVIF images, will emit without optimization or encoding
+
+Import trace:
+  Client Component SSR:
+    ./public/images/slider_img.avif
+    ./app/page.jsx [Client Component SSR]
+    ./app/page.jsx [Server Component]
+
+
+[00:00:59.505] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:01:00.783] Server  WARN     ⚠ ./public/images/slider_img.avif
+AVIF image not supported
+This version of Turbopack does not support AVIF images, will emit without optimization or encoding
+
+Import trace:
+  Client Component SSR:
+    ./public/images/slider_img.avif
+    ./app/page.jsx [Client Component SSR]
+    ./app/page.jsx [Server Component]
+
+
+[00:01:01.045] Server  WARN     ⚠ ./public/images/slider_img.avif
+AVIF image not supported
+This version of Turbopack does not support AVIF images, will emit without optimization or encoding
+
+Import trace:
+  Client Component SSR:
+    ./public/images/slider_img.avif
+    ./app/page.jsx [Client Component SSR]
+    ./app/page.jsx [Server Component]
+
+
+[00:01:01.108] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:01:08.733] Server  WARN     ⚠ ./public/images/slider_img.avif
+AVIF image not supported
+This version of Turbopack does not support AVIF images, will emit without optimization or encoding
+
+Import trace:
+  Client Component SSR:
+    ./public/images/slider_img.avif
+    ./app/page.jsx [Client Component SSR]
+    ./app/page.jsx [Server Component]
+
+
+[00:00:15.024] Server  LOG      ○ Compiling / ...
+[00:00:15.207] Server  WARN     ⚠ ./public/images/slider_img.avif
+AVIF image not supported
+This version of Turbopack does not support AVIF images, will emit without optimization or encoding
+
+Import trace:
+  Client Component SSR:
+    ./public/images/slider_img.avif
+    ./app/page.jsx [Client Component SSR]
+    ./app/page.jsx [Server Component]
+
+
+[00:00:16.204] Server  WARN    Failed to parse items from localStorage: ReferenceError: localStorage is not defined
+[00:00:16.546] Server  WARN     ⚠ The "images.domains" configuration is deprecated. Please use "images.remotePatterns" configuration instead.
+[00:00:16.613] Server  WARN     ⚠ ./public/images/slider_img.avif
+AVIF image not supported
+This version of Turbopack does not support AVIF images, will emit without optimization or encoding
+
+Import trace:
+  Client Component SSR:
+    ./public/images/slider_img.avif
+    ./app/page.jsx [Client Component SSR]
+    ./app/page.jsx [Server Component]
+
+
+[00:00:16.669] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:17.473] Browser WARN    Image with src "/_next/static/media/slider_img.5e146b7a.avif" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+[00:00:17.473] Browser ERROR   uncaughtError: Error: Hydration failed because the server rendered HTML didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <RedirectErrorBoundary router={{...}}>
+      <InnerLayoutRouter url="/" tree={[...]} params={{}} cacheNode={{lazyData:null, ...}} segmentPath={[...]} ...>
+        <SegmentViewNode type="page" pagePath="page.jsx">
+          <SegmentTrieNode>
+          <ClientPageRoot Component={function Home} serverProvidedParams={{...}}>
+            <Home params={Promise} searchParams={Promise}>
+              <main className="mt-32.5 fl...">
+                <section>
+                <div>
+                <div className="container ...">
+                  <div className="flex flex-...">
+                    <div>
+                    <div className="grid lg:gr...">
+                      <RestaurantCard id={1762272946109} img={"https://..."} name="Coffee Corner" rate={undefined} ...>
+                        <LinkComponent href="/Restauran..." className="block">
++                         <a
++                           className="block"
++                           ref={function}
++                           onClick={function onClick}
++                           onMouseEnter={function onMouseEnter}
++                           onTouchStart={function onTouchStart}
++                           href="/Restaurant/1762272946109"
++                         >
+                ...
+        ...
+      ...
+
+[00:00:17.980] Browser WARN    Image with src "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[00:00:18.234] Browser WARN    Image with src "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1599" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[00:00:46.278] Server  LOG      ✓ Compiled in 155ms
+[00:00:49.646] Server  WARN    Failed to parse items from localStorage: ReferenceError: localStorage is not defined
+[00:00:49.730] Server  WARN     ⚠ ./public/images/slider_img.avif
+AVIF image not supported
+This version of Turbopack does not support AVIF images, will emit without optimization or encoding
+
+Import trace:
+  Client Component SSR:
+    ./public/images/slider_img.avif
+    ./app/page.jsx [Client Component SSR]
+    ./app/page.jsx [Server Component]
+
+
+[00:00:50.144] Server  WARN     ⚠ ./public/images/slider_img.avif
+AVIF image not supported
+This version of Turbopack does not support AVIF images, will emit without optimization or encoding
+
+Import trace:
+  Client Component SSR:
+    ./public/images/slider_img.avif
+    ./app/page.jsx [Client Component SSR]
+    ./app/page.jsx [Server Component]
+
+
+[00:00:50.207] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:54.987] Server  WARN     ⚠ ./public/images/slider_img.avif
+AVIF image not supported
+This version of Turbopack does not support AVIF images, will emit without optimization or encoding
+
+Import trace:
+  Client Component SSR:
+    ./public/images/slider_img.avif
+    ./app/page.jsx [Client Component SSR]
+    ./app/page.jsx [Server Component]
+
+
+[00:00:55.057] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:01:15.470] Server  LOG      ✓ Compiled in 108ms
+[00:01:17.416] Server  WARN    Failed to parse items from localStorage: ReferenceError: localStorage is not defined
+[00:01:17.668] Server  WARN     ⚠ ./public/images/slider_img.avif
+AVIF image not supported
+This version of Turbopack does not support AVIF images, will emit without optimization or encoding
+
+Import trace:
+  Client Component SSR:
+    ./public/images/slider_img.avif
+    ./app/page.jsx [Client Component SSR]
+    ./app/page.jsx [Server Component]
+
+
+[00:01:17.693] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:01:23.839] Server  LOG      ✓ Compiled in 91ms
+[00:03:53.484] Browser WARN    Image with src "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
