@@ -3,9 +3,9 @@ import Link from 'next/link'
 import React, { useRef, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid';
 import { useAppDispatch, useAppSelector } from '../hooks.js';
-import { register } from '@/store/slices/authSlice.js';
+import { register } from '@/app/store/slices/authSlice.js';
 import { useRouter } from 'next/navigation';
-import { createRestaurant } from '@/store/slices/restaurantSlice.js';
+import { createRestaurant } from '@/app/store/slices/restaurantSlice.js';
 
 const RegisterForm = ({ onRoleChange }) => {
 

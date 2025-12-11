@@ -22,8 +22,8 @@
   "include": [
     "app/**/*.js",
     "app/**/*.jsx",
-    "store/**/*.js",
-    "store/**/*.jsx",
+    "app/store/**/*.js",
+    "app/store/**/*.jsx",
     "next.config.js"
   ],
   "exclude": ["node_modules"]

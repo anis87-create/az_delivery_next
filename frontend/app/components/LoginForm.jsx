@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation';
 import { useDispatch } from 'react-redux';
 import { useAppDispatch } from '../hooks.js';
-import { login } from '@/store/slices/authSlice.js';
+import { login } from '@/app/store/slices/authSlice.js';
 
 const LoginForm = () => {
 

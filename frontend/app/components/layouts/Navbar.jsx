@@ -5,7 +5,7 @@ import { HiOutlineHome, HiOutlineMagnifyingGlass, HiOutlineShoppingCart, HiOutli
 import Link from 'next/link';
 import Avatar from '../common/Avatar';
 import { useDispatch, useSelector } from 'react-redux';
-import { logout } from '../../../store/slices/authSlice';
+import { logout } from '../../store/slices/authSlice';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
