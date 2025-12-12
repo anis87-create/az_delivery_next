@@ -14,7 +14,7 @@ const RegisterForm = ({ onRoleChange }) => {
 
     email:'',
     password:'',
-    phoneNumber:'',
+    phone:'',
     address:'',
     role:''
   });
@@ -126,7 +126,7 @@ const RegisterForm = ({ onRoleChange }) => {
     e.preventDefault();
     
     // Form validation
-    if (!form.fullName || !form.email || !form.password || !form.phoneNumber || !form.role) {
+    if (!form.fullName || !form.email || !form.password || !form.phone || !form.role) {
       alert('Please fill in all required fields');
       return;
     }
@@ -143,7 +143,7 @@ const RegisterForm = ({ onRoleChange }) => {
     }
 
     try {
-      const userFound = users.find(user => user.email === form.email);
+      const userFound = users?.find(user => user.email === form.email);
       if(!userFound){
         if(form.role === 'restaurant_owner'){
           router.push('/');  
@@ -153,10 +153,10 @@ const RegisterForm = ({ onRoleChange }) => {
             fullName: form.fullName,
             email: form.email,
             password: form.password,
-            phoneNumber: form.phoneNumber,
+            phone: form.phone,
             address: form.address,
             role:'restaurant_owner'
-          }));
+          }));       
                 
                 // Ensuite créer le restaurant avec l'ID de l'utilisateur
           dispatch(createRestaurant({
@@ -182,10 +182,11 @@ const RegisterForm = ({ onRoleChange }) => {
               fullName: form.fullName,
               email: form.email,
               password: form.password,
-              phoneNumber: form.phoneNumber,
+              phone: form.phone,
               address: form.address,
               role: form.role
             };
+            console.log('userData ===>', userData);
           dispatch(register(userData));
         }
       }
@@ -258,12 +259,12 @@ const RegisterForm = ({ onRoleChange }) => {
                 </div>
 
                 <div>
-                  <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
                     Phone Number
                   </label>
                   <input
-                    id="phoneNumber"
-                    name="phoneNumber"
+                    id="phone"
+                    name="phone"
                     type="tel"
                     required
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"

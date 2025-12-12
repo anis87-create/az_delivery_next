@@ -5,7 +5,6 @@ import { HiOutlineHome, HiOutlineMagnifyingGlass, HiOutlineShoppingCart, HiOutli
 import Link from 'next/link';
 import Avatar from '../common/Avatar';
 import { useDispatch, useSelector } from 'react-redux';
-import { logout } from '../../store/slices/authSlice';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -150,7 +149,7 @@ const Navbar = () => {
                         <span>Settings</span>
                       </Link>
                       <Link href="/login" className="w-full flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors"
-                      onClick={() => dispatch(logout())}
+                      onClick={() => {}}
                       >
                         <HiOutlineArrowRightOnRectangle className="w-5 h-5 mr-3" />
                         <span>Logout</span>

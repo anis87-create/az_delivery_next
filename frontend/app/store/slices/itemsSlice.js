@@ -6,6 +6,7 @@ const itemsSlice = createSlice({
     initialState: {
         items: (() => {
             try {
+                if (typeof window === 'undefined') return [];
                 const storedItems = localStorage.getItem('items');
                 return storedItems ? JSON.parse(storedItems) : [];
             } catch (error) {
@@ -20,20 +21,28 @@ const itemsSlice = createSlice({
           id: uuidv4(),
           ...payload
          });
-         localStorage.setItem('items', JSON.stringify(state.items));
+         if (typeof window !== 'undefined') {
+           localStorage.setItem('items', JSON.stringify(state.items));
+         }
        },
        removeItem: (state, {payload}) => {
          state.items = state.items.filter((item) => item.id !== payload.id);
-         localStorage.setItem('items', JSON.stringify(state.items));
+         if (typeof window !== 'undefined') {
+           localStorage.setItem('items', JSON.stringify(state.items));
+         }
        },
        updateItem: (state, {payload}) => {
          const index = state.items.findIndex((item) => item.id === payload.id);
          state.items[index]= {...payload};
-         localStorage.setItem('items', JSON.stringify(state.items));
+         if (typeof window !== 'undefined') {
+           localStorage.setItem('items', JSON.stringify(state.items));
+         }
        },
        resetItems: (state) => {
           state.items = [];
-          localStorage.setItem('items', JSON.stringify(state.items));
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('items', JSON.stringify(state.items));
+          }
        }
 
     }
