@@ -52,7 +52,7 @@ module.exports.register = async (req, res, next) => {
         }
 
         if(!fullName){
-          return res.status(400).json({msg:'fullNam is required'}) 
+          return res.status(400).json({msg:'fullName is required'}) 
         }
 
         let user = new User({
