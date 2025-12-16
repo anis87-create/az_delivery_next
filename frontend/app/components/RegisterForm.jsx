@@ -6,6 +6,7 @@ import { useAppDispatch, useAppSelector } from '../hooks.js';
 import { register } from '@/app/store/slices/authSlice.js';
 import { useRouter } from 'next/navigation';
 import { createRestaurant } from '@/app/store/slices/restaurantSlice.js';
+import { useDispatch, useSelector } from 'react-redux';
 
 const RegisterForm = ({ onRoleChange }) => {
 
@@ -27,11 +28,11 @@ const RegisterForm = ({ onRoleChange }) => {
     category: '',
     tags: [],
     restaurantAddress: '',
-    restaurantStreet: '',
-    restaurantCity: '',
-    restaurantZipCode: '',
-    restaurantPhone: '',
-    restaurantDescription: '',
+    street: '',
+    city: '',
+    zipCode: '',
+    phone: '',
+    description: '',
     deliveryZone: ''
   });
 
@@ -39,9 +40,9 @@ const RegisterForm = ({ onRoleChange }) => {
   const [coverImagePreview, setCoverImagePreview] = useState(null);
   const [tagInput, setTagInput] = useState('');
   const fileInputRef = useRef(null);
-  const dispatch = useAppDispatch();
+  const dispatch = useDispatch();
   const router = useRouter();
-  const { users } = useAppSelector(state => state.auth);
+  const {  message, users, isError } = useSelector(state => state.auth);
 
 
   const handleChange = (e) => {
@@ -124,74 +125,54 @@ const RegisterForm = ({ onRoleChange }) => {
 
   const onSubmit = (e) => {
     e.preventDefault();
-    
-    // Form validation
-    if (!form.fullName || !form.email || !form.password || !form.phone || !form.role) {
-      alert('Please fill in all required fields');
-      return;
-    }
-
-    // Additional validation for restaurant owners
-    if (form.role === 'restaurant_owner') {
-      if (!restaurantForm.name || !restaurantForm.type || !restaurantForm.category || 
-          !restaurantForm.restaurantStreet || !restaurantForm.restaurantCity || 
-          !restaurantForm.restaurantZipCode || !restaurantForm.restaurantPhone || 
-          !restaurantForm.deliveryZone) {
-        alert('Please fill in all required restaurant information');
-        return;
-      }
-    }
 
     try {
       const userFound = users?.find(user => user.email === form.email);
       if(!userFound){
         if(form.role === 'restaurant_owner'){
-          router.push('/');  
-          const newUserId = uuidv4();
-          dispatch(register({
-            id: newUserId,
+          // Envoyer toutes les données (utilisateur + restaurant) en une seule requête
+          const registrationData = {
             fullName: form.fullName,
             email: form.email,
             password: form.password,
             phone: form.phone,
             address: form.address,
-            role:'restaurant_owner'
-          }));       
-                
-                // Ensuite créer le restaurant avec l'ID de l'utilisateur
-          dispatch(createRestaurant({
-              ownerId: newUserId,
-              name: restaurantForm.name,
-              img: restaurantForm.img ? restaurantForm.img.name : null,
-              coverImg: restaurantForm.coverImg ? restaurantForm.coverImg.name : null,
-              type: restaurantForm.type,
-              category: restaurantForm.category,
-              tags: restaurantForm.tags,
-              deliveryZone: restaurantForm.deliveryZone,
-              isFavorite: false,
-              restaurantStreet: restaurantForm.restaurantStreet,
-              restaurantCity: restaurantForm.restaurantCity,
-              restaurantZipCode: restaurantForm.restaurantZipCode,
-              restaurantPhone: restaurantForm.restaurantPhone,
-              restaurantDescription: restaurantForm.restaurantDescription
-            }));
+            role: 'restaurant_owner',
+            // Données du restaurant
+            name: restaurantForm.name,
+            img: restaurantForm.img ? restaurantForm.img.name : null,
+            coverImg: restaurantForm.coverImg ? restaurantForm.coverImg.name : null,
+            type: restaurantForm.type,
+            category: restaurantForm.category,
+            tags: restaurantForm.tags,
+            deliveryZone: restaurantForm.deliveryZone,
+            street: restaurantForm.street,
+            city: restaurantForm.city,
+            zipCode: restaurantForm.zipCode,
+            description: restaurantForm.description
+          };
+          // Envoyer en une seule fois au backend
+          dispatch(register(registrationData));
+  
+          if(message !== ''){
             router.push('/');
+          }
         } else {
           const userData = {
-              id: uuidv4(),
-              fullName: form.fullName,
-              email: form.email,
-              password: form.password,
-              phone: form.phone,
-              address: form.address,
-              role: form.role
-            };
-            console.log('userData ===>', userData);
+            id: uuidv4(),
+            fullName: form.fullName,
+            email: form.email,
+            password: form.password,
+            phone: form.phone,
+            address: form.address,
+            role: form.role
+          };
           dispatch(register(userData));
+          if(message === ''){
+              router.push('/');
+          } 
         }
       }
- 
- 
     } catch (error) {
       console.error('Registration error:', error);
       alert('Registration failed. Please try again.');
@@ -201,6 +182,7 @@ const RegisterForm = ({ onRoleChange }) => {
   return (
     <div className="w-1/2 p-8 lg:p-12 flex items-center justify-center overflow-y-auto">
           <div className="max-w-md w-full my-8">
+              {isError &&  <div className='bg-red-100 p-2 font-weight mb-4'>{message}</div>}
               <div className="text-center mb-8">
                 <h2 className="text-3xl font-bold text-gray-900">Create Account</h2>
                 <p className="mt-2 text-gray-600">
@@ -209,7 +191,6 @@ const RegisterForm = ({ onRoleChange }) => {
                     : 'Join us and start ordering'}
                 </p>
               </div>
-
               <form className="space-y-6"
               onSubmit={onSubmit}
               >
@@ -236,7 +217,6 @@ const RegisterForm = ({ onRoleChange }) => {
                     id="email"
                     name="email"
                     type="email"
-                    required
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     placeholder="Enter your email"
                     onChange={handleChange}
@@ -251,7 +231,6 @@ const RegisterForm = ({ onRoleChange }) => {
                     id="password"
                     name="password"
                     type="password"
-                    required
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     placeholder="Create a password"
                     onChange={handleChange}
@@ -266,7 +245,6 @@ const RegisterForm = ({ onRoleChange }) => {
                     id="phone"
                     name="phone"
                     type="tel"
-                    required
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     placeholder="Enter your phone number"
                     onChange={handleChange}
@@ -282,7 +260,6 @@ const RegisterForm = ({ onRoleChange }) => {
                       id="address"
                       name="address"
                       type="text"
-                      required
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                       placeholder="Enter your address"
                       onChange={handleChange}
@@ -297,7 +274,6 @@ const RegisterForm = ({ onRoleChange }) => {
                   <select
                     id="userType"
                     name="role"
-                    required
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     onChange={handleChange}
                   >
@@ -324,7 +300,7 @@ const RegisterForm = ({ onRoleChange }) => {
                             id="name"
                             name="name"
                             type="text"
-                            required
+                            //required
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                             placeholder="Ex: Le Petit Bistrot"
                             onChange={handleRestaurantChange}
@@ -339,7 +315,6 @@ const RegisterForm = ({ onRoleChange }) => {
                           <select
                             id="type"
                             name="type"
-                            required
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                             onChange={handleRestaurantChange}
                           >
@@ -356,7 +331,6 @@ const RegisterForm = ({ onRoleChange }) => {
                           <select
                             id="category"
                             name="category"
-                            required
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                             onChange={handleRestaurantChange}
                           >
@@ -458,10 +432,9 @@ const RegisterForm = ({ onRoleChange }) => {
                             Adresse (Rue) *
                           </label>
                           <input
-                            id="restaurantStreet"
-                            name="restaurantStreet"
+                            id="street"
+                            name="street"
                             type="text"
-                            required
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                             placeholder="Ex: 123 Rue de la Paix"
                             onChange={handleRestaurantChange}
@@ -470,14 +443,13 @@ const RegisterForm = ({ onRoleChange }) => {
 
                         <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <label htmlFor="restaurantCity" className="block text-sm font-medium text-gray-700 mb-2">
+                            <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-2">
                               Ville *
                             </label>
                             <input
-                              id="restaurantCity"
-                              name="restaurantCity"
+                              id="city"
+                              name="city"
                               type="text"
-                              required
                               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                               placeholder="Ex: Paris"
                               onChange={handleRestaurantChange}
@@ -488,10 +460,9 @@ const RegisterForm = ({ onRoleChange }) => {
                               Code Postal *
                             </label>
                             <input
-                              id="restaurantZipCode"
-                              name="restaurantZipCode"
+                              id="zipCode"
+                              name="zipCode"
                               type="text"
-                              required
                               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                               placeholder="Ex: 75001"
                               onChange={handleRestaurantChange}
@@ -500,14 +471,13 @@ const RegisterForm = ({ onRoleChange }) => {
                         </div>
 
                         <div>
-                          <label htmlFor="restaurantPhone" className="block text-sm font-medium text-gray-700 mb-2">
+                          <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
                             Téléphone du Restaurant *
                           </label>
                           <input
-                            id="restaurantPhone"
-                            name="restaurantPhone"
+                            id="phone"
+                            name="phone"
                             type="tel"
-                            required
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                             placeholder="Ex: +33 1 23 45 67 89"
                             onChange={handleRestaurantChange}
@@ -515,12 +485,12 @@ const RegisterForm = ({ onRoleChange }) => {
                         </div>
 
                         <div>
-                          <label htmlFor="restaurantDescription" className="block text-sm font-medium text-gray-700 mb-2">
+                          <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
                             Description
                           </label>
                           <textarea
-                            id="restaurantDescription"
-                            name="restaurantDescription"
+                            id="description"
+                            name="description"
                             rows={3}
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
                             placeholder="Décrivez votre restaurant (optionnel)"
@@ -546,7 +516,6 @@ const RegisterForm = ({ onRoleChange }) => {
                             id="deliveryZone"
                             name="deliveryZone"
                             type="text"
-                            required
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                             placeholder="Ex: 5 km ou quartiers spécifiques"
                             onChange={handleRestaurantChange}

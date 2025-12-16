@@ -19,8 +19,6 @@ module.exports.login = async (req, res, next) => {
       return res.status(404).json({msg:'invalid credentiels!'})
     }
     const match = await bcrypt.compare(password, user.password);
-    const token = module.exports.generateToken(user._id);
-    console.log(token);
 
     if(match){
       const userWithoutPassword = await User.findOne({email}).select('-password');
@@ -36,7 +34,7 @@ module.exports.login = async (req, res, next) => {
 
 module.exports.register = async (req, res, next) => {
     try {
-      const { fullName, email, password, name, category } = req.body;
+      const { fullName, email, password, name, category, type, street,city, zipCode, phone,deliveryZone } = req.body;
       let emailFound = await User.findOne({email});
       if(emailFound){
         return res.status(409).json({msg:'the user already exist!'})
@@ -72,6 +70,24 @@ module.exports.register = async (req, res, next) => {
           if(!category){
             return res.status(400).json({msg:'category of restaurant  is required'})
           }
+          if(!type){
+            return res.status(400).json({msg:'type of restaurant  is required'})
+          }
+          if(!street){
+            return res.status(400).json({msg:'street of restaurant  is required'})
+          }
+          if(!city){
+            return res.status(400).json({msg:'city  is required'})
+          }
+          if(!zipCode){
+            return res.status(400).json({msg:'zipCode  is required'})
+          }
+          if(!phone){
+            return res.status(400).json({msg:'phone  is required'})
+          }
+          if(!deliveryZone){
+            return res.status(400).json({msg:'deliveryZone  is required'})
+          }   
           const restaurant = new Restaurant({
             ...req.body,
             owner: user.id

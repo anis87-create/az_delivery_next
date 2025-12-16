@@ -22,27 +22,6 @@ const  restaurantSlice = createSlice({
     name: 'restaurant',
     initialState,
     reducers: {
-        createRestaurant: (state, {payload}) => {
-            // Ajouter l'ID du propriétaire au restaurant
-            const restaurantWithOwner = {
-                ...payload,
-                id: Date.now(), // ID unique pour le restaurant
-                ownerId: payload.ownerId || null, // ID du propriétaire
-                openingHours: payload.openingHours || null, // Horaires d'ouverture
-                paymentSettings: {
-                    acceptCash: true,
-                    acceptCard: true,
-                    acceptMobilePayment: false,
-                    minimumOrderAmount: 0
-                },
-                deliverySettings: {
-                    baseFee: 3 // Frais de livraison fixes
-                },
-                createdAt: new Date().toISOString()
-            };
-            state.restaurants.push(restaurantWithOwner);
-            localStorage.setItem('restaurants', JSON.stringify(state.restaurants));
-        },
         resetRestaurants: (state) => {
             state.restaurants = [];
             localStorage.setItem('restaurants', JSON.stringify([]));

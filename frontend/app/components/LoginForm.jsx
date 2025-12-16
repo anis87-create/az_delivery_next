@@ -1,30 +1,36 @@
 'use client';
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useAppDispatch } from '../hooks.js';
-import { login } from '@/app/store/slices/authSlice.js';
+import { login, reset } from '@/app/store/slices/authSlice.js';
 
 const LoginForm = () => {
-
+  
   const [form, setForm] = useState({
       email:'',
       password:'',
   });
 
   const router = useRouter();
-  const dispatch = useAppDispatch();
+  const dispatch = useDispatch();
+  const { user, message, isSuccess, isError } = useSelector(state => state.auth);
+
+  useEffect(() => {
+    if (isSuccess && user) {
+      router.push('/');
+      /* if(user.role === 'customer'){
+        router.push('/')
+      }else {
+        router.push('/restaurant')
+      }*/
+    }
+  }, [isSuccess, user, router]);
 
   const onSubmit = (e) => {
     e.preventDefault();
-    try {
-      dispatch(login(form));
-      router.push('/');
-    } catch (error) {
-
-    }
-
+    dispatch(login(form));
   }
   const handleChange = (e) => {
     const {name, value} = e.target;
@@ -42,6 +48,7 @@ const LoginForm = () => {
             </div>
 
               <form className="space-y-6" onSubmit={onSubmit}>
+                {isError &&  <div className='bg-red-100 p-2 font-weight mb-4'>{message}</div>}
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                     Email Address
@@ -50,7 +57,6 @@ const LoginForm = () => {
                     id="email"
                     name="email"
                     type="email"
-                    required
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     placeholder="Enter your email"
                     onChange={handleChange}
@@ -65,7 +71,6 @@ const LoginForm = () => {
                     id="password"
                     name="password"
                     type="password"
-                    required
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     placeholder="Enter your password"
                     onChange={handleChange}
