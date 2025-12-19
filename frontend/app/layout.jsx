@@ -2,7 +2,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { StoreProvider } from "@/app/store/storeProvider.jsx";
 import ConditionalNavbar from "./components/layouts/ConditionalNavbar.jsx";
-import Footer from "./components/layouts/Footer.jsx";
+import ConditionalFooter from "./components/layouts/ConditionalFooter.jsx";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,7 +32,7 @@ export default function RootLayout({
           <main className="grow">
             {children}
           </main>
-          <Footer />
+          <ConditionalFooter />
         </body>
       </html>
     </StoreProvider>

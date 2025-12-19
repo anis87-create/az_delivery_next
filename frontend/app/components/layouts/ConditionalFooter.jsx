@@ -1,15 +1,15 @@
 'use client'
 
 import { usePathname } from 'next/navigation';
-import Navbar from './Navbar/Navbar.jsx';
+import Footer from './Footer/Footer.jsx';
 
-export default function ConditionalNavbar() {
+export default function ConditionalFooter() {
   const pathname = usePathname();
-  
-  // Hide navbar on login, register and restaurantDashboard pages
+
+  // Hide footer on login, register and restaurantDashboard pages
   if (pathname === '/login' || pathname === '/register' || pathname === '/restaurantDashboard') {
     return null;
   }
-  
-  return <Navbar />;
+
+  return <Footer />;
 }

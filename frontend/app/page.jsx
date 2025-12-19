@@ -1,16 +1,50 @@
 'use client'
 import Image from "next/image";
 import sliderImg from '../public/images/slider_img.avif';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAppSelector } from "./hooks.js";
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi2';
 import Category from "./components/layouts/Category.jsx";
 import RestaurantCard from "./components/RestaurantCard.jsx";
 import { useRouter } from 'next/navigation';
+import {useDispatch, useSelector} from 'react-redux';
+import { reset, authMe } from "./store/slices/authSlice";
 
 export default function Home() {
-
+  const dispatch = useDispatch();
   const router = useRouter();
+  const [isMounted, setIsMounted] = useState(false);
+  const {isLoading} = useSelector(state => state.auth);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsMounted(true);
+  }, []);
+
+  useEffect(()=> {
+    if (!isMounted) return;
+
+    // Check if user is authenticated
+    const storedUser = localStorage.getItem('user');
+    if (!storedUser) {
+      // No user/token found - allow access to home page for non-authenticated users
+      return;
+    }
+
+    // Validate token with backend and check user role
+    dispatch(authMe()).unwrap()
+      .then((userData) => {
+        // If user is a restaurant owner (has restaurant property), redirect to dashboard
+        if (userData.role==='restaurant_owner') {
+          router.push('/restaurantDashboard');
+        }
+        // Customers and non-authenticated users can access home page
+      })
+      .catch((error) => {
+        // Token invalid or expired, remove from storage but allow access to home
+        localStorage.removeItem('user');
+      });
+  }, [dispatch, router, isMounted]);
   const categories = [
   {
       name:'Pizza',
@@ -114,6 +148,16 @@ export default function Home() {
       setCurrentSlide((prev) => (prev - 1 + sliderImages.length) % sliderImages.length);
     }
   };
+  if(isLoading){
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-16 w-16 border-b-4 border-green-500 mb-4"></div>
+          <p className="text-xl font-semibold text-gray-700">Loading...</p>
+        </div>
+      </div>
+    )
+  }
   return (
     <main className='mt-32.5 flex-1'>
        <section className='mt-5 mb-[60px] my-8 mx-0 md:my-12 md:mx-0 lg:my-16 lg:mx-0'>

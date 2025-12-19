@@ -3,15 +3,18 @@
 import React, { useState, useEffect } from 'react';
 import { HiOutlineHome, HiOutlineMagnifyingGlass, HiOutlineShoppingCart, HiOutlineDocumentText, HiOutlineUser, HiOutlineCog, HiOutlineArrowRightOnRectangle, HiOutlineHeart } from 'react-icons/hi2';
 import Link from 'next/link';
-import Avatar from '../common/Avatar';
+import Avatar from '../../common/Avatar';
 import { useDispatch, useSelector } from 'react-redux';
+import { logout } from '@/app/store/slices/authSlice';
+import { useRouter } from 'next/navigation';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-  const { currentUser, isAuth } = useSelector(state => state.auth);
+  const { user, isSuccess } = useSelector(state => state.auth);
   const { cartItems } = useSelector(state => state.cart);
+  const router = useRouter();
   //const { favorites } = useSelector(state => state.favorites);
   //const { orders } = useSelector(state => state.order);
 
@@ -21,7 +24,7 @@ const Navbar = () => {
     setIsMounted(true);
   }, []);
 
-  const totalQuantity = currentUser?.id ? cartItems.filter(item => item.userId === currentUser.id).reduce((acc, item) => acc + item.quantity, 0) : 0;
+ // const totalQuantity = user?.id ? cartItems.filter(item => item.userId === user.id).reduce((acc, item) => acc + item.quantity, 0) : 0;
   //const totalFavorites = currentUser?.id ? favorites.filter(favorite => favorite.userId === currentUser.id).length : 0;
   //const numberOfOrders = currentUser?.id ? orders.filter(order => order.userId === currentUser.id && (order.status === 'pending' || order.status === 'confirmed' || order.status === 'delivering')).length : 0;
 
@@ -71,7 +74,7 @@ const Navbar = () => {
                     <span className='hidden md:inline md:ml-1.5'>Search</span>
                   </Link>
                 </li>
-                {isMounted && isAuth && currentUser && (
+                {isMounted && isSuccess && user && (
                   <>
                     <li className='inline-block align-middle'>
                       <Link href="/favorites" className="nav-link flex items-center p-2.5 hover:text-green-500 transition-colors relative">
@@ -87,11 +90,11 @@ const Navbar = () => {
                     <li className='inline-block align-middle'>
                       <Link href="/cart" id="cart" className="nav-link cart-link flex items-center p-[10px] text-green-500 hover:text-green-600 transition-colors relative">
                         <HiOutlineShoppingCart className="w-5 h-5 sm:mr-1.5" />
-                        {totalQuantity > 0 && (
+                        {/*totalQuantity > 0 && (
                           <span className="absolute -top-1 -right-2 bg-green-500 text-white text-xs rounded-full min-w-[20px] h-5 flex items-center justify-center">
                             {totalQuantity}
                           </span>
-                        )}
+                        )*/}
                         <span className='hidden md:inline md:ml-1.5'>Cart</span>
                       </Link>
                     </li>
@@ -114,14 +117,14 @@ const Navbar = () => {
                       <div className='h-9 w-16 bg-gray-100 rounded animate-pulse'></div>
                       <div className='h-9 w-20 bg-gray-100 rounded animate-pulse'></div>
                     </div>
-                  ) : isAuth && currentUser ? (
+                  ) : isSuccess && user ? (
                     <>
-                      <span className='text-sm font-medium text-gray-700 mr-3 bg-gray-100 px-3 py-1 rounded-full'>Hello, {currentUser.fullName}</span>
+                      <span className='text-sm font-medium text-gray-700 mr-3 bg-gray-100 px-3 py-1 rounded-full'>Hello, {user.fullName}</span>
                       <button
                         onClick={toggleProfileMenu}
                         className='flex items-center p-2.5 hover:opacity-80 transition-opacity'
                       >
-                        <Avatar name={`${currentUser.fullName}`} size="w-[32px] h-[32px]"
+                        <Avatar name={`${user.fullName}`} size="w-[32px] h-[32px]"
                          fontSize='text-xs'
                         />
                       </button>
@@ -149,7 +152,10 @@ const Navbar = () => {
                         <span>Settings</span>
                       </Link>
                       <Link href="/login" className="w-full flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors"
-                      onClick={() => {}}
+                      onClick={() => {
+                        dispatch(logout());
+                        router.push('/login');
+                      }}
                       >
                         <HiOutlineArrowRightOnRectangle className="w-5 h-5 mr-3" />
                         <span>Logout</span>
@@ -177,7 +183,7 @@ const Navbar = () => {
                   <span>Search</span>
                 </Link>
               </li>
-              {isMounted && isAuth && currentUser && (
+              {isMounted && isSuccess && user && (
                 <>
                   <li>
                     <Link href="/favorites" className='flex items-center p-3 hover:bg-gray-50 rounded-lg transition-colors hover:text-green-500 relative'>
@@ -193,11 +199,11 @@ const Navbar = () => {
                   <li>
                     <Link href="/cart" className='flex items-center p-3 text-green-500 hover:bg-gray-50 rounded-lg transition-colors relative'>
                       <HiOutlineShoppingCart className="w-5 h-5 mr-3" />
-                      {totalQuantity > 0 && (
+                      {/*totalQuantity > 0 && (
                         <span className="absolute top-0 -right-1 bg-green-500 text-white text-xs rounded-full min-w-[20px] h-5 flex items-center justify-center">
                           {totalQuantity}
                         </span>
-                      )}
+                      )*/}
                       <span>Cart</span>
                     </Link>
                   </li>
@@ -220,10 +226,10 @@ const Navbar = () => {
                     <div className='h-10 bg-gray-100 rounded-lg animate-pulse'></div>
                     <div className='h-10 bg-gray-100 rounded-lg animate-pulse'></div>
                   </div>
-                ) : isAuth && currentUser ? (
+                ) : isSuccess && user ? (
                   <div className='flex items-center p-3'>
-                    <Avatar name={currentUser.fullName} className="mr-3" />
-                    <span className='text-sm font-medium text-gray-700'>Hello, {currentUser.fullName}</span>
+                    <Avatar name={user.fullName} className="mr-3" />
+                    <span className='text-sm font-medium text-gray-700'>Hello, {user.fullName}</span>
                   </div>
                 ) : (
                   <div className='mx-3 space-y-4'>

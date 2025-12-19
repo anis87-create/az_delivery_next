@@ -4,7 +4,8 @@ import axios from 'axios';
 import { authService } from "../services/auth";
 const getStorageItem = (key) => {
     if (typeof window === 'undefined') return null;
-    return localStorage.getItem(key);
+    const item = localStorage.getItem(key);
+    return item ? JSON.parse(item) : null;
 };
 const user = getStorageItem('user');
 const initialState = {
@@ -41,14 +42,41 @@ export const login = createAsyncThunk('auth/login', async(user, thunkAPI)=> {
       return thunkAPI.rejectWithValue(message)
     }
 })
+
+export const authMe = createAsyncThunk('auth/authme', async(user, thunkAPI) => {
+    try {
+        // Create a minimum delay promise of 3 seconds
+        const minDelay = new Promise(resolve => setTimeout(resolve, 3000));
+
+        // Wait for both the API call and the minimum delay
+        const [userData] = await Promise.all([
+            authService.getAuthenticatedUser(),
+            minDelay
+        ]);
+
+        return userData;
+    } catch (error) {
+          const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.msg) ||
+        error.message ||
+        error.toString()
+      return thunkAPI.rejectWithValue(message)
+    }
+});
 export const authSlice = createSlice({
     name: 'auth',
     initialState,
-    reducers:(state) => {
-        state.isLoading = false,
-        state.isSuccess = false,
-        state.isError = false,
-        state.message = ''
+    reducers:{
+        logout: (state) => {
+            state.isLoading = false,
+            state.isSuccess = false,
+            state.isError = false,
+            state.message = '',
+            state.user =null,
+            localStorage.removeItem('user');
+        }
     },
     extraReducers:(builder) => {
         builder.addCase(register.pending, (state) => {
@@ -77,9 +105,22 @@ export const authSlice = createSlice({
             state.message = payload;
             state.user = null;
         })
+        .addCase(authMe.pending, (state) => {
+            state.isLoading = true;
+        })
+        .addCase(authMe.fulfilled , (state, {payload}) => {
+            state.user = payload;
+            state.isSuccess = true;
+            state.isLoading = false
+        })
+        .addCase(authMe.rejected, (state, {payload}) => {
+            state.isError = true;
+            state.message =  payload;
+            state.user = null;
+        })
     }
 });
 
-export const {reset} = authSlice.actions;
+export const {logout} = authSlice.actions;
 
 export default authSlice.reducer;

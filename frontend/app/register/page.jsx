@@ -1,14 +1,36 @@
 'use client';
 import Image from 'next/image';
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import RegisterForm from '../components/RegisterForm.jsx';
 import { useDispatch, useSelector } from 'react-redux';
+import { useRouter } from 'next/navigation';
 import { useAppSelector, useAppDispatch } from 'app/hooks.js';
-import { register } from '@/app/store/slices/authSlice.js';
+import { register, authMe, logout } from '@/app/store/slices/authSlice.js';
 import { v4 as uuidv4 } from 'uuid';
+
 const Register = () => {
+  const dispatch = useDispatch();
+  const router = useRouter();
+  const { user, isSuccess } = useSelector(state => state.auth);
+
   // State to track the current user role for the background image
   const [currentRole, setCurrentRole] = useState('');
+
+  useEffect(() => {
+    // Rediriger uniquement si l'inscription est réussie
+    if (isSuccess && user) {
+      if (user?.user?.role === 'customer') {
+        router.push('/');
+      } else if (user?.user?.role === 'restaurant_owner' || user?.user?.role === 'restaurant') {
+        router.push('/restaurantDashboard');
+      }
+    }
+
+    // Nettoyer le state quand le composant se démonte
+    return () => {
+      //dispatch(reset())
+    }
+  }, [user, isSuccess, router, dispatch]);
 
   const handleRoleChange = (role) => {
     setCurrentRole(role);

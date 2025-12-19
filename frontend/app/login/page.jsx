@@ -1,8 +1,32 @@
+'use client'
 import Link from 'next/link';
 import Image from 'next/image';
 import LoginForm from '../components/LoginForm.jsx';
+import { useDispatch, useSelector } from 'react-redux';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { reset, authMe } from '../store/slices/authSlice.js';
 
 const Login = () => {
+  const dispatch = useDispatch();
+  const router = useRouter();
+  const { user, isSuccess } = useSelector(state => state.auth);
+
+  useEffect(() => {
+    // Rediriger uniquement si l'utilisateur est connecté avec succès
+    if (isSuccess && user) {
+      if(user?.user?.role === 'customer'){
+        router.push('/')
+      } else if(user?.user?.role === 'restaurant_owner'){
+        router.push('/restaurantDashboard')
+      }
+    }
+
+    // Nettoyer le state quand le composant se démonte
+    /*return () => {
+      dispatch(reset())
+    }*/
+  }, [user, isSuccess, router, dispatch])
   return (
     <div className="h-screen bg-white overflow-hidden">
       <div className="h-full w-full flex">

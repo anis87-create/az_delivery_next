@@ -17,5 +17,17 @@ export const authService = {
       localStorage.setItem('user', JSON.stringify(response.data))
     }
     return response.data;
+  },
+
+  async getAuthenticatedUser() {
+   const user = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user')) : null;
+   const token = user?.token;
+
+   const response = await axios.get(API_URL + 'auth/me', {
+     headers: {
+       Authorization: `Bearer ${token}`
+     }
+   });
+   return response.data;
   }
 };

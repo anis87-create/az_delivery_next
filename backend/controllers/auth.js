@@ -102,17 +102,17 @@ module.exports.register = async (req, res, next) => {
   
 }
 
-module.exports.authMe = async (req, res, next) => {  
+module.exports.authMe = async (req, res, next) => {
  try {
-    const { _id, fullName, email } = await User.findById(req.user._id);
+    const { _id, fullName, email, role } = await User.findById(req.user._id);
     if(req.user.role === 'customer'){
-      res.status(200).json({_id, fullName, email});
+      res.status(200).json({_id, fullName, email, role});
     }else {
       const restaurant = await Restaurant.findOne({owner: req.user._id});
-      res.status(200).json({_id, fullName, email, restaurant});
+      res.status(200).json({_id, fullName, email, role, restaurant});
     }
-    
-    
+
+
  } catch (error) {
     res.status(500).json({error})
  }

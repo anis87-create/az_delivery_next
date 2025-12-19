@@ -16,17 +16,8 @@ const LoginForm = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const { user, message, isSuccess, isError } = useSelector(state => state.auth);
-
-  useEffect(() => {
-    if (isSuccess && user) {
-      router.push('/');
-      /* if(user.role === 'customer'){
-        router.push('/')
-      }else {
-        router.push('/restaurant')
-      }*/
-    }
-  }, [isSuccess, user, router]);
+  
+ 
 
   const onSubmit = (e) => {
     e.preventDefault();

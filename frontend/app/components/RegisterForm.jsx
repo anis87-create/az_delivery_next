@@ -153,10 +153,6 @@ const RegisterForm = ({ onRoleChange }) => {
           };
           // Envoyer en une seule fois au backend
           dispatch(register(registrationData));
-  
-          if(message !== ''){
-            router.push('/');
-          }
         } else {
           const userData = {
             id: uuidv4(),
@@ -167,10 +163,7 @@ const RegisterForm = ({ onRoleChange }) => {
             address: form.address,
             role: form.role
           };
-          dispatch(register(userData));
-          if(message === ''){
-              router.push('/');
-          } 
+          dispatch(register(userData)); 
         }
       }
     } catch (error) {
