@@ -7,14 +7,12 @@ import { HiChevronLeft, HiChevronRight } from 'react-icons/hi2';
 import Category from "./components/layouts/Category.jsx";
 import RestaurantCard from "./components/RestaurantCard.jsx";
 import { useRouter } from 'next/navigation';
-import {useDispatch, useSelector} from 'react-redux';
-import { reset, authMe } from "./store/slices/authSlice";
+import { useSelector } from 'react-redux';
 
 export default function Home() {
-  const dispatch = useDispatch();
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
-  const {isLoading} = useSelector(state => state.auth);
+  const {isLoading , user} = useSelector(state => state.auth);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -25,26 +23,16 @@ export default function Home() {
     if (!isMounted) return;
 
     // Check if user is authenticated
-    const storedUser = localStorage.getItem('user');
-    if (!storedUser) {
+    const storedToken = localStorage.getItem('token');
+    if (!storedToken) {
       // No user/token found - allow access to home page for non-authenticated users
       return;
     }
 
-    // Validate token with backend and check user role
-    dispatch(authMe()).unwrap()
-      .then((userData) => {
-        // If user is a restaurant owner (has restaurant property), redirect to dashboard
-        if (userData.role==='restaurant_owner') {
-          router.push('/restaurantDashboard');
-        }
-        // Customers and non-authenticated users can access home page
-      })
-      .catch((error) => {
-        // Token invalid or expired, remove from storage but allow access to home
-        localStorage.removeItem('user');
-      });
-  }, [dispatch, router, isMounted]);
+    if (user && user.role==='restaurant_owner') {
+      router.push('/restaurantDashboard');
+    }
+  }, [user, isMounted, router]);
   const categories = [
   {
       name:'Pizza',
@@ -148,6 +136,7 @@ export default function Home() {
       setCurrentSlide((prev) => (prev - 1 + sliderImages.length) % sliderImages.length);
     }
   };
+
   if(isLoading){
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">

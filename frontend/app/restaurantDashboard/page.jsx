@@ -1,11 +1,9 @@
 'use client'
 import React, { useEffect, useState } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { useRouter } from 'next/navigation'
-import { authMe, logout } from '../store/slices/authSlice'
 
 const RestaurantDashboard = () => {
-  const dispatch = useDispatch();
   const router = useRouter();
   const { user } = useSelector(state => state.auth);
   const [isMounted, setIsMounted] = useState(false);
@@ -19,28 +17,20 @@ const RestaurantDashboard = () => {
     if (!isMounted) return;
 
     // Check if user exists in localStorage
-    const storedUser = localStorage.getItem('user');
-    if (!storedUser) {
+    const storedToken = localStorage.getItem('token');
+    if (!storedToken) {
       // No user/token found, redirect to login
       router.push('/login');
       return;
     }
 
-    // Validate token with backend
-    dispatch(authMe()).unwrap()
-      .then((userData) => {
-        // Only restaurant owners can access this page
-        if (userData.role !== 'restaurant_owner') {
-          // Customers and other users cannot access restaurant dashboard, redirect to home
-          router.push('/');
-        }
-      })
-      .catch((error) => {
-        // Token invalid or expired, redirect to login
-        localStorage.removeItem('user');
-        router.push('/login');
-      });
-  }, [dispatch, router, isMounted]);
+    // Only restaurant owners can access this page
+    if (user && user.role !== 'restaurant_owner') {
+      // Customers and other users cannot access restaurant dashboard, redirect to home
+      router.push('/');
+    }
+
+  }, [router, isMounted, user]);
 
   // Don't render content until mounted and user is verified
   if (!isMounted || !user || user.role !== 'restaurant_owner') {

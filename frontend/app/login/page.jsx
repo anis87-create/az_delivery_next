@@ -2,22 +2,20 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import LoginForm from '../components/LoginForm.jsx';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { reset, authMe } from '../store/slices/authSlice.js';
 
 const Login = () => {
-  const dispatch = useDispatch();
   const router = useRouter();
-  const { user, isSuccess } = useSelector(state => state.auth);
+  const { user, isSuccess, isLoading } = useSelector(state => state.auth);
 
   useEffect(() => {
     // Rediriger uniquement si l'utilisateur est connecté avec succès
     if (isSuccess && user) {
-      if(user?.user?.role === 'customer'){
+      if(user.role === 'customer'){
         router.push('/')
-      } else if(user?.user?.role === 'restaurant_owner'){
+      } else if(user.role === 'restaurant_owner'){
         router.push('/restaurantDashboard')
       }
     }
@@ -26,7 +24,20 @@ const Login = () => {
     /*return () => {
       dispatch(reset())
     }*/
-  }, [user, isSuccess, router, dispatch])
+  }, [user, isSuccess, router])
+
+  // Afficher le loading pendant le chargement ET pendant la redirection
+  if (isLoading || (isSuccess && user)) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-16 w-16 border-b-4 border-green-500 mb-4"></div>
+          <p className="text-xl font-semibold text-gray-700">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="h-screen bg-white overflow-hidden">
       <div className="h-full w-full flex">

@@ -7,9 +7,9 @@ const getStorageItem = (key) => {
     const item = localStorage.getItem(key);
     return item ? JSON.parse(item) : null;
 };
-const user = getStorageItem('user');
+const token = getStorageItem('token');
 const initialState = {
-    user:user? user:null,
+    user: null,
     isError:null,
     isSuccess: null,
     isLoading: null,
@@ -31,7 +31,13 @@ export const register = createAsyncThunk('auth/register', async(user, thunkAPI)=
 
 export const login = createAsyncThunk('auth/login', async(user, thunkAPI)=> {
     try {
-        return await authService.login(user)
+        const minDelay = new Promise(resolve => setTimeout(resolve, 3000));
+        const [userData] = await Promise.all([
+            authService.login(user),
+            minDelay
+        ]);
+
+        return userData;
     } catch (error) {
          const message =
         (error.response &&
@@ -75,7 +81,7 @@ export const authSlice = createSlice({
             state.isError = false,
             state.message = '',
             state.user =null,
-            localStorage.removeItem('user');
+            localStorage.removeItem('token');
         }
     },
     extraReducers:(builder) => {
@@ -98,7 +104,7 @@ export const authSlice = createSlice({
         .addCase(login.fulfilled, (state, {payload}) => {
             state.isLoading= false;
             state.isSuccess = true;
-            state.user = payload;
+            state.user = payload.user;
         })
         .addCase(login.rejected, (state, {payload}) => {
             state.isError = true;

@@ -6,7 +6,7 @@ export const authService = {
   async login(data) {
     const response = await axios.post(API_URL+'auth/login', data);
     if(response.data && typeof window !== 'undefined'){
-      localStorage.setItem('user', JSON.stringify(response.data))
+      localStorage.setItem('token', JSON.stringify(response.data.token))
     }
     return response.data;
   },
@@ -14,15 +14,13 @@ export const authService = {
   async register(data) {
     const response = await axios.post(API_URL+'auth/register', data);
     if(response.data && typeof window !== 'undefined'){
-      localStorage.setItem('user', JSON.stringify(response.data))
+      localStorage.setItem('token', JSON.stringify(response.data.user.token))
     }
     return response.data;
   },
 
   async getAuthenticatedUser() {
-   const user = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user')) : null;
-   const token = user?.token;
-
+   const token = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('token')) : null;
    const response = await axios.get(API_URL + 'auth/me', {
      headers: {
        Authorization: `Bearer ${token}`
