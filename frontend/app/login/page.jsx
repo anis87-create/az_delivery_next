@@ -8,11 +8,11 @@ import { useRouter } from 'next/navigation';
 
 const Login = () => {
   const router = useRouter();
-  const { user, isSuccess, isLoading } = useSelector(state => state.auth);
+  const { user, isLoading, isAuthenticated } = useSelector(state => state.auth);
 
   useEffect(() => {
     // Rediriger uniquement si l'utilisateur est connecté avec succès
-    if (isSuccess && user) {
+    if (isAuthenticated && user) {
       if(user.role === 'customer'){
         router.push('/')
       } else if(user.role === 'restaurant_owner'){
@@ -24,10 +24,10 @@ const Login = () => {
     /*return () => {
       dispatch(reset())
     }*/
-  }, [user, isSuccess, router])
+  }, [user, isAuthenticated, router])
 
   // Afficher le loading pendant le chargement ET pendant la redirection
-  if (isLoading || (isSuccess && user)) {
+  if (isLoading || (isAuthenticated && user)) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
         <div className="text-center">

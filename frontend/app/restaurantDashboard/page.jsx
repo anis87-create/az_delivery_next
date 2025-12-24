@@ -1,14 +1,17 @@
 'use client'
 import React, { useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { useRouter } from 'next/navigation'
+import { logout } from '../store/slices/authSlice'
 
 const RestaurantDashboard = () => {
   const router = useRouter();
   const { user } = useSelector(state => state.auth);
   const [isMounted, setIsMounted] = useState(false);
+  const dispatch = useDispatch();
 
   useEffect(() => {
+    //dispatch(logout());
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMounted(true);
   }, []);
@@ -35,8 +38,11 @@ const RestaurantDashboard = () => {
   // Don't render content until mounted and user is verified
   if (!isMounted || !user || user.role !== 'restaurant_owner') {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-pulse text-gray-500">Loading...</div>
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-16 w-16 border-b-4 border-green-500 mb-4"></div>
+          <p className="text-xl font-semibold text-gray-700">Loading...</p>
+        </div>
       </div>
     );
   }

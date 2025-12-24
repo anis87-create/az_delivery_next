@@ -12,12 +12,12 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-  const { user, isSuccess } = useSelector(state => state.auth);
+  const { user, isAuthenticated } = useSelector(state => state.auth);
   const { cartItems } = useSelector(state => state.cart);
   const router = useRouter();
   //const { favorites } = useSelector(state => state.favorites);
   //const { orders } = useSelector(state => state.order);
-
+  
   // Check if we're on the client side
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -74,7 +74,7 @@ const Navbar = () => {
                     <span className='hidden md:inline md:ml-1.5'>Search</span>
                   </Link>
                 </li>
-                {isMounted && isSuccess && user && (
+                {isMounted && isAuthenticated  && (
                   <>
                     <li className='inline-block align-middle'>
                       <Link href="/favorites" className="nav-link flex items-center p-2.5 hover:text-green-500 transition-colors relative">
@@ -117,7 +117,7 @@ const Navbar = () => {
                       <div className='h-9 w-16 bg-gray-100 rounded animate-pulse'></div>
                       <div className='h-9 w-20 bg-gray-100 rounded animate-pulse'></div>
                     </div>
-                  ) : isSuccess && user ? (
+                  ) : isAuthenticated  ? (
                     <>
                       <span className='text-sm font-medium text-gray-700 mr-3 bg-gray-100 px-3 py-1 rounded-full'>Hello, {user.fullName}</span>
                       <button
@@ -183,7 +183,7 @@ const Navbar = () => {
                   <span>Search</span>
                 </Link>
               </li>
-              {isMounted && isSuccess && user && (
+              {isMounted && isAuthenticated  && (
                 <>
                   <li>
                     <Link href="/favorites" className='flex items-center p-3 hover:bg-gray-50 rounded-lg transition-colors hover:text-green-500 relative'>
@@ -226,7 +226,7 @@ const Navbar = () => {
                     <div className='h-10 bg-gray-100 rounded-lg animate-pulse'></div>
                     <div className='h-10 bg-gray-100 rounded-lg animate-pulse'></div>
                   </div>
-                ) : isSuccess && user ? (
+                ) : isAuthenticated  ? (
                   <div className='flex items-center p-3'>
                     <Avatar name={user.fullName} className="mr-3" />
                     <span className='text-sm font-medium text-gray-700'>Hello, {user.fullName}</span>

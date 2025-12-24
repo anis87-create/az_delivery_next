@@ -1,13 +1,30 @@
-const User = require('../models/User')
-const Restaurant = require('../models/Restaurant');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-
-module.exports.generateToken = (id) => {
-  return jwt.sign( { id}, process.env.SECRET_TOKEN , { expiresIn: '30d' })
+import { Request, Response } from "express";
+import * as bcrypt from 'bcrypt';
+import * as jwt from 'jsonwebtoken';
+import User from '../models/User';
+import Restaurant from "../models/Restaurant";
+declare global {
+  namespace Express {
+    interface Request {
+      user?: {
+        _id: string;
+        role: string;
+        // ajoutez d'autres propriétés si nécessaire
+      };
+    }
+  }
 }
-module.exports.login = async (req, res, next) => {
-    const { email, password } = req.body;
+export const generateToken = (id: string) => {
+  const secret = process.env.SECRET_TOKEN;
+  if (!secret) {
+    throw new Error("SECRET_TOKEN n'est pas défini dans l'environnement");
+  }
+
+  return jwt.sign( { id}, secret , { expiresIn: '30d' })
+}
+export const login = async (req: Request, res: Response) => {
+  try {
+      const { email, password } = req.body;
     if(!email){
       return res.status(400).json({msg: 'the email is required!'})
     }
@@ -15,24 +32,30 @@ module.exports.login = async (req, res, next) => {
       return res.status(400).json({msg:'the password is required!'})
     }
     let user = await User.findOne({email});
+
+    
     if(!user){
       return res.status(404).json({msg:'invalid credentiels!'})
     }
-    const match = await bcrypt.compare(password, user.password);
+    const match = await user.comparePassword(password);
 
     if(match){
       const userWithoutPassword = await User.findOne({email}).select('-password');
       res.status(200).json({
         msg:'User authenticated!', 
         user: userWithoutPassword,
-        token: this.generateToken(user._id)
+        token: module.exports.generateToken(user._id!)
       })
     }else {
-      res.status(400).json({msg:'Authentication failed!'})
+      res.status(400).json({msg:'invalid credentials!'})
     }
+  } catch (error) {
+    console.log(error); 
+  }
+  
 }
 
-module.exports.register = async (req, res, next) => {
+export const register = async (req:Request, res:Response) => {
     try {
       const { fullName, email, password, name, category, type, street,city, zipCode, phone,deliveryZone } = req.body;
       let emailFound = await User.findOne({email});
@@ -90,7 +113,7 @@ module.exports.register = async (req, res, next) => {
           }   
           const restaurant = new Restaurant({
             ...req.body,
-            owner: user.id
+            owner: user._id
           });
           await restaurant.save();
           res.status(201).json({msg:'restaurant saved!', restaurant})
@@ -102,9 +125,18 @@ module.exports.register = async (req, res, next) => {
   
 }
 
-module.exports.authMe = async (req, res, next) => {
+export const authMe = async (req:Request, res:Response) => {
+
+
  try {
-    const { _id, fullName, email, role } = await User.findById(req.user._id);
+    if (!req.user?._id) {
+      return res.status(401).json({msg: 'User not authorized'});
+    }
+    const user = await User.findById(req.user._id);
+    if(!user){
+       return res.status(404).json({ msg: "User not found" });
+    }
+    const { _id, fullName, email, role } = user;
     if(req.user.role === 'customer'){
       res.status(200).json({_id, fullName, email, role});
     }else {

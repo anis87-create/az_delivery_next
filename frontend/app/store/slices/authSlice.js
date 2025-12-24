@@ -11,7 +11,7 @@ const token = getStorageItem('token');
 const initialState = {
     user: null,
     isError:null,
-    isSuccess: null,
+    isAuthenticated: false,
     isLoading: null,
     message:''
 };
@@ -77,7 +77,7 @@ export const authSlice = createSlice({
     reducers:{
         logout: (state) => {
             state.isLoading = false,
-            state.isSuccess = false,
+            state.isAuthenticated = false,
             state.isError = false,
             state.message = '',
             state.user =null,
@@ -90,7 +90,7 @@ export const authSlice = createSlice({
         })
         .addCase(register.fulfilled, (state, {payload}) => {
             state.isLoading= false;
-            state.isSuccess = true;
+            state.isAuthenticated = false;
             state.user = payload;
         })
         .addCase(register.rejected, (state, {payload}) => {
@@ -103,7 +103,7 @@ export const authSlice = createSlice({
         })
         .addCase(login.fulfilled, (state, {payload}) => {
             state.isLoading= false;
-            state.isSuccess = true;
+            state.isAuthenticated = true;
             state.user = payload.user;
         })
         .addCase(login.rejected, (state, {payload}) => {
@@ -116,13 +116,14 @@ export const authSlice = createSlice({
         })
         .addCase(authMe.fulfilled , (state, {payload}) => {
             state.user = payload;
-            state.isSuccess = true;
+            state.isAuthenticated = true;
             state.isLoading = false
         })
         .addCase(authMe.rejected, (state, {payload}) => {
             state.isError = true;
             state.message =  payload;
             state.user = null;
+            state.isAuthenticated = false;
         })
     }
 });
