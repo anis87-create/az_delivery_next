@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { addToCart, deleteItem, updateQuantity } from '../store/slices/carteSlice.js';
-import { useAppSelector } from '../hooks.js';
+import { useAppSelector } from '../hooks';
 
 const QuantityContainer = ({item, addItem}) => {
   const [counter, setCounter] = useState(1);

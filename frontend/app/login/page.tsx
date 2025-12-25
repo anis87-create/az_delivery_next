@@ -1,14 +1,13 @@
 'use client'
-import Link from 'next/link';
 import Image from 'next/image';
-import LoginForm from '../components/LoginForm.jsx';
-import { useSelector } from 'react-redux';
+import LoginForm from '../components/LoginForm';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAppSelector, RootState } from '../hooks';
 
-const Login = () => {
+const Login: React.FC = () => {
   const router = useRouter();
-  const { user, isLoading, isAuthenticated } = useSelector(state => state.auth);
+  const { user, isLoading, isAuthenticated } = useAppSelector((state: RootState) => state.auth);
 
   useEffect(() => {
     // Rediriger uniquement si l'utilisateur est connecté avec succès
@@ -57,4 +56,4 @@ const Login = () => {
   )
 }
 
-export default Login
+export default Login;

@@ -2,7 +2,7 @@
 import { FaPaperPlane, FaStar, FaHeart, FaTrash, FaArrowLeft } from 'react-icons/fa';
 import { MdAccessTime } from 'react-icons/md';
 import { HiOutlineHeart } from 'react-icons/hi';
-import { useAppSelector } from '../../hooks.js';
+import { useAppSelector } from '../../hooks';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';

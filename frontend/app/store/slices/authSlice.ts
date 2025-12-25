@@ -1,24 +1,64 @@
 import { createSlice , createAsyncThunk} from "@reduxjs/toolkit";
-import { v4 as uuidv4 } from 'uuid';
-import axios from 'axios';
 import { authService } from "../services/auth";
-const getStorageItem = (key) => {
-    if (typeof window === 'undefined') return null;
-    const item = localStorage.getItem(key);
-    return item ? JSON.parse(item) : null;
-};
-const token = getStorageItem('token');
-const initialState = {
+
+// Types
+interface User {
+  fullName: string;
+  email: string;
+  role: string;
+  restaurant?: any; // Add proper Restaurant type if needed
+}
+
+interface AuthState {
+  user: User | null;
+  isError: boolean | null;
+  isAuthenticated: boolean;
+  isLoading: boolean | null;
+  message: string;
+}
+
+interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+interface RegisterData {
+  fullName: string;
+  email: string;
+  password: string;
+  role: string;
+  // Add restaurant fields if role is restaurant_owner
+  name?: string;
+  category?: string;
+  type?: string;
+  street?: string;
+  city?: string;
+  zipCode?: string;
+  phone?: string;
+  deliveryZone?: string;
+  tags?: string[]
+}
+
+interface LoginResponse {
+  user: User;
+  token: string;
+}
+
+const initialState: AuthState = {
     user: null,
-    isError:null,
+    isError: null,
     isAuthenticated: false,
     isLoading: null,
-    message:''
+    message: ''
 };
-export const register = createAsyncThunk('auth/register', async(user, thunkAPI)=> {
+
+export const register = createAsyncThunk<User, RegisterData>(
+  'auth/register',
+  async(user, thunkAPI) => {
     try {
        return await authService.register(user)
-    } catch (error) {
+    } catch (error: any) {
+      
          const message =
         (error.response &&
           error.response.data &&
@@ -27,9 +67,12 @@ export const register = createAsyncThunk('auth/register', async(user, thunkAPI)=
         error.toString()
       return thunkAPI.rejectWithValue(message)
     }
-})
+  }
+)
 
-export const login = createAsyncThunk('auth/login', async(user, thunkAPI)=> {
+export const login = createAsyncThunk<LoginResponse, LoginCredentials>(
+  'auth/login',
+  async(user, thunkAPI) => {
     try {
         const minDelay = new Promise(resolve => setTimeout(resolve, 3000));
         const [userData] = await Promise.all([
@@ -38,7 +81,7 @@ export const login = createAsyncThunk('auth/login', async(user, thunkAPI)=> {
         ]);
 
         return userData;
-    } catch (error) {
+    } catch (error: any) {
          const message =
         (error.response &&
           error.response.data &&
@@ -47,9 +90,12 @@ export const login = createAsyncThunk('auth/login', async(user, thunkAPI)=> {
         error.toString()
       return thunkAPI.rejectWithValue(message)
     }
-})
+  }
+)
 
-export const authMe = createAsyncThunk('auth/authme', async(user, thunkAPI) => {
+export const authMe = createAsyncThunk<User, void>(
+  'auth/authme',
+  async(_, thunkAPI) => {
     try {
         // Create a minimum delay promise of 3 seconds
         const minDelay = new Promise(resolve => setTimeout(resolve, 3000));
@@ -61,7 +107,7 @@ export const authMe = createAsyncThunk('auth/authme', async(user, thunkAPI) => {
         ]);
 
         return userData;
-    } catch (error) {
+    } catch (error: any) {
           const message =
         (error.response &&
           error.response.data &&
@@ -70,7 +116,9 @@ export const authMe = createAsyncThunk('auth/authme', async(user, thunkAPI) => {
         error.toString()
       return thunkAPI.rejectWithValue(message)
     }
-});
+  }
+);
+
 export const authSlice = createSlice({
     name: 'auth',
     initialState,
@@ -80,7 +128,7 @@ export const authSlice = createSlice({
             state.isAuthenticated = false,
             state.isError = false,
             state.message = '',
-            state.user =null,
+            state.user = null,
             localStorage.removeItem('token');
         }
     },
@@ -95,8 +143,9 @@ export const authSlice = createSlice({
         })
         .addCase(register.rejected, (state, {payload}) => {
             state.isError = true;
-            state.message = payload;
+            state.message = payload as string;
             state.user = null;
+            state.isLoading = false;
         })
         .addCase(login.pending, (state) => {
             state.isLoading = true;
@@ -108,8 +157,9 @@ export const authSlice = createSlice({
         })
         .addCase(login.rejected, (state, {payload}) => {
             state.isError = true;
-            state.message = payload;
+            state.message = payload as string;
             state.user = null;
+            state.isLoading = false;
         })
         .addCase(authMe.pending, (state) => {
             state.isLoading = true;
@@ -121,7 +171,7 @@ export const authSlice = createSlice({
         })
         .addCase(authMe.rejected, (state, {payload}) => {
             state.isError = true;
-            state.message =  payload;
+            state.message = payload as string;
             state.user = null;
             state.isAuthenticated = false;
         })

@@ -190,3 +190,6 @@ The `/api/auth/me` endpoint returns different data based on role:
 - CORS
 - dotenv for environment variables
 
+## Bug Corrections
+- when i want to fix a bug explain to me like you explain to a beginner, don't give me a full solution but i want to learn new concepts and give me also advices for better practices
+

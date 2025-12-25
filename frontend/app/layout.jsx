@@ -1,6 +1,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { StoreProvider } from "@/app/store/storeProvider.jsx";
+import { StoreProvider } from "./store/storeProvider";
 import ConditionalNavbar from "./components/layouts/ConditionalNavbar.jsx";
 import ConditionalFooter from "./components/layouts/ConditionalFooter.jsx";
 

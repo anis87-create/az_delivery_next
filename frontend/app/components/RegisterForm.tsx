@@ -1,18 +1,44 @@
 'use client';
 import Link from 'next/link'
-import React, { useRef, useState } from 'react'
+import React, { ChangeEvent, FormEvent, useRef, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid';
-import { useAppDispatch, useAppSelector } from '../hooks.js';
-import { register } from '@/app/store/slices/authSlice.js';
+import { register } from '../store/slices/authSlice';
 import { useRouter } from 'next/navigation';
-import { createRestaurant } from '@/app/store/slices/restaurantSlice.js';
 import { useDispatch, useSelector } from 'react-redux';
+import {RootState, useAppDispatch} from '../hooks';
+interface UserFormState {
+  fullName: string;
+  email: string;
+  password: string;
+  phone?: string;
+  address: string;
+  role: string;
+}
+interface Image {
+  name: string
+}
 
-const RegisterForm = ({ onRoleChange }) => {
-
-  const [form, setForm] = useState({
+interface RestaurantFormState {
+  name: string;
+  img?:Image;
+  coverImg?: Image;
+  type: string;
+  category: string;
+  tags?: string[];
+  zipCode: string;
+  description: string;
+  deliveryZone: string;
+  street: string;
+  phone?:string;
+  city?:string;
+}
+interface ResgisterFormProps {
+  onRoleChange(role:string): void
+}
+const RegisterForm= ({ onRoleChange}: ResgisterFormProps) => {
+  
+  const [form, setForm] = useState<UserFormState>({
     fullName:'',
-
     email:'',
     password:'',
     phone:'',
@@ -20,14 +46,13 @@ const RegisterForm = ({ onRoleChange }) => {
     role:''
   });
 
-  const [restaurantForm, setRestaurantForm] = useState({
+  const [restaurantForm, setRestaurantForm] = useState<RestaurantFormState>({
     name: '',
     img: null,
     coverImg: null,
     type: '',
     category: '',
     tags: [],
-    restaurantAddress: '',
     street: '',
     city: '',
     zipCode: '',
@@ -40,12 +65,12 @@ const RegisterForm = ({ onRoleChange }) => {
   const [coverImagePreview, setCoverImagePreview] = useState(null);
   const [tagInput, setTagInput] = useState('');
   const fileInputRef = useRef(null);
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const router = useRouter();
-  const {  message, users, isError } = useSelector(state => state.auth);
+  const {  message, isError } = useSelector((state:RootState) => state.auth);
 
 
-  const handleChange = (e) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement| HTMLSelectElement>) => {
     const {name, value} = e.target;
     setForm({
       ...form,
@@ -58,7 +83,7 @@ const RegisterForm = ({ onRoleChange }) => {
     }
   }
 
-  const handleRestaurantChange = (e) => {
+  const handleRestaurantChange = (e: ChangeEvent<HTMLInputElement|HTMLSelectElement|HTMLTextAreaElement>) => {
     const {name, value} = e.target;
     setRestaurantForm({
       ...restaurantForm,
@@ -66,37 +91,9 @@ const RegisterForm = ({ onRoleChange }) => {
     })
   }
 
-  const handleBrowseClick = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
-  }
 
-  const handleCoverImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (!file.type.startsWith('image/')) {
-        alert('Veuillez sélectionner une image valide');
-        return;
-      }
 
-      if (file.size > 5 * 1024 * 1024) {
-        alert('La taille de l\'image ne doit pas dépasser 5MB');
-        return;
-      }
 
-      setRestaurantForm({
-        ...restaurantForm,
-        coverImg: file
-      });
-
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setCoverImagePreview(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  }
 
   const handleAddTag = () => {
     const trimmedTag = tagInput.trim();
@@ -109,26 +106,26 @@ const RegisterForm = ({ onRoleChange }) => {
     }
   }
 
-  const handleRemoveTag = (tagToRemove) => {
+  const handleRemoveTag = (tagToRemove:string) => {
     setRestaurantForm({
       ...restaurantForm,
       tags: restaurantForm.tags.filter(tag => tag !== tagToRemove)
     });
   }
 
-  const handleTagKeyDown = (e) => {
+  const handleTagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       handleAddTag();
     }
   }
 
-  const onSubmit = (e) => {
+  const onSubmit = (e:FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
-      const userFound = users?.find(user => user.email === form.email);
-      if(!userFound){
+      //const userFound = users?.find(user => user.email === form.email);
+      if(!isError){
         if(form.role === 'restaurant_owner'){
           // Envoyer toutes les données (utilisateur + restaurant) en une seule requête
           const registrationData = {
@@ -244,8 +241,7 @@ const RegisterForm = ({ onRoleChange }) => {
                   />
                 </div>
 
-                {form.role !== 'restaurant_owner' && (
-                  <div>
+                <div>
                     <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-2">
                       Address
                     </label>
@@ -258,7 +254,6 @@ const RegisterForm = ({ onRoleChange }) => {
                       onChange={handleChange}
                     />
                   </div>
-                )}
 
                 <div>
                   <label htmlFor="userType" className="block text-sm font-medium text-gray-700 mb-2">

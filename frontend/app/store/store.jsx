@@ -1,10 +1,11 @@
 import {configureStore} from '@reduxjs/toolkit';
-import authSlice  from './slices/authSlice.js';
+import authSlice  from './slices/authSlice';
 import  restaurantSlice  from './slices/restaurantSlice.js';
 import itemSlice from './slices/itemsSlice.js';
 import categorySlice from './slices/categorySlice.js';
 import  cartSlice  from './slices/carteSlice.js';
-const store = configureStore({
+
+export const store = configureStore({
     reducer: {
        auth: authSlice,
        restaurant: restaurantSlice,
