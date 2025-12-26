@@ -1,19 +1,22 @@
-require('dotenv').config();
+import 'dotenv/config';
 import * as express from 'express';
 import * as cors from 'cors';
-const app = express();
-import  authRouter from './src/routes/auth';
+import authRouter from './src/routes/auth';
 import connectDB from './src/config/db';
-connectDB();
-app.use(express.json());
 
+const app = express();
 const PORT = process.env.DEFAULT_PORT || 5000;
+
+// Connect to database
+connectDB();
+
+// Middleware
 app.use(express.json());
 app.use(cors());
-app.use('/api/auth',authRouter);
 
-
+// Routes
+app.use('/api/auth', authRouter);
 
 app.listen(PORT, () => {
-    console.log(`the server now is running on port ${PORT}...`);
-} )
+    console.log(`Server running on port ${PORT}`);
+});

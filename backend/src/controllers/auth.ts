@@ -3,57 +3,51 @@ import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 import User from '../models/User';
 import Restaurant from "../models/Restaurant";
-declare global {
-  namespace Express {
-    interface Request {
-      user?: {
-        _id: string;
-        role: string;
-        // ajoutez d'autres propriétés si nécessaire
-      };
-    }
-  }
-}
+
 export const generateToken = (id: string) => {
   const secret = process.env.SECRET_TOKEN;
   if (!secret) {
-    throw new Error("SECRET_TOKEN n'est pas défini dans l'environnement");
+    throw new Error("SECRET_TOKEN is not defined in environment");
   }
 
-  return jwt.sign( { id}, secret , { expiresIn: '30d' })
-}
+  return jwt.sign({ id }, secret, { expiresIn: '30d' });
+};
+
 export const login = async (req: Request, res: Response) => {
   try {
-      const { email, password } = req.body;
-    if(!email){
-      return res.status(400).json({msg: 'the email is required!'})
-    }
-    if(!password){
-      return res.status(400).json({msg:'the password is required!'})
-    }
-    let user = await User.findOne({email});
+    const { email, password } = req.body;
 
-    
-    if(!user){
-      return res.status(404).json({msg:'invalid credentiels!'})
+    if (!email) {
+      return res.status(400).json({ msg: 'Email is required' });
     }
+
+    if (!password) {
+      return res.status(400).json({ msg: 'Password is required' });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ msg: 'Invalid credentials' });
+    }
+
     const match = await user.comparePassword(password);
 
-    if(match){
-      const userWithoutPassword = await User.findOne({email}).select('-password');
-      res.status(200).json({
-        msg:'User authenticated!', 
+    if (match) {
+      const userWithoutPassword = await User.findOne({ email }).select('-password');
+      return res.status(200).json({
+        msg: 'User authenticated',
         user: userWithoutPassword,
-        token: module.exports.generateToken(user._id!)
-      })
-    }else {
-      res.status(400).json({msg:'invalid credentials!'})
+        token: generateToken(user._id!)
+      });
+    } else {
+      return res.status(400).json({ msg: 'Invalid credentials' });
     }
   } catch (error) {
-    console.log(error); 
+    console.error('Login error:', error);
+    return res.status(500).json({ msg: 'Server error', error });
   }
-  
-}
+};
 
 export const register = async (req:Request, res:Response) => {
     try {
