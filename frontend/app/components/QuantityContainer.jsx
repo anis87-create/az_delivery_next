@@ -9,20 +9,18 @@ const QuantityContainer = ({item, addItem}) => {
   const [counter, setCounter] = useState(1);
   const dispatch = useDispatch();
   const {cartItems} = useAppSelector((state) => state.cart);
-  const {isAuth, currentUser} = useAppSelector((state) => state.auth);
+  const {isAuthenticated, user} = useAppSelector((state) => state.auth);
 
   // Derive isHidden from cartItems instead of using state
   const itemFound = cartItems.find((i) => i.id === item?.id);
-  const isHidden = currentUser?.id && itemFound;
-
-
+  const isHidden = user?._id && itemFound;
 
   const handleClick = () => {
-    if (!currentUser?.id) return;
+    if (!user?._id) return;
 
     addItem(item.id);
     setCounter(1);
-    dispatch(addToCart({id: item.id,userId: currentUser.id,  name: item.name, quantity: counter, restaurantId: item.restaurantId, image: item.imageUrl, category: item.categoryId, price: item.price}));
+    dispatch(addToCart({id: item.id, userId: user._id, name: item.name, quantity: counter, restaurantId: item.restaurantId, image: item.imageUrl, category: item.categoryId, price: item.price}));
   };
   const incrementCounter = () => {
     const newCounter = counter + 1;

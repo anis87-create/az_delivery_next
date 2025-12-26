@@ -1,18 +1,14 @@
 'use client'
 import React, { useEffect, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { useRouter } from 'next/navigation'
-import { logout } from '../store/slices/authSlice'
 
 const RestaurantDashboard = () => {
   const router = useRouter();
   const { user } = useSelector(state => state.auth);
   const [isMounted, setIsMounted] = useState(false);
-  const dispatch = useDispatch();
 
   useEffect(() => {
-    //dispatch(logout());
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMounted(true);
   }, []);
 

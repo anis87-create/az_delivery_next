@@ -113,7 +113,7 @@ export default function Home() {
   ];
   const [currentSlide, setCurrentSlide] = useState(0);
  // const {favorites} = useAppSelector(state => state.favorites);
-  const { currentUser } = useAppSelector(state => state.auth);
+  const { user } = useAppSelector(state => state.auth);
   const {restaurants } = useAppSelector(state => state.restaurant);
  //const { orders } = useAppSelector(state => state.order);
   // Optimize favorites lookup with Set for O(1) performance
@@ -304,7 +304,7 @@ export default function Home() {
                 time={restaurant.time}
                 tags={restaurant.tags}
                 badge={restaurant.badge}
-                userId= {currentUser?.id}
+                userId= {user?._id}
                 isActive ={ favoriteIds.has(restaurant.id) }
               />
             )}
@@ -341,7 +341,7 @@ export default function Home() {
                 tags={restaurant.tags}
                 badge={restaurant.badge}
                 isNew={restaurant.isNew}
-                userId= {currentUser?.id}
+                userId= {user?._id}
                 isActive ={ favoriteIds.has(restaurant.id) }
               />
             )}
@@ -377,7 +377,7 @@ export default function Home() {
                 time={restaurant.time}
                 tags={restaurant.tags}
                 reason={restaurant.reason}
-                userId= {currentUser?.id}
+                userId= {user?._id}
                 isActive ={ favoriteIds.has(restaurant.id) }
               />
             )}
@@ -408,7 +408,7 @@ export default function Home() {
                 rate={place.rate}
                 time={'10-30'}
                 tags={place.tags}
-                userId= {currentUser?.id}
+                userId= {user?._id}
                 isActive ={ false}
               />
             )}
@@ -440,7 +440,7 @@ export default function Home() {
                 rate={restaurant.rate}
                 time={'10-30'}
                 tags={restaurant.tags}
-                userId= {currentUser?.id}
+                userId= {user?._id}
                 isActive ={ false }
               />
             )}

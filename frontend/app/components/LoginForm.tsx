@@ -2,17 +2,13 @@ import React, { useState, ChangeEvent, FormEvent } from 'react';
 import Link from 'next/link';
 import { useAppDispatch, useAppSelector, RootState } from '../hooks';
 import {login} from '../store/slices/authSlice';
-
-interface FormState {
-  email: string;
-  password: string;
-}
+import type { LoginCredentials } from '@/app/types';
 
 
 
 
 const LoginForm: React.FC = () => {
-  const [form, setForm] = useState<FormState>({
+  const [form, setForm] = useState<LoginCredentials>({
     email: '',
     password: '',
   });

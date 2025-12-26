@@ -3,7 +3,7 @@ import axios from 'axios';
 const API_URL = 'http://localhost:5000/api/';
 export const authService = {
 
-  async login(data) {
+  async login(data:any) {
     const response = await axios.post(API_URL+'auth/login', data);
     if(response.data && typeof window !== 'undefined'){
       localStorage.setItem('token', JSON.stringify(response.data.token))
@@ -11,7 +11,7 @@ export const authService = {
     return response.data;
   },
 
-  async register(data) {
+  async register(data:any) {
     const response = await axios.post(API_URL+'auth/register', data);
 
     return response.data;

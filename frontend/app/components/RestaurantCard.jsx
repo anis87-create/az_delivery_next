@@ -8,7 +8,7 @@ import { useAppSelector } from '../hooks.ts';
 import Image from 'next/image';
 
 const RestaurantCard = React.memo(({ id, img, name, rate, time, tags, isActive = false }) => {
-  const { isAuth } = useAppSelector(state => state.auth);
+  const { isAuthenticated } = useAppSelector(state => state.auth);
 
   return (
     <Link href={`/Restaurant/${id}`} className='block'>
@@ -20,7 +20,7 @@ const RestaurantCard = React.memo(({ id, img, name, rate, time, tags, isActive =
           )}
 
           {/* Heart Icon - Top Left */}
-          {isAuth && <button
+          {isAuthenticated && <button
             className="absolute top-4 left-4 z-20 bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-lg hover:bg-white hover:scale-110 transition-all duration-300"
             aria-label="Add to favorites"
             onClick={(e) => {

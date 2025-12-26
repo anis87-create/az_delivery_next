@@ -1,41 +1,13 @@
 'use client';
 import Link from 'next/link'
-import React, { ChangeEvent, FormEvent, useRef, useState } from 'react'
+import React, { ChangeEvent, FormEvent, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid';
 import { register } from '../store/slices/authSlice';
-import { useRouter } from 'next/navigation';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import {RootState, useAppDispatch} from '../hooks';
-interface UserFormState {
-  fullName: string;
-  email: string;
-  password: string;
-  phone?: string;
-  address: string;
-  role: string;
-}
-interface Image {
-  name: string
-}
+import type { UserFormState, RestaurantFormState, RegisterFormProps } from '@/app/types';
 
-interface RestaurantFormState {
-  name: string;
-  img?:Image;
-  coverImg?: Image;
-  type: string;
-  category: string;
-  tags?: string[];
-  zipCode: string;
-  description: string;
-  deliveryZone: string;
-  street: string;
-  phone?:string;
-  city?:string;
-}
-interface ResgisterFormProps {
-  onRoleChange(role:string): void
-}
-const RegisterForm= ({ onRoleChange}: ResgisterFormProps) => {
+const RegisterForm= ({ onRoleChange}: RegisterFormProps) => {
   
   const [form, setForm] = useState<UserFormState>({
     fullName:'',
@@ -61,12 +33,8 @@ const RegisterForm= ({ onRoleChange}: ResgisterFormProps) => {
     deliveryZone: ''
   });
 
-  const [imagePreview, setImagePreview] = useState(null);
-  const [coverImagePreview, setCoverImagePreview] = useState(null);
   const [tagInput, setTagInput] = useState('');
-  const fileInputRef = useRef(null);
   const dispatch = useAppDispatch();
-  const router = useRouter();
   const {  message, isError } = useSelector((state:RootState) => state.auth);
 
 
@@ -192,7 +160,6 @@ const RegisterForm= ({ onRoleChange}: ResgisterFormProps) => {
                     id="fullName"
                     name="fullName"
                     type="text"
-                    required
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     placeholder="Enter your full name"
                     onChange={handleChange}

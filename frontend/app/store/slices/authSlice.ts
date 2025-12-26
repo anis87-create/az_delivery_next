@@ -1,48 +1,6 @@
 import { createSlice , createAsyncThunk} from "@reduxjs/toolkit";
 import { authService } from "../services/auth";
-
-// Types
-interface User {
-  fullName: string;
-  email: string;
-  role: string;
-  restaurant?: any; // Add proper Restaurant type if needed
-}
-
-interface AuthState {
-  user: User | null;
-  isError: boolean | null;
-  isAuthenticated: boolean;
-  isLoading: boolean | null;
-  message: string;
-}
-
-interface LoginCredentials {
-  email: string;
-  password: string;
-}
-
-interface RegisterData {
-  fullName: string;
-  email: string;
-  password: string;
-  role: string;
-  // Add restaurant fields if role is restaurant_owner
-  name?: string;
-  category?: string;
-  type?: string;
-  street?: string;
-  city?: string;
-  zipCode?: string;
-  phone?: string;
-  deliveryZone?: string;
-  tags?: string[]
-}
-
-interface LoginResponse {
-  user: User;
-  token: string;
-}
+import type { User, LoginCredentials, RegisterData, LoginResponse, AuthState } from '@/app/types';
 
 const initialState: AuthState = {
     user: null,

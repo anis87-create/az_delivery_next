@@ -20,7 +20,7 @@ const RestaurantPage = () => {
   const { items }  = useAppSelector(state => state.items);
   //const comments = getCommentsByRestaurantId(parseInt(id))
   //const totalComments = getTotalCommentsCount(parseInt(id))
-  const { currentUser, isAuth } = useAppSelector (state => state.auth);
+  const { user, isAuthenticated } = useAppSelector (state => state.auth);
   // Récupère tous les commentaires depuis le store Redux
  // const { comments } = useAppSelector(state => state.comment);
   // Récupère la liste des utilisateurs pour afficher les noms dans les commentaires
@@ -227,17 +227,17 @@ const RestaurantPage = () => {
           </div>
 
           {/* Formulaire d'ajout de commentaire - Visible uniquement si l'utilisateur est authentifié */}
-          {isAuth && currentUser && (
+          {isAuthenticated && user && (
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
             <div className="flex items-center gap-4 mb-4">
               {/* Avatar utilisateur connecté */}
     
-              <Avatar name={`${currentUser?.fullName || 'User'}`} size="w-[40px] h-[40px]" 
+              <Avatar name={`${user?.fullName || 'User'}`} size="w-[40px] h-[40px]" 
                      fontSize='text-xs'
                     />
               <div>
                 <h3 className="text-lg font-semibold text-gray-800">Laisser un avis</h3>
-                <p className="text-sm text-gray-600">En tant que {currentUser?.fullName}</p>
+                <p className="text-sm text-gray-600">En tant que {user?.fullName}</p>
               </div>
             </div>
             
@@ -317,9 +317,9 @@ const RestaurantPage = () => {
                     // Appelle la fonction reply pour soumettre le nouveau commentaire
                     reply({
                     restaurantId: restaurant.id,
-                    userId: currentUser.id,
-                    userName: currentUser?.fullName || 'User',
-                    userAvatar: currentUser?.avatar,
+                    userId: user.id,
+                    userName: user?.fullName || 'User',
+                    userAvatar: user?.avatar,
                     comment: commentContent, // Contenu du commentaire saisi
                     likes: 0,
                     rating: rateCount // Nombre d'étoiles sélectionnées
@@ -406,12 +406,12 @@ const RestaurantPage = () => {
                   {/* Actions disponibles pour chaque commentaire (Like et Supprimer) */}
                   <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                     {/* Bouton Like - Change de couleur si l'utilisateur a déjà liké */}
-                    <button className={`flex items-center gap-2 ${comment.likedBy && comment.likedBy.includes(currentUser.id) ? "text-red-500 hover:text-gray-500" : "text-gray-500 hover:text-red-600"} transition-colors`}
+                    <button className={`flex items-center gap-2 ${comment.likedBy && comment.likedBy.includes(user.id) ? "text-red-500 hover:text-gray-500" : "text-gray-500 hover:text-red-600"} transition-colors`}
                      onClick={() => {
                       // Dispatch l'action toggleLike pour ajouter/retirer le like
                       dispatch(toggleLike({
                         commentId: comment.id,
-                        userId: currentUser.id
+                        userId: user.id
                       }));
                     }}
                     >
