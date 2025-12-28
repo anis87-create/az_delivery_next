@@ -1,4 +1,5 @@
 'use client'
+import Image from 'next/image';
 import { useState } from 'react';
 import { HiSearch } from 'react-icons/hi';
 
@@ -184,12 +185,14 @@ const MenuManagement = () => {
       {/* Items Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {filteredItems.map((item) => (
-          <div key={item.id} className="bg-white rounded-lg shadow overflow-hidden">
+          <div key={item.id} className="bg-white rounded-lg shadow overflow-hidden flex flex-col">
             <div className="relative h-48">
-              <img
+              <Image
                 src={item.imageUrl}
                 alt={item.name}
-                className="w-full h-full object-cover"
+                fill
+                className="object-cover"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               />
               {!item.available && (
                 <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
@@ -209,7 +212,7 @@ const MenuManagement = () => {
                 </div>
               )}
             </div>
-            <div className="p-4">
+            <div className="p-4 flex flex-col flex-1">
               <div className="flex items-start justify-between mb-2">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900">{item.name}</h3>
@@ -232,7 +235,7 @@ const MenuManagement = () => {
                   </div>
                 </div>
               )}
-              <div className="flex space-x-2">
+              <div className="flex space-x-2 mt-auto">
                 <button className="flex-1 px-3 py-2 text-sm font-medium text-white bg-orange-600 rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500">
                   Edit
                 </button>
