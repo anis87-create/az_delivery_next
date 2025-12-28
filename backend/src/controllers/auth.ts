@@ -1,3 +1,4 @@
+/// <reference path="../types/express.d.ts" />
 import { Request, Response } from "express";
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
@@ -38,7 +39,7 @@ export const login = async (req: Request, res: Response) => {
       return res.status(200).json({
         msg: 'User authenticated',
         user: userWithoutPassword,
-        token: generateToken(user._id!)
+        token: generateToken(user._id!.toString())
       });
     } else {
       return res.status(400).json({ msg: 'Invalid credentials' });

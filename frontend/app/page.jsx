@@ -113,7 +113,7 @@ export default function Home() {
   ];
   const [currentSlide, setCurrentSlide] = useState(0);
  // const {favorites} = useAppSelector(state => state.favorites);
-  const { user } = useAppSelector(state => state.auth);
+
   const {restaurants } = useAppSelector(state => state.restaurant);
  //const { orders } = useAppSelector(state => state.order);
   // Optimize favorites lookup with Set for O(1) performance
