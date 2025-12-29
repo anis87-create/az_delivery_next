@@ -1,24 +1,26 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getRestaurantsByOwner, updateRestaurant } from '../../store/slices/restaurantSlice';
+import { authMe } from '../../store/slices/authSlice';
 
 
 
 const SettingsManagement = () => {
   const [activeTab, setActiveTab] = useState('General');
-  const {currentUser} = useSelector(state => state.auth);
-
-  let restaurant = useSelector(state => getRestaurantsByOwner(state, currentUser?.id));
-  const dispatch = useDispatch();
-  
-  const [restaurantData, setRestaurantData] = useState({
-    name: restaurant?.name || 'Mon Restaurant',
-    email: 'restaurant@example.com',
-    coverImg: restaurant?.coverImg  || null,
-    phone: restaurant?.restaurantPhone || '',
-    address: restaurant ? `${restaurant.restaurantStreet || ''} ${restaurant.restaurantZipCode || ''},${restaurant.restaurantCity || ''}` : '',
-    description: restaurant?.restaurantDescription || '',
-    openingHours: restaurant?.openingHours || {
+  const {currentUser, user} = useSelector(state => state.auth);
+ 
+const [selectedFiles, setSelectedFiles] = useState({
+    logo: user?.restaurant?.logo || null,
+    coverImg: user?.restaurant?.coverImg || null
+  });
+   const [restaurantData, setRestaurantData] = useState({
+    name: user?.restaurant?.name || 'Mon Restaurant',
+    email: user?.restaurant?.email || 'restaurant@example.com',
+    coverImg: user?.restaurant?.coverImg  || null,
+    phone: user?.restaurant?.phone || '',
+    address: user?.restaurant ? `${user?.restaurant.street || ''} ${user?.restaurant.zipCode || ''},${user?.restaurant.city || ''}` : '',
+    description: user?.restaurant?.description || '',
+    openingHours: user?.restaurant?.openingHours || {
       monday: { open: '11:00', close: '22:00', closed: false },
       tuesday: { open: '11:00', close: '22:00', closed: false },
       wednesday: { open: '11:00', close: '22:00', closed: false },
@@ -28,15 +30,42 @@ const SettingsManagement = () => {
       sunday: { open: '12:00', close: '21:00', closed: false }
     },
     deliverySettings: {
-      baseFee: restaurant?.deliverySettings?.baseFee || 3,
-      estimatedDeliveryTime: restaurant?.deliverySettings?.estimatedDeliveryTime || ''
+      baseFee: user?.restaurant?.deliverySettings?.baseFee || 3,
+      estimatedDeliveryTime: user?.restaurant?.deliverySettings?.estimatedDeliveryTime || ''
     },
   });
+  const dispatch = useDispatch();
+    useEffect(() => {
+    if (user?.restaurant) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setRestaurantData({
+        name: user.restaurant.name || 'Mon Restaurant',
+        email: user.restaurant.email || 'restaurant@example.com',
+        coverImg: user.restaurant.coverImg || null,
+        phone: user.restaurant.phone || '',
+        address: `${user.restaurant.street || ''} ${user.restaurant.zipCode || ''}, ${user.restaurant.city || ''}`,
+        description: user.restaurant.description || '',
+        openingHours: user.restaurant.openingHours || {
+          monday: { open: '11:00', close: '22:00', closed: false },
+          // ... autres jours
+        },
+        deliverySettings: {
+          baseFee: user.restaurant.deliverySettings?.baseFee || 3,
+          estimatedDeliveryTime: user.restaurant.deliverySettings?.estimatedDeliveryTime || ''
+        }
+      });
 
-  const [selectedFiles, setSelectedFiles] = useState({
-    logo: restaurant?.logo || null,
-    coverImg: restaurant?.coverImg || null
-  });
+      setSelectedFiles({
+        logo: user.restaurant.logo || null,
+        coverImg: user.restaurant.coverImg || null
+      });
+    }
+  }, [user]); 
+  
+  
+ 
+
+  
 
   const handleInputChange = (field, value) => {
     setRestaurantData(prev => ({

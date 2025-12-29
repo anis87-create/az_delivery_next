@@ -52,7 +52,7 @@ export const login = async (req: Request, res: Response) => {
 
 export const register = async (req:Request, res:Response) => {
     try {
-      const { fullName, email, password, name, category, type, street,city, zipCode, phone,deliveryZone } = req.body;
+      const { fullName, email, password, name, category, type, street, city, zipCode, phone, deliveryZone, restaurantEmail } = req.body;
       let emailFound = await User.findOne({email});
       if(emailFound){
         return res.status(409).json({msg:'the user already exist!'})
@@ -105,9 +105,13 @@ export const register = async (req:Request, res:Response) => {
           }
           if(!deliveryZone){
             return res.status(400).json({msg:'deliveryZone  is required'})
-          }   
+          }
+          if(!restaurantEmail){
+            return res.status(400).json({msg:'restaurant email is required'})
+          }
           const restaurant = new Restaurant({
             ...req.body,
+            email: restaurantEmail,
             owner: user._id
           });
           await restaurant.save();

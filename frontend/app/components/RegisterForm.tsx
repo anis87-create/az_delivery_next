@@ -29,6 +29,7 @@ const RegisterForm= ({ onRoleChange}: RegisterFormProps) => {
     city: '',
     zipCode: '',
     phone: '',
+    email: '',
     description: '',
     deliveryZone: ''
   });
@@ -114,6 +115,7 @@ const RegisterForm= ({ onRoleChange}: RegisterFormProps) => {
             street: restaurantForm.street,
             city: restaurantForm.city,
             zipCode: restaurantForm.zipCode,
+            restaurantEmail: restaurantForm.email,
             description: restaurantForm.description
           };
           // Envoyer en une seule fois au backend
@@ -435,6 +437,20 @@ const RegisterForm= ({ onRoleChange}: RegisterFormProps) => {
                             type="tel"
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                             placeholder="Ex: +33 1 23 45 67 89"
+                            onChange={handleRestaurantChange}
+                          />
+                        </div>
+
+                        <div>
+                          <label htmlFor="restaurantEmail" className="block text-sm font-medium text-gray-700 mb-2">
+                            Email du Restaurant *
+                          </label>
+                          <input
+                            id="restaurantEmail"
+                            name="email"
+                            type="email"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                            placeholder="Ex: contact@restaurant.com"
                             onChange={handleRestaurantChange}
                           />
                         </div>

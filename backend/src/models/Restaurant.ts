@@ -13,6 +13,7 @@ interface IRestaurant {
     description?: string,
     deliveryZone: string,
     owner: Types.ObjectId,
+    email: string,
     tags?: string[]
 }
 
@@ -33,6 +34,7 @@ const restaurantSchema = new Schema<IRestaurantDocument>({
     description: {type: String},
     deliveryZone: {type: String, required: true},
     owner: {type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true},
+    email: {type: String, required: true},
     tags: {type: [String]}
 }, {
     timestamps: true

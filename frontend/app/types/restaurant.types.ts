@@ -21,6 +21,7 @@ export interface RestaurantFormState extends BaseRestaurantInfo {
   description: string;  // Requis dans le formulaire
   phone?: string;       // Optionnel dans le formulaire
   city?: string;        // Optionnel dans le formulaire
+  email: string;        // Email du restaurant
 }
 
 // Restaurant data structure - extends la base et ajoute les champs spécifiques à l'API
