@@ -36,11 +36,25 @@ export const login = async (req: Request, res: Response) => {
 
     if (match) {
       const userWithoutPassword = await User.findOne({ email }).select('-password');
-      return res.status(200).json({
+      if(user.role==='customer'){
+         return res.status(200).json({
         msg: 'User authenticated',
         user: userWithoutPassword,
         token: generateToken(user._id!.toString())
       });
+      }else {
+      const restaurant = await Restaurant.findOne({owner: user._id});
+
+      return res.status(200).json({
+        msg: 'User authenticated',
+        user: {
+          ...userWithoutPassword?.toObject(),
+          restaurant
+        },
+        token: generateToken(user._id!.toString())
+      }); 
+      }
+      
     } else {
       return res.status(400).json({ msg: 'Invalid credentials' });
     }

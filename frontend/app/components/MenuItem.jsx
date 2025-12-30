@@ -88,7 +88,7 @@ const MenuItem = ({
         {/* Availability Toggle */}
         <button
           onClick={() => {
-            item.available = !item.available;
+            item?.available = !item.available;
             console.log(item.available);
             dispatch(updateItem(item));
             

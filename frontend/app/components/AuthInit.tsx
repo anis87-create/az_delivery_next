@@ -9,7 +9,6 @@ interface AuthInitProps {
 
 const AuthInit: React.FC<AuthInitProps> = ({ children }) => {
   const dispatch = useAppDispatch();
-
   
   useEffect(() => {
     const token = localStorage.getItem('token');

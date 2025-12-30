@@ -1,5 +1,7 @@
 'use client'
 
+import Image from "next/image";
+
 const Sidebar = ({ restaurantName, restaurantLogo, currentSection, onSectionChange, isOpen, onClose }) => {
   
   const menuItems = [
@@ -49,7 +51,7 @@ const Sidebar = ({ restaurantName, restaurantLogo, currentSection, onSectionChan
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center">
               {restaurantLogo ? (
-                <img 
+                <Image
                   src={restaurantLogo} 
                   alt={restaurantName}
                   className="w-8 h-8 rounded object-cover"

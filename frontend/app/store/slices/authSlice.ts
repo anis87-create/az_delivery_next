@@ -7,7 +7,7 @@ const initialState: AuthState = {
     isError: null,
     isAuthenticated: false,
     isLoading: null,
-    message: ''
+    message: '',
 };
 
 export const register = createAsyncThunk<User, RegisterData>(

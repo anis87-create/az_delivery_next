@@ -14,7 +14,7 @@ const DashboardLayout = ({
 }) => {
   const [currentSection, setCurrentSection] = useState('Dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { user } = useSelector(state => state.auth);
+  const { user, isLoading } = useSelector(state => state.auth);
   const restaurant = user?.restaurant;
 
   const renderCurrentSection = () => {
@@ -29,6 +29,16 @@ const DashboardLayout = ({
         return <Dashboard />;
     }
   };
+   if(isLoading){
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-16 w-16 border-b-4 border-green-500 mb-4"></div>
+          <p className="text-xl font-semibold text-gray-700">Loading...</p>
+        </div>
+      </div>
+    )
+  }
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Mobile sidebar overlay */}
