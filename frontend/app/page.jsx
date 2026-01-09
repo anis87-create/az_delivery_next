@@ -399,7 +399,7 @@ export default function Home() {
              </button>
            </div>
            <div className='grid lg:grid-cols-3 gap-4 md:grid-cols-2 md:gap-4'>
-            {restaurants.filter((place) => place.type === 'quick_bite').slice(0, 3).map((place) =>
+            {restaurants?.filter((place) => place.type === 'quick_bite').slice(0, 3).map((place) =>
               <RestaurantCard
                 key={place.id}
                 id={place.id}
@@ -431,7 +431,7 @@ export default function Home() {
              </button>
            </div>
            <div className='grid lg:grid-cols-3 gap-4 md:grid-cols-2 md:gap-4'>
-            {restaurants.filter((restaurant) => restaurant.type === 'restaurant').slice(0, 6).map((restaurant) =>
+            {restaurants?.filter((restaurant) => restaurant.type === 'restaurant').slice(0, 6).map((restaurant) =>
               <RestaurantCard
                 key={restaurant.id}
                 id={restaurant.id}

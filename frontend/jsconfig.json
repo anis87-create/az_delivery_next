@@ -25,6 +25,6 @@
     "app/store/**/*.js",
     "app/store/**/*.jsx",
     "next.config.js"
-, "app/components/LoginForm.tsx", "app/hooks.ts", "app/store/services/auth.ts"  ],
+, "app/components/LoginForm.tsx", "app/hooks.ts", "app/store/services/auth.ts", "app/store/slices/restaurantSlice.ts"  ],
   "exclude": ["node_modules"]
 }

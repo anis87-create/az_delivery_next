@@ -19,8 +19,8 @@ interface BaseRestaurantInfo {
 // Restaurant form state - extends la base et ajoute les champs spécifiques au formulaire
 export interface RestaurantFormState extends BaseRestaurantInfo {
   description: string;  // Requis dans le formulaire
-  phone?: string;       // Optionnel dans le formulaire
-  city?: string;        // Optionnel dans le formulaire
+  phone: string;       // Optionnel dans le formulaire
+  city: string;        // Optionnel dans le formulaire
   email: string;        // Email du restaurant
 }
 
@@ -36,4 +36,11 @@ export interface Restaurant extends BaseRestaurantInfo {
 // Props for RegisterForm component
 export interface RegisterFormProps {
   onRoleChange(role: string): void;
+}
+
+export interface RestaurantState {
+  restaurant: Restaurant | null,
+  isError: boolean | null,
+  isLoading: boolean | null,
+  message: string
 }

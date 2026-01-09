@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document, Model, Types } from 'mongoose';
+import { scheduleDefinition, ISchedule } from './Schedule';
 
 interface IRestaurant {
     name: string,
@@ -11,10 +12,12 @@ interface IRestaurant {
     zipCode: string,
     phone: string,
     description?: string,
-    deliveryZone: string,
     owner: Types.ObjectId,
     email: string,
-    tags?: string[]
+    tags?: string[],
+    openingHours: ISchedule,
+    baseFee?: number,
+    estimatedDeliveryTime?: string
 }
 
 interface IRestaurantDocument extends IRestaurant, Document {
@@ -22,20 +25,22 @@ interface IRestaurantDocument extends IRestaurant, Document {
   updatedAt: Date
 }
 const restaurantSchema = new Schema<IRestaurantDocument>({
-    name: {type: String, required: true},
-    category: {type: String, required: true},
-    img: {type: String},
-    coverImg: {type: String},
-    type: {type: String, required: true},
-    street :{type: String, required: true},
-    city: {type: String, required: true},
-    zipCode: {type: String, required: true},
-    phone: {type: String, required: true},
-    description: {type: String},
-    deliveryZone: {type: String, required: true},
-    owner: {type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true},
-    email: {type: String, required: true},
-    tags: {type: [String]}
+    name: { type: String, required: true },
+    category: { type: String, required: true },
+    img: { type: String },
+    coverImg: { type: String },
+    type: { type: String, required: true },
+    street :{ type: String, required: true },
+    city: { type: String, required: true },
+    zipCode: { type: String, required: true },
+    phone: { type: String, required: true },
+    description: { type: String },
+    owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    email: { type: String, required: true },
+    tags: { type: [String] },
+    baseFee: { type: Number },
+    openingHours: scheduleDefinition,
+    estimatedDeliveryTime: { type: String }
 }, {
     timestamps: true
 });
