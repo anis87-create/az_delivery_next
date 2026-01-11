@@ -12,6 +12,7 @@ import { useSelector } from 'react-redux';
 export default function Home() {
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
+  const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
   const {isLoading , user} = useSelector(state => state.auth);
 
   useEffect(() => {
@@ -19,20 +20,30 @@ export default function Home() {
     setIsMounted(true);
   }, []);
 
-  useEffect(()=> {
+  // Vérifier l'authentification et rediriger si nécessaire
+  useEffect(() => {
     if (!isMounted) return;
 
-    // Check if user is authenticated
-    const storedToken = localStorage.getItem('token');
-    if (!storedToken) {
-      // No user/token found - allow access to home page for non-authenticated users
-      return;
+    // Si on est encore en train de charger les données, attendre
+    if (isLoading) return;
+
+    // Vérifier si on a un token
+    const token = localStorage.getItem('token');
+
+    // Si on a un token et les données user sont chargées
+    if (token && user) {
+      // Rediriger les restaurant_owner vers leur dashboard
+      if (user.role === 'restaurant_owner') {
+        router.replace('/restaurantDashboard');
+        return;
+      }
+      // Les customers restent sur Home
     }
 
-    if (user && user.role==='restaurant_owner') {
-      router.push('/restaurantDashboard');
-    }
-  }, [user, isMounted, router]);
+    // Marquer qu'on a fini de vérifier l'authentification
+    setHasCheckedAuth(true);
+  }, [isMounted, isLoading, user, router]);
+
   const categories = [
   {
       name:'Pizza',
@@ -137,9 +148,13 @@ export default function Home() {
     }
   };
 
-  if(isLoading){
+  // Afficher loading si :
+  // 1. On est en train de charger les données (isLoading)
+  // 2. Ou on n'a pas encore vérifié l'authentification (!hasCheckedAuth)
+  // Cela empêche d'afficher Home avant de savoir où rediriger
+  if(isLoading || !hasCheckedAuth){
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-16 w-16 border-b-4 border-green-500 mb-4"></div>
           <p className="text-xl font-semibold text-gray-700">Loading...</p>

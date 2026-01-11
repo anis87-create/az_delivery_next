@@ -182,6 +182,7 @@ const SettingsManagement = () => {
 
   const handleSaveChanges = async () => {
     const formData = new FormData();
+    // Débogage : voir ce qu'on va envoyer
 
     // Ajouter les données de base
     formData.append('name', restaurantData.name);
@@ -260,7 +261,8 @@ const SettingsManagement = () => {
           {tabs.map(tab => (
             <button
               key={tab}
-              onClick={() => setActiveTab(tab)}
+              onClick={() => {setActiveTab(tab)}
+            }
               className={`py-2 px-1 border-b-2 font-medium text-sm ${
                 activeTab === tab
                   ? 'border-orange-500 text-orange-600'
@@ -484,20 +486,20 @@ const SettingsManagement = () => {
                 <div className="flex items-center space-x-2">
                   <input
                     type="checkbox"
-                    checked={!restaurantData?.openingHours[day.key].closed}
+                    checked={!restaurantData?.openingHours[day.key]?.closed}
                     onChange={(e) => handleOpeningHoursChange(day.key, 'closed', !e.target.checked)}
                     className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
                   />
                   <span className="text-sm text-gray-600">Open</span>
                 </div>
                 
-                {!restaurantData.openingHours[day.key].closed && (
+                {!restaurantData?.openingHours[day.key]?.closed && (
                   <>
                     <div className="flex items-center space-x-2">
                       <span className="text-sm text-gray-600">From:</span>
                       <input
                         type="time"
-                        value={restaurantData.openingHours[day.key].open}
+                        value={restaurantData?.openingHours[day.key]?.open}
                         onChange={(e) => handleOpeningHoursChange(day.key, 'open', e.target.value)}
                         className="px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
                       />
@@ -507,7 +509,7 @@ const SettingsManagement = () => {
                       <span className="text-sm text-gray-600">To:</span>
                       <input
                         type="time"
-                        value={restaurantData.openingHours[day.key].close}
+                        value={restaurantData?.openingHours[day.key]?.close}
                         onChange={(e) => handleOpeningHoursChange(day.key, 'close', e.target.value)}
                         className="px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
                       />
@@ -515,7 +517,7 @@ const SettingsManagement = () => {
                   </>
                 )}
                 
-                {restaurantData.openingHours[day.key].closed && (
+                {restaurantData?.openingHours[day.key]?.closed && (
                   <span className="text-sm text-gray-500 italic">Closed</span>
                 )}
               </div>

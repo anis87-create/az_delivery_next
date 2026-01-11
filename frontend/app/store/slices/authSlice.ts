@@ -32,7 +32,7 @@ export const login = createAsyncThunk<LoginResponse, LoginCredentials>(
   'auth/login',
   async(user, thunkAPI) => {
     try {
-        const minDelay = new Promise(resolve => setTimeout(resolve, 3000));
+        const minDelay = new Promise(resolve => setTimeout(resolve, 1000));
         const [userData] = await Promise.all([
             authService.login(user),
             minDelay

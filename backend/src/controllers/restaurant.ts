@@ -37,9 +37,12 @@ export const updateRestaurant = async (req: Request, res: Response) => {
       const imgFile = files?.img?.[0];
       const coverFile = files?.coverImg?.[0];
 
+      // Débogage : voir tout ce qui arrive
+
       // Construire l'objet de mise à jour dynamiquement
+      const {openingHours, ...restOfBody} = req.body;
       const updateData: any = {
-        ...req.body
+        ...restOfBody
       };
 
       // Ajouter img seulement si un nouveau fichier a été uploadé
@@ -51,14 +54,22 @@ export const updateRestaurant = async (req: Request, res: Response) => {
       if (coverFile) {
         updateData.coverImg = `${req.protocol}://${req.get('host')}/images/${coverFile.filename}`;
       }
+      // Parser openingHours si présent
+      if (openingHours) {
+        updateData.openingHours = JSON.parse(openingHours);
+      }
 
       await Restaurant.updateOne({_id: userId}, updateData);
 
       
       res.status(200).json({msg:'restaurant updated!'});
-      
+
     } catch (error) {
-        res.status(500).json({error})
+        console.error('Erreur lors de la mise à jour du restaurant:', error);
+        res.status(500).json({
+          message: 'Erreur lors de la mise à jour',
+          error: error instanceof Error ? error.message : 'Unknown error'
+        })
     }
     
 }
