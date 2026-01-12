@@ -1,0 +1,4 @@
+interface I {
+    categoryId: string,
+
+}
