@@ -6,6 +6,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../../store/slices/authSlice';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { createCateogry, getAllCategories } from '@/app/store/slices/categorySlice';
+import Swal from 'sweetalert2';
 
 
 const DashboardNavbar = ({ restaurantName, restaurantEmail, restaurantLogo, currentSection = 'Dashboard', onMenuClick }) => {
@@ -13,6 +15,7 @@ const DashboardNavbar = ({ restaurantName, restaurantEmail, restaurantLogo, curr
   const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
   const [categoryName, setCategoryName] = useState('');
   const { categories } = useSelector(state => state.categories);
+  
   const { user } = useSelector(state => state.auth);
   const restaurant = user?.restaurant;
   const { items } = useSelector(state => state.items);
@@ -37,11 +40,38 @@ const DashboardNavbar = ({ restaurantName, restaurantEmail, restaurantLogo, curr
     setShowDropdown(false);
   };
 
-  const handleAddCategory = () => {
+  const handleAddCategory = async () => {    
     if (categoryName.trim()) {
-      dispatch(addCategory({id: categories.length, name: categoryName, restaurantId: restaurant?.id}));
-      setCategoryName('');
-      setShowAddCategoryModal(false);
+      try {
+        dispatch(createCateogry({name: categoryName})).unwrap();
+        
+        // Notification de succès
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Catégorie ajoutée avec succès!',
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true
+        });
+        console.log('yes');
+        
+
+        setCategoryName('');
+        setShowAddCategoryModal(false);
+      } catch (error) {
+        // Notification d'erreur
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: 'Erreur lors de l\'ajout de la catégorie',
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true
+        });
+      }
     }
   };
 
@@ -110,9 +140,11 @@ const DashboardNavbar = ({ restaurantName, restaurantEmail, restaurantLogo, curr
       ...prev,
       [field]: value
     }));
-    console.log(menuItem.categoryId);
-    
+
   };
+  useEffect(() => {
+    dispatch(getAllCategories())
+  }, [dispatch]);
 
   const getSectionTitle = () => {
     switch(currentSection) {
@@ -173,7 +205,7 @@ const DashboardNavbar = ({ restaurantName, restaurantEmail, restaurantLogo, curr
     }
     
     return null;
-  };
+  };  
   return (
     <div className="bg-white shadow-sm border-b border-gray-200 px-4 sm:px-6 py-4">
       <div className="flex items-center justify-between">
@@ -343,9 +375,9 @@ const DashboardNavbar = ({ restaurantName, restaurantEmail, restaurantLogo, curr
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                 >
                   <option value="">Select a category</option>
-                  {/*categories?.filter(category => category.restaurantId === restaurant.id).map((cat) => (
-                    <option key={cat.id} value={cat.id}>{cat?.name}</option>
-                  ))*/}
+                  {categories?.filter(category => category.restaurantId === restaurant._id).map((cat) => (
+                    <option key={cat._id} value={cat._id}>{cat?.name}</option>
+                  ))}
                 </select>
               </div>
 

@@ -1,6 +1,7 @@
-import mongoose, { Model, Schema } from 'mongoose';
+import mongoose, { Model, Schema, Types } from 'mongoose';
 interface ICategory {
-    name: string
+    name: string,
+    restaurantId: Types.ObjectId
 }
 
 interface ICategoryDocument  extends ICategory, Document {
@@ -10,7 +11,8 @@ interface ICategoryDocument  extends ICategory, Document {
 
 
 const categorySchema = new Schema<ICategoryDocument>({
-   name: {type: String, required: true}
+   name: {type: String, required: true},
+   restaurantId: { type: mongoose.Schema.Types.ObjectId, ref: 'Restaurant', required: true },
 }, {
     timestamps: true
 });

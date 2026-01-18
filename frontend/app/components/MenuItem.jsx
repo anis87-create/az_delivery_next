@@ -16,6 +16,7 @@ const MenuItem = ({
   const isDropdownOpen = activeDropdown === dropdownId;
   const dispatch = useDispatch();
   const { items } = useSelector(state => state.items);
+  const {categories} = useSelector(state => state.categories);
   
   // État pour le modal d'édition
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -89,10 +90,7 @@ const MenuItem = ({
         <button
           onClick={() => {
             item?.available = !item.available;
-            console.log(item.available);
             dispatch(updateItem(item));
-            
-            
           }
           
         

@@ -2,7 +2,7 @@ import {configureStore} from '@reduxjs/toolkit';
 import authSlice  from './slices/authSlice';
 import  restaurantSlice  from './slices/restaurantSlice';
 import itemSlice from './slices/itemsSlice.js';
-import categorySlice from './slices/categorySlice.js';
+import categorySlice from './slices/categorySlice';
 import  cartSlice  from './slices/carteSlice.js';
 
 export const store = configureStore({
