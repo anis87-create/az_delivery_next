@@ -1,15 +1,17 @@
 'use client'
-import { updateCategory } from '@/app/store/slices/categorySlice';
+import { deleteCategory, getAllCategories, updateCategory } from '@/app/store/slices/categorySlice';
 import Image from 'next/image';
 import { useState } from 'react';
 import { HiSearch } from 'react-icons/hi';
 import { useDispatch, useSelector } from 'react-redux';
+import Swal from 'sweetalert2';
 
 const MenuManagement = () => {
   // Static categories data
-  const { categories } = useSelector(state => state.categories);
+  const { categories, isLoading } = useSelector(state => state.categories);
   const [updateShowCategory, setUpdateShowCategory]= useState(false);
   const [categoryName, setCategoryName] = useState('');
+  const [selectedCategoryId, setSelectedCategoryId] = useState(null);
   const dispatch = useDispatch();
 
   // Static items data
@@ -100,13 +102,49 @@ const MenuManagement = () => {
     setCategoryName('');
     setUpdateShowCategory(false);
   };
-  const handleUpdateCategory = (categoryName, id) => {
-    dispatch(updateCategory({id,  name: categoryName}));
+  const handleUpdateCategory = async (categoryName, id) => {
+    try {
+       const formData = {name: categoryName};
+       await dispatch(updateCategory({id, formData}));
+       setUpdateShowCategory(false);
+       Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Catégorie modifié avec succès!',
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true
+        });
+
+    } catch (error) {
+      console.log(error);  
+    }
+   
   };
+  const handleRemoveCategory = async (id) => {
+    const result = await Swal.fire({
+    title: "Confirmer la suppression ?",
+    text: "Cette action est irréversible.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Oui, supprimer",
+    cancelButtonText: "Annuler",
+    reverseButtons: true,
+  });
+  if (!result.isConfirmed) return;  
+   try {
+     
+     await dispatch(deleteCategory(id));
+   } catch (error) {
+     console.log(error);
+   }
+  }
   const renderUpdatedCategory = (id) => {   
      setUpdateShowCategory(true); 
      const category = categories.find(category => category._id === id);
      setCategoryName(category.name);
+     setSelectedCategoryId(category._id); 
   } 
 
   return (
@@ -208,6 +246,7 @@ const MenuManagement = () => {
                         <button
                           className="p-2 text-red-600 bg-red-50 rounded-md hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors"
                           title="Delete category"
+                          onClick={() => handleRemoveCategory(category._id)}
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -215,49 +254,7 @@ const MenuManagement = () => {
                         </button>
                       </div>
 
-                      {updateShowCategory && (
-                        <div className="fixed inset-0 z-50 overflow-y-auto">
-                          <div className="flex min-h-full items-center justify-center p-4">
-                          {/* Backdrop */}
-                          {/* Modal Content */}
-                          <div className="relative bg-white rounded-lg p-4 sm:p-6 max-w-md w-full shadow-xl">
-                          <h3 className="text-lg font-medium text-gray-900 mb-2">Update Category</h3>
-                          <p className="text-sm text-gray-600 mb-4">Enter a name for the new menu category.</p>
-                          
-                          <div className="mb-6">
-                            <input
-                              type="text"
-                              value={categoryName}
-                              onChange={(e) => setCategoryName(e.target.value)}
-                              placeholder="Category Name"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                              autoFocus
-                            />
-                          </div>
-                          
-                          <div className="flex flex-col-reverse sm:flex-row sm:justify-end space-y-2 space-y-reverse sm:space-y-0 sm:space-x-3">
-                            <button
-                              onClick={handleCancel}
-                              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
-                            >
-                              Cancel
-                            </button>
-                            <button
-                              onClick={() => handleUpdateCategory(categoryName, category._id)}
-                              disabled={!categoryName.trim()}
-                              className={`px-4 py-2 text-sm font-medium text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 ${
-                                categoryName.trim()
-                                  ? 'bg-orange-600 hover:bg-orange-700'
-                                  : 'bg-gray-300 cursor-not-allowed'
-                              }`}
-                            >
-                              Update Category
-                            </button>
-                          </div>
-                          </div>
-                        </div>
-                        </div>
-                      )}
+                    
                     </div>
                   </li>
                 ))}
@@ -396,7 +393,53 @@ const MenuManagement = () => {
           )}
         </>
       )}
+
+
+    {updateShowCategory && (
+                        <div className="fixed inset-0 z-50 overflow-y-auto">
+                          <div className="flex min-h-full items-center justify-center p-4">
+                          {/* Backdrop */}
+                          {/* Modal Content */}
+                          <div className="relative bg-white rounded-lg p-4 sm:p-6 max-w-md w-full shadow-xl">
+                          <h3 className="text-lg font-medium text-gray-900 mb-2">Update Category</h3>
+                          <p className="text-sm text-gray-600 mb-4">Enter a name for the new menu category.</p>
+                          
+                          <div className="mb-6">
+                            <input
+                              type="text"
+                              value={categoryName}
+                              onChange={(e) => setCategoryName(e.target.value)}
+                              placeholder="Category Name"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                              autoFocus
+                            />
+                          </div>
+                          
+                          <div className="flex flex-col-reverse sm:flex-row sm:justify-end space-y-2 space-y-reverse sm:space-y-0 sm:space-x-3">
+                            <button
+                              onClick={handleCancel}
+                              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              onClick={() => handleUpdateCategory(categoryName, selectedCategoryId) }
+                              disabled={!categoryName.trim()}
+                              className={`px-4 py-2 text-sm font-medium text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 ${
+                                categoryName.trim()
+                                  ? 'bg-orange-600 hover:bg-orange-700'
+                                  : 'bg-gray-300 cursor-not-allowed'
+                              }`}
+                            >
+                              Update Category
+                            </button>
+                          </div>
+                          </div>
+                        </div>
+                        </div>
+                      )}
     </div>
+    
   );
 };
 

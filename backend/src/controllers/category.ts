@@ -29,12 +29,14 @@ export const createCategory =  async (req: Request, res:Response) => {
             return res.status(400).json({msg:'the name of category is required'});
         }
         await category.save();
+        res.status(201).json(category)
+        
     } catch (error) {
          console.log({error})
     }
 }
 
-export const updateCategory = async (req: Request, res:Response) => {
+export const updateCategory = async (req: Request, res:Response) => {    
     try {
         if(!req.params?.id) {
           return res.status(500).json({msg:'the id of category is undefined!'})
@@ -43,15 +45,29 @@ export const updateCategory = async (req: Request, res:Response) => {
         if(!req.body.name){
             return res.status(400).json({msg:'the name of category is required!'})
         }
-
         
         await Category.updateOne({_id: req.params.id}, {
             name: req.body.name,
             _id: req.params.id
+        });
+        res.status(200).json({
+            _id: req.params.id,
+            name: req.body.name
         });
     } catch (error) {
         console.log(error);
     }
 }
 
-export const removeCategory= (req: Request, res:Response) => {}
+export const removeCategory= async (req: Request, res:Response) => {
+  try {
+    if(!req.params?.id) {
+          return res.status(500).json({msg:'the id of category is undefined!'})
+    }
+    await Category.deleteOne({_id: req.params.id});
+    res.status(200).json({msg:'Category deleted succesfuly'});
+  } catch (error) {
+    
+  }
+
+}

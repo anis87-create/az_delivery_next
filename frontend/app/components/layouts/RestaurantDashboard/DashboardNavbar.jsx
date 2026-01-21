@@ -40,11 +40,12 @@ const DashboardNavbar = ({ restaurantName, restaurantEmail, restaurantLogo, curr
     setShowDropdown(false);
   };
 
-  const handleAddCategory = async () => {    
+  const handleAddCategory =  async () => {    
     if (categoryName.trim()) {
       try {
-        dispatch(createCateogry({name: categoryName})).unwrap();
-        
+        await  dispatch(createCateogry({ name: categoryName })).unwrap();
+        setCategoryName('');
+        setShowAddCategoryModal(false);
         // Notification de succès
         Swal.fire({
           toast: true,
@@ -55,11 +56,6 @@ const DashboardNavbar = ({ restaurantName, restaurantEmail, restaurantLogo, curr
           timer: 2000,
           timerProgressBar: true
         });
-        console.log('yes');
-        
-
-        setCategoryName('');
-        setShowAddCategoryModal(false);
       } catch (error) {
         // Notification d'erreur
         Swal.fire({
