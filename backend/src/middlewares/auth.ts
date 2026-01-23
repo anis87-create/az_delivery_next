@@ -2,6 +2,7 @@
 import { Request, Response, NextFunction } from 'express';
 import * as jwt from 'jsonwebtoken';
 import User from '../models/User';
+import Restaurant from '../models/Restaurant';
 
 const protect = async (req: Request, res: Response, next: NextFunction) => {
   let token: string | undefined;
@@ -16,7 +17,16 @@ const protect = async (req: Request, res: Response, next: NextFunction) => {
       if (!user) {
         return res.status(401).json({ msg: 'User not found' });
       }
-      req.user = user as any;
+      req.user = {
+        _id: user._id.toString(),
+        role: user.role
+      }
+      if(user.role === 'restaurant_owner'){
+        const restaurant = await Restaurant.findOne({ owner: user._id });                                       
+        if (restaurant) {                                                                                       
+          req.user.restaurant = { _id: restaurant._id.toString() };                                             
+        }   
+      }
 
       return next();
     } catch (error) {

@@ -6,10 +6,8 @@ interface CategoryForm{
 }
 export const categoryService = {
     async create(form: CategoryForm){                                                                         
-    try {                                                                                                                                                            
-       const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;                                                                                                                                                                 
-       const response = await privateApi.post(API_URL, form);                                                                                                  
-                                                                                                                                               
+    try {                                                                                                                                                                                                                                                                                                                          
+       const response = await privateApi.post(API_URL, form);                                                                                                                                                                                                                                
        return response.data;                                                                                
     } catch (error) {                                                                                       
        console.log('Service: ERREUR:', error);                                                              
@@ -18,12 +16,7 @@ export const categoryService = {
   },    
    async getAll(){
     try {
-        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-         const response = await axios.get(API_URL,  {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-         });
+         const response = await privateApi.get(API_URL); 
          return response.data;
     } catch (error) {
         console.log(error);
@@ -32,14 +25,9 @@ export const categoryService = {
    },
    async update(id:string , form:CategoryForm){
     try {
-        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-        const response = await axios.put(`${API_URL}/${id}`,form,  {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-         });         
-
-         return response.data;
+              
+        const response = await privateApi.put(`${API_URL}/${id}`, form); 
+        return response.data;
     } catch (error) {
         console.log(error);
         throw error;
@@ -49,12 +37,7 @@ export const categoryService = {
    },
    async delete (id: string){
     try {
-        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-        await axios.delete(`${API_URL}/${id}`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        })
+        await privateApi.delete(`${API_URL}/${id}`);
     } catch (error) {
          console.log(error);
          throw error;

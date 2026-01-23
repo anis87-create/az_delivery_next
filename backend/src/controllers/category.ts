@@ -7,7 +7,7 @@ export const getAllCategories =  async (req: Request, res:Response) => {
      const categories = await Category.find();
      res.status(200).send(categories);
    } catch (error) {
-     console.log({error})
+     res.status(500).json({error});
    }
 }
 
@@ -21,18 +21,24 @@ export const createCategory =  async (req: Request, res:Response) => {
    }
     
     try {
+        let  existingCategory = await Category.findOne({name: req.body.name});
+        if(existingCategory){
+            return res.status(200).json({msg:'the category already exist!'});
+        }
         const category = new Category({
             ...req.body,
             restaurantId: restaurant._id
         });
+        
         if(!req.body.name){
             return res.status(400).json({msg:'the name of category is required'});
         }
+        
         await category.save();
         res.status(201).json(category)
         
     } catch (error) {
-         console.log({error})
+         res.status(500).json({error});
     }
 }
 
@@ -55,7 +61,7 @@ export const updateCategory = async (req: Request, res:Response) => {
             name: req.body.name
         });
     } catch (error) {
-        console.log(error);
+        res.status(500).json({error});
     }
 }
 
@@ -67,7 +73,7 @@ export const removeCategory= async (req: Request, res:Response) => {
     await Category.deleteOne({_id: req.params.id});
     res.status(200).json({msg:'Category deleted succesfuly'});
   } catch (error) {
-    
+    res.status(500).json({error});
   }
 
 }
