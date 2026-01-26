@@ -18,7 +18,7 @@ export const createCateogry = createAsyncThunk<Category, CategoryForm>(
     async(formData, thunkAPI) => {                                                                          
       try {                                                                                                                                                          
         const response = await categoryService.create(formData);                                                                              
-        return response;                                                                                    
+        return response.data;                                                                                    
       } catch (error: any) {                                                                                                                                
         const message =                                                                                     
           (error.response &&                                                                                
@@ -35,14 +35,14 @@ export const getAllCategories = createAsyncThunk<Category[], void>(
   "categories/get",
   async () => {
    const response =  await categoryService.getAll();   
-   return response;
+   return response.data;
   }
 );
 
 export const updateCategory = createAsyncThunk<Category, CategoryProps>('categories/put', async ({id, formData}, thunkAPI) => {  
   try {     
       const response = await categoryService.update(id, formData);
-      return response;
+      return response.data;
   } catch (error: any) {
       const message =
         (error.response &&
@@ -99,14 +99,14 @@ const categorySlice = createSlice({
           state.isSuccess = false;
         })
         .addCase(getAllCategories.fulfilled, (state, {payload}) => {
-          state.isLoading = true;
+          state.isLoading = false;
           state.isError = false;
-          state.isSuccess = false;
+          state.isSuccess = true;
           state.categories = payload;
         })
         .addCase(getAllCategories.rejected, (state, {payload}) => {
-          state.isLoading = true;
-          state.isError = false;
+          state.isLoading = false;
+          state.isError = true;
           state.isSuccess = false;
           state.categories =  []
         })

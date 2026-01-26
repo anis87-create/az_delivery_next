@@ -8,7 +8,7 @@ export const categoryService = {
     async create(form: CategoryForm){                                                                         
     try {                                                                                                                                                                                                                                                                                                                          
        const response = await privateApi.post(API_URL, form);                                                                                                                                                                                                                                
-       return response.data;                                                                                
+       return response;                                                                                
     } catch (error) {                                                                                       
        console.log('Service: ERREUR:', error);                                                              
        throw error;                                                                                         
@@ -17,7 +17,7 @@ export const categoryService = {
    async getAll(){
     try {
          const response = await privateApi.get(API_URL); 
-         return response.data;
+         return response;
     } catch (error) {
         console.log(error);
         throw error;
@@ -27,7 +27,7 @@ export const categoryService = {
     try {
               
         const response = await privateApi.put(`${API_URL}/${id}`, form); 
-        return response.data;
+        return response;
     } catch (error) {
         console.log(error);
         throw error;

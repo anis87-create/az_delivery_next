@@ -7,6 +7,7 @@ import { logout } from '../../../store/slices/authSlice';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { createCateogry, getAllCategories } from '@/app/store/slices/categorySlice';
+import { createItem , updateItem, deleteItem, getAllItems} from '../../../store/slices/itemSlice';
 import Swal from 'sweetalert2';
 
 
@@ -27,8 +28,8 @@ const DashboardNavbar = ({ restaurantName, restaurantEmail, restaurantLogo, curr
     ingredients: [],
     price: '',
     imageUrl: '',
-    available: true,
-    popular: false
+    isAvailable: true,
+    isPopular: false
   });
   const [currentIngredient, setCurrentIngredient] = useState('');
   const router = useRouter();
@@ -76,30 +77,32 @@ const DashboardNavbar = ({ restaurantName, restaurantEmail, restaurantLogo, curr
     setShowAddCategoryModal(false);
   };
 
-  const handleAddMenuItem = () => {
-    dispatch(addItem({
-      restaurantId: restaurant?._id,
-      ownerId: user?._id,
-      categoryId: menuItem.categoryId,
-      name: menuItem.name,
-      ingredients: menuItem.ingredients,
-      price: menuItem.price,
-      imageUrl: menuItem.imageUrl,
-      available: menuItem.available,
-      popular: menuItem.popular,
-    }));
-    setShowAddMenuItemModal(false);
-    setMenuItem({
-      categoryId: '',
-      name: '',
-      ingredients: [],
-      price: '',
-      imageUrl: '',
-      available: true,
-      popular: false
-    });
+  const handleAddMenuItem = async () => {
+    try {
+      setShowAddMenuItemModal(false);
+      setMenuItem({
+        categoryId: '',
+        name: '',
+        ingredients: [],
+        price: '',
+        imageUrl: '',
+        isAvailable: false,
+        isPopular: false
+      });
+      await dispatch(createItem(menuItem)).unwrap();
+      Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Item ajouté avec succès!',
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true
+      });
+    } catch (error) {
+      console.log(error);
+    }
   };
-
   const handleAddIngredient = () => {
     if (currentIngredient.trim() && !menuItem.ingredients.includes(currentIngredient.trim())) {
       setMenuItem(prev => ({
@@ -119,13 +122,13 @@ const DashboardNavbar = ({ restaurantName, restaurantEmail, restaurantLogo, curr
 
   const handleCancelMenuItem = () => {
     setMenuItem({
-      categoryId: '',
-      name: '',
+      categoryId: null,
+      name: null,
       ingredients: [],
-      price: '',
-      imageUrl: '',
-      available: true,
-      popular: false
+      price:  0,
+      imageUrl: null,
+      isAvailable: false,
+      isPopular: false
     });
     setCurrentIngredient('');
     setShowAddMenuItemModal(false);
@@ -139,7 +142,8 @@ const DashboardNavbar = ({ restaurantName, restaurantEmail, restaurantLogo, curr
 
   };
   useEffect(() => {
-    dispatch(getAllCategories())
+    dispatch(getAllCategories());
+    dispatch(getAllItems());
   }, [dispatch]);
 
   const getSectionTitle = () => {
@@ -472,14 +476,14 @@ const DashboardNavbar = ({ restaurantName, restaurantEmail, restaurantLogo, curr
                 <label className="block text-sm font-medium text-gray-700">Available</label>
                 <button
                   type="button"
-                  onClick={() => handleMenuItemChange('available', !menuItem.available)}
+                  onClick={() => handleMenuItemChange('isAvailable', !menuItem.isAvailable)}
                   className={`relative inline-flex h-6 w-11 items-center rounded-full ${
-                    menuItem.available ? 'bg-orange-600' : 'bg-gray-200'
+                    menuItem.isAvailable ? 'bg-orange-600' : 'bg-gray-200'
                   }`}
                 >
                   <span
                     className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
-                      menuItem.available ? 'translate-x-6' : 'translate-x-1'
+                      menuItem.isAvailable ? 'translate-x-6' : 'translate-x-1'
                     }`}
                   />
                 </button>
@@ -490,14 +494,14 @@ const DashboardNavbar = ({ restaurantName, restaurantEmail, restaurantLogo, curr
                 <label className="block text-sm font-medium text-gray-700">Popular</label>
                 <button
                   type="button"
-                  onClick={() => handleMenuItemChange('popular', !menuItem.popular)}
+                  onClick={() => handleMenuItemChange('isPopular', !menuItem.isPopular)}
                   className={`relative inline-flex h-6 w-11 items-center rounded-full ${
-                    menuItem.popular ? 'bg-orange-600' : 'bg-gray-200'
+                    menuItem.isPopular ? 'bg-orange-600' : 'bg-gray-200'
                   }`}
                 >
                   <span
                     className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
-                      menuItem.popular ? 'translate-x-6' : 'translate-x-1'
+                      menuItem.isPopular ? 'translate-x-6' : 'translate-x-1'
                     }`}
                   />
                 </button>

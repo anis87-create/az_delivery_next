@@ -9,85 +9,25 @@ import Swal from 'sweetalert2';
 const MenuManagement = () => {
   // Static categories data
   const { categories, isLoading } = useSelector(state => state.categories);
+  const { items  } = useSelector(state => state.items);
+
   const [updateShowCategory, setUpdateShowCategory]= useState(false);
   const [categoryName, setCategoryName] = useState('');
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
   const dispatch = useDispatch();
-
-  // Static items data
-  const [items] = useState([
-    {
-      id: 1,
-      categoryId: 1,
-      name: 'Pizza Margherita',
-      ingredients: ['Tomate', 'Mozzarella', 'Basilic'],
-      price: 12.50,
-      imageUrl: 'https://images.unsplash.com/photo-1604068549290-dea0e4a305ca',
-      available: true,
-      popular: true
-    },
-    {
-      id: 2,
-      categoryId: 1,
-      name: 'Pizza 4 Fromages',
-      ingredients: ['Mozzarella', 'Gorgonzola', 'Parmesan', 'Chèvre'],
-      price: 14.00,
-      imageUrl: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002',
-      available: true,
-      popular: false
-    },
-    {
-      id: 3,
-      categoryId: 2,
-      name: 'Burger Classic',
-      ingredients: ['Boeuf', 'Salade', 'Tomate', 'Oignon'],
-      price: 10.50,
-      imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd',
-      available: true,
-      popular: true
-    },
-    {
-      id: 4,
-      categoryId: 2,
-      name: 'Burger Bacon',
-      ingredients: ['Boeuf', 'Bacon', 'Fromage', 'Sauce BBQ'],
-      price: 12.00,
-      imageUrl: 'https://images.unsplash.com/photo-1553979459-d2229ba7433b',
-      available: false,
-      popular: false
-    },
-    {
-      id: 5,
-      categoryId: 3,
-      name: 'Tiramisu',
-      ingredients: ['Mascarpone', 'Café', 'Cacao'],
-      price: 6.50,
-      imageUrl: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9',
-      available: true,
-      popular: true
-    },
-    {
-      id: 6,
-      categoryId: 4,
-      name: 'Coca Cola',
-      ingredients: [],
-      price: 2.50,
-      imageUrl: 'https://images.unsplash.com/photo-1554866585-cd94860890b7',
-      available: true,
-      popular: false
-    }
-  ]);
-
+  
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeView, setActiveView] = useState('items'); // 'items' ou 'categories'
-
+  const [openCategories, setOpenCategories] = useState({});
   const getCategoryName = (categoryId) => {
     return categories.find(cat => cat._id === categoryId)?.name || 'Unknown';
   };
 
+  
+
   // Filter items by category and search query
-  const filteredItems = items.filter(item => {
+  const filteredItems = items?.filter(item => {
     // Filter by category
     const matchesCategory = selectedCategory === 'all' || item.categoryId === parseInt(selectedCategory);
 
@@ -134,7 +74,6 @@ const MenuManagement = () => {
   });
   if (!result.isConfirmed) return;  
    try {
-     
      await dispatch(deleteCategory(id));
    } catch (error) {
      console.log(error);
@@ -146,6 +85,21 @@ const MenuManagement = () => {
      setCategoryName(category.name);
      setSelectedCategoryId(category._id); 
   } 
+  const toggleCategory = (categoryId) => {                                                                  
+    setOpenCategories(prev => ({                                                                            
+      ...prev,                                                                                              
+      [categoryId]: !prev[categoryId]                                                                       
+    }));                                                                                                    
+  };    
+  const getItemsByCategory = () => {                                                                        
+    // On filtre les catégories qui ont au moins 1 item dans filteredItems                                  
+    return categories.filter(category => {                                                                  
+      return filteredItems.some(item => item.categoryId === category._id);                                  
+    }).map(category => ({                                                                                   
+      ...category,                                                                                          
+      items: filteredItems.filter(item => item.categoryId === category._id)                                 
+    }));                                                                                                    
+  };    
 
   return (
     <div className="space-y-6">
@@ -163,7 +117,7 @@ const MenuManagement = () => {
             </div>
             <div className="ml-3 sm:ml-4">
               <p className="text-xs sm:text-sm font-medium text-gray-600">Categories</p>
-              <p className="text-xl sm:text-2xl font-bold text-gray-900">{categories.length}</p>
+              <p className="text-xl sm:text-2xl font-bold text-gray-900">{categories?.length}</p>
             </div>
           </div>
         </div>
@@ -195,7 +149,7 @@ const MenuManagement = () => {
             <div className="ml-3 sm:ml-4">
               <p className="text-xs sm:text-sm font-medium text-gray-600">Available</p>
               <p className="text-xl sm:text-2xl font-bold text-gray-900">
-                {items.filter(item => item.available).length}
+                {items.filter(item => item.isAvailable).length}
               </p>
             </div>
           </div>
@@ -309,86 +263,103 @@ const MenuManagement = () => {
             </div>
           </div>
 
-          {/* Items Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {filteredItems.map((item) => (
-              <div key={item.id} className="bg-white rounded-lg shadow overflow-hidden flex flex-col">
-                <div className="relative h-48">
-                  <Image
-                    src={item.imageUrl}
-                    alt={item.name}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  />
-                  {!item.available && (
-                    <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                      <span className="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                        Unavailable
-                      </span>
-                    </div>
-                  )}
-                  {item.popular && (
-                    <div className="absolute top-2 right-2">
-                      <span className="bg-orange-500 text-white px-2 py-1 rounded-full text-xs font-semibold flex items-center">
-                        <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                        </svg>
-                        Popular
-                      </span>
-                    </div>
-                  )}
-                </div>
-                <div className="p-4 flex flex-col flex-1">
-                  <div className="flex items-start justify-between mb-2">
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900">{item.name}</h3>
-                      <p className="text-sm text-gray-500">{getCategoryName(item.categoryId)}</p>
-                    </div>
-                    <span className="text-lg font-bold text-orange-600">{item.price.toFixed(2)} TND</span>
+          {/* Items groupés par catégorie */}
+          <div className="space-y-4">
+            {getItemsByCategory().map((category) => (
+              <div key={category._id} className="rounded-lg overflow-hidden bg-white shadow">
+                {/* Header de la catégorie (cliquable) */}
+                <div
+                  className="flex items-center justify-between bg-gray-50 p-4 cursor-pointer hover:bg-gray-100 transition-colors"
+                  onClick={() => toggleCategory(category._id)}
+                >
+                  <h3 className="font-medium text-gray-900">{category.name}</h3>
+                  <div className="flex items-center">
+                    <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-orange-500 text-white mr-2">
+                      {category.items.length} items
+                    </span>
+                    {/* Icône chevron */}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className={`transition-transform duration-200 ${openCategories[category._id] === false ? 'rotate-180' : ''}`}
+                    >
+                      <path d="m18 15-6-6-6 6"></path>
+                    </svg>
                   </div>
-                  {item.ingredients.length > 0 && (
-                    <div className="mb-3">
-                      <p className="text-xs text-gray-500 mb-1">Ingredients:</p>
-                      <div className="flex flex-wrap gap-1">
-                        {item.ingredients.map((ingredient, index) => (
-                          <span
-                            key={index}
-                            className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded"
-                          >
-                            {ingredient}
-                          </span>
-                        ))}
+                </div>
+
+                {/* Liste des items (visible si ouvert) */}
+                {openCategories[category._id] !== false && (
+                  <div className="divide-y divide-gray-200">
+                    {category.items.map((item) => (
+                      <div key={item._id} className="flex items-center p-4 hover:bg-gray-50 transition-colors">
+                        {/* Image */}
+                        <img
+                          alt={item.name}
+                          className="w-16 h-16 object-cover rounded-md mr-4"
+                          src={item.imageUrl || "/placeholder.svg"}
+                        />
+
+                        {/* Infos de l'item */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center">
+                            <h4 className="font-medium truncate">{item.name}</h4>
+                            {item.isPopular && (
+                              <span className="ml-2 inline-flex items-center rounded-full bg-orange-100 px-2 py-0.5 text-xs font-medium text-orange-600">
+                                Popular
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-sm text-gray-500 line-clamp-1">
+                            {item.ingredients?.join(', ')}
+                          </p>
+                          <div className="flex items-center mt-1">
+                            <p className="font-medium text-orange-600">{item.price} TND</p>
+                            <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ml-2 ${
+                              item.isAvailable
+                                ? 'text-green-500 border-green-500'
+                                : 'text-red-500 border-red-500'
+                            }`}>
+                              {item.isAvailable ? 'Available' : 'Unavailable'}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Boutons d'action */}
+                        <div className="flex items-center ml-4 space-x-2">
+                          <button className="p-2 text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                          </button>
+                          <button className="p-2 text-red-600 bg-red-50 rounded-md hover:bg-red-100 transition-colors">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  )}
-                  <div className="flex space-x-2 mt-auto">
-                    <button className="flex-1 px-3 py-2 text-sm font-medium text-white bg-orange-600 rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500"
-                     onClick={() => {
-                        setUpdateShowMenu(true)
-                     }}
-                    >
-                      Edit
-                    </button>
-                    <button className="px-3 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-md hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                    </button>
+                    ))}
                   </div>
-                </div>
+                )}
               </div>
             ))}
           </div>
 
-          {filteredItems.length === 0 && (
+          {getItemsByCategory().length === 0 && (
             <div className="bg-white rounded-lg shadow p-8 text-center">
               <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
               <h3 className="mt-2 text-sm font-medium text-gray-900">No items found</h3>
-              <p className="mt-1 text-sm text-gray-500">No items in this category.</p>
+              <p className="mt-1 text-sm text-gray-500">No items match your search criteria.</p>
             </div>
           )}
         </>
