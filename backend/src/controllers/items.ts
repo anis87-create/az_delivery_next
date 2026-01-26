@@ -22,7 +22,9 @@ export const getAllItems = async (req: Request, res:Response) => {
 
 export const createItem = async (req: Request, res:Response) => {
     try {
-       const item = new Item({...req.body});
+       const item = new Item({
+        restaurantId: req.user?.restaurant?._id,
+          ...req.body});
        const existedItem = await Item.findOne({name: req.body.name});
        if(existedItem){
          return res.status(409).json({msg:'the item already exist!'});
