@@ -120,8 +120,6 @@ const categorySlice = createSlice({
           state.isError = false;
           state.isSuccess = true;
           const index = state.categories.findIndex(category => category._id === payload._id);
-          console.log(index);
-          
           state.categories[index] = payload;
         })
         .addCase(updateCategory.rejected, (state) => {

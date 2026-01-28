@@ -11,8 +11,6 @@ export const getAllItems =  createAsyncThunk<Item[], void>
 ('items/get', 
        async () => {
      const response = await ItemService.getAll();
-     console.log(response);
-     
      return response.data;
 });
 export const createItem = createAsyncThunk<Item, ItemProps>
@@ -49,9 +47,9 @@ export const deleteItem = createAsyncThunk<void, string>('items/delete', async (
 
 export const updateItem = createAsyncThunk<Item, ItemFormUpdate>
 ('items/put', 
-    async ({id, itemForm}, thunkAPI) => {
+    async ({itemForm, id}, thunkAPI) => {
    try {
-     const response = await ItemService.update(itemForm, id);
+     const response = await ItemService.update(itemForm, id);     
      return response.data;
    } catch (error: any) {
     const message =
@@ -113,7 +111,7 @@ const itemSlice = createSlice({
          state.isSuccess = false;
          state.isError = false;
          const index = state.items.findIndex(item => item._id === payload._id);
-         state.items[index] === payload;
+         state.items[index] = payload;
        }),
        builder.addCase(updateItem.rejected, (state) => {
          state.isLoading = false;

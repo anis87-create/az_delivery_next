@@ -29,6 +29,6 @@ export interface itemState {
 }
 
 export interface ItemFormUpdate {
-    id: string,
-    itemForm: ItemProps
+    itemForm: ItemProps,
+    id: string
 }

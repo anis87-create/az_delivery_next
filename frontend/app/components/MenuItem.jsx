@@ -90,7 +90,6 @@ const MenuItem = ({
         <button
           onClick={() => {
             item?.available = !item.available;
-            dispatch(updateItem(item));
           }
           
         

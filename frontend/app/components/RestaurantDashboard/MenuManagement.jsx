@@ -1,5 +1,6 @@
 'use client'
 import { deleteCategory, getAllCategories, updateCategory } from '@/app/store/slices/categorySlice';
+import { updateItem } from '../../store/slices/itemSlice';
 import Image from 'next/image';
 import { useState } from 'react';
 import { HiSearch } from 'react-icons/hi';
@@ -20,13 +21,45 @@ const MenuManagement = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeView, setActiveView] = useState('items'); // 'items' ou 'categories'
   const [openCategories, setOpenCategories] = useState({});
+  const [updateShowItem, setUpdateShowItem] = useState(false);
+  const [selectedItem,  setSelectedItem] = useState(null);
   const getCategoryName = (categoryId) => {
     return categories.find(cat => cat._id === categoryId)?.name || 'Unknown';
   };
 
-  
+const [menuItem, setMenuItem] = useState(null);
+const [currentIngredient, setCurrentIngredient] = useState(selectedItem?.ingredients || '');
 
-  // Filter items by category and search query
+const handleAddIngredient = () => {
+  if (currentIngredient.trim() && !selectedItem.ingredients.includes(currentIngredient.trim())) {
+    setSelectedItem(prev => ({
+      ...prev,
+      ingredients: [...prev.ingredients, currentIngredient.trim()]
+    }));
+    setCurrentIngredient('');
+  }
+};
+
+const handleRemoveIngredient = (ingredient) => {
+  setSelectedItem(prev => ({
+    ...prev,
+    ingredients: prev.ingredients.filter(ing => ing !== ingredient)
+  }));
+};
+
+const handleCancelMenuItem = () => {
+  setUpdateShowItem(false);
+};
+
+const handleMenuItemChange = (field, value) => {
+  setSelectedItem(prev => ({
+    ...prev,
+    [field]: value
+  }));
+};
+
+
+// Filter items by category and search query
   const filteredItems = items?.filter(item => {
     // Filter by category
     const matchesCategory = selectedCategory === 'all' || item.categoryId === parseInt(selectedCategory);
@@ -334,7 +367,10 @@ const MenuManagement = () => {
 
                         {/* Boutons d'action */}
                         <div className="flex items-center ml-4 space-x-2">
-                          <button className="p-2 text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors">
+                          <button className="p-2 text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors" onClick={() => {
+                            setUpdateShowItem(true);
+                            setSelectedItem(item);
+                          }}>
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                             </svg>
@@ -409,6 +445,206 @@ const MenuManagement = () => {
                         </div>
                         </div>
                       )}
+
+    {
+      updateShowItem && (
+         <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex min-h-full items-center justify-center p-4">
+            {/* Backdrop */}
+
+            {/* Modal Content */}
+            <div className="relative bg-white rounded-lg p-4 sm:p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-xl">
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Update Menu Item</h3>
+            <p className="text-sm text-gray-600 mb-6">Create or edit a menu item.</p>
+            
+            <div className="space-y-6">
+              {/* Category */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                <select
+                  value={ selectedItem.categoryId }
+                  onChange={(e) => handleMenuItemChange('categoryId', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                >
+                  <option value="">Select a category</option>
+                  {categories?.map((cat) => (
+                    <option key={cat._id} value={cat._id}>{cat?.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Name */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
+                <input
+                  type="text"
+                  value={selectedItem.name}
+                  onChange={(e) => handleMenuItemChange('name', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  placeholder="Menu item name"
+                />
+              </div>
+
+              {/* Ingredients */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Ingredients</label>
+                <div className="flex gap-2 mb-3">
+                  <input
+                    type="text"
+                    value={currentIngredient}
+                    onChange={(e) => setCurrentIngredient(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleAddIngredient();
+                      }
+                    }}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                    placeholder="Add an ingredient"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddIngredient}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleAddIngredient();
+                      }
+                    }}
+                    className="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-colors"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                  </button>
+                </div>
+
+                {/* Selected Ingredients */}
+                {selectedItem?.ingredients?.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {selectedItem?.ingredients.map((ingredient, index) => (
+                      <span
+                        key={index}
+                        className="inline-flex items-center gap-1 px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm font-medium"
+                      >
+                        {ingredient}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveIngredient(ingredient)}
+                          className="hover:bg-orange-200 rounded-full p-0.5 transition-colors"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Price */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Price</label>
+                <input
+                  type="number"
+                  value={selectedItem.price}
+                  onChange={(e) => handleMenuItemChange('price', e.target.value)}
+                  step="0.01"
+                  min="0"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  placeholder="0.00"
+                />
+              </div>
+
+              {/* Image URL */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Image URL</label>
+                <input
+                  type="url"
+                  value={selectedItem.imageUrl}
+                  onChange={(e) => handleMenuItemChange('imageUrl', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  placeholder="https://example.com/image.jpg"
+                />
+              </div>
+
+              {/* Available Switch */}
+              <div className="flex items-center justify-between">
+                <label className="block text-sm font-medium text-gray-700">Available</label>
+                <button
+                  type="button"
+                  onClick={() => handleMenuItemChange('isAvailable', !selectedItem.isAvailable)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full ${
+                  selectedItem.isAvailable ? 'bg-orange-600' : 'bg-gray-200'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
+                      selectedItem.isAvailable ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {/* Popular Switch */}
+              <div className="flex items-center justify-between">
+                <label className="block text-sm font-medium text-gray-700">Popular</label>
+                <button
+                  type="button"
+                  onClick={() => handleMenuItemChange('isPopular', !selectedItem.isPopular)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full ${
+                    selectedItem.isPopular ? 'bg-orange-600' : 'bg-gray-200'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
+                      selectedItem.isPopular ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+            </div>
+            
+            <div className="flex flex-col-reverse sm:flex-row sm:justify-end space-y-2 space-y-reverse sm:space-y-0 sm:space-x-3 mt-8">
+              <button
+                onClick={handleCancelMenuItem}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() =>{
+                  try {
+                    dispatch(updateItem({itemForm : selectedItem, id: selectedItem._id})).unwrap();
+                    Swal.fire({
+                      toast: true,
+                      position: 'top-end',
+                      icon: 'success',
+                      title: 'Item modifié avec succès!',
+                      showConfirmButton: false,
+                      timer: 2000,
+                      timerProgressBar: true
+                    });
+                    setUpdateShowItem(false);
+                  } catch (error) {
+                    
+                  }
+                     
+                }
+              
+                
+                }
+                className="px-4 py-2 text-sm font-medium text-white bg-orange-600 rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+          </div>
+        </div>
+      )
+    }                  
     </div>
     
   );
