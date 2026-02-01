@@ -111,6 +111,8 @@ const itemSlice = createSlice({
          state.isSuccess = false;
          state.isError = false;
          const index = state.items.findIndex(item => item._id === payload._id);
+         console.log(payload);
+         
          state.items[index] = payload;
        }),
        builder.addCase(updateItem.rejected, (state) => {
@@ -128,7 +130,7 @@ const itemSlice = createSlice({
           state.isLoading = false;
          state.isSuccess = false;
          state.isError = false;
-         state.items.filter(item =>  item._id !== meta.arg)
+         state.items = state.items.filter(item =>  item._id !== meta.arg);         
        }),
        builder.addCase(deleteItem.rejected, (state) => {
         state.isLoading = false;

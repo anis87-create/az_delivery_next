@@ -6,40 +6,40 @@ const Dashboard = () => {
   // Static orders data
   const [orders] = useState([
     {
-      id: 1,
-      userId: 1,
+      id: '1',
+      userId:'1',
       status: 'delivered',
       total: 45.50,
       createdAt: '2024-12-26T14:30:00',
       items: ['Pizza Margherita', 'Coca Cola']
     },
     {
-      id: 2,
-      userId: 2,
+      id: '2',
+      userId: '2',
       status: 'pending',
       total: 32.00,
       createdAt: '2024-12-26T15:15:00',
       items: ['Burger', 'Frites']
     },
     {
-      id: 3,
-      userId: 3,
+      id: '3',
+      userId: '3',
       status: 'confirmed',
       total: 28.75,
       createdAt: '2024-12-26T15:45:00',
       items: ['Salade César']
     },
     {
-      id: 4,
-      userId: 1,
+      id: '4',
+      userId: '1',
       status: 'delivering',
       total: 56.20,
       createdAt: '2024-12-26T16:00:00',
       items: ['Pasta Carbonara', 'Tiramisu']
     },
     {
-      id: 5,
-      userId: 4,
+      id: '5',
+      userId: '4',
       status: 'cancelled',
       total: 15.00,
       createdAt: '2024-12-26T16:20:00',
@@ -49,10 +49,10 @@ const Dashboard = () => {
 
   // Static users data
   const users = [
-    { id: 1, fullName: 'Jean Dupont' },
-    { id: 2, fullName: 'Marie Martin' },
-    { id: 3, fullName: 'Pierre Durand' },
-    { id: 4, fullName: 'Sophie Bernard' }
+    { id: '1', fullName: 'Jean Dupont' },
+    { id: '2', fullName: 'Marie Martin' },
+    { id: '3', fullName: 'Pierre Durand' },
+    { id: '4', fullName: 'Sophie Bernard' }
   ];
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
@@ -66,25 +66,26 @@ const Dashboard = () => {
     { value: 'cancelled', label: 'Cancelled', bgColor: 'bg-red-100', textColor: 'text-red-800' }
   ];
 
-  const getStatusDisplay = (status) => {
+  const getStatusDisplay = (status: string) => {
     const statusConfig = statusOptions.find(option => option.value === status);
     return statusConfig || { label: status, bgColor: 'bg-gray-100', textColor: 'text-gray-800' };
   };
 
-  const handleStatusChange = (orderId, newStatus) => {
+  const handleStatusChange = (orderId: string, newStatus: string) => {
     console.log(`Order ${orderId} status changed to ${newStatus}`);
   };
 
-  const handleDeleteOrder = (orderId) => {
+  const handleDeleteOrder = (orderId: string) => {
     console.log(`Deleting order ${orderId}`);
     setShowDeleteConfirm(null);
   };
 
-  const findCustomerNameById = (userId) => {
+  const findCustomerNameById = (userId: string) => {
+    if(!userId) return null;
     return users.find(user => user.id === userId)?.fullName || 'Unknown';
   };
 
-  const getTime = (dateString) => {
+  const getTime = (dateString: string) => {
     const date = new Date(dateString);
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
@@ -93,6 +94,7 @@ const Dashboard = () => {
 
   // Filter orders based on search query
   const filteredOrders = orders.filter(order => {
+    if(!order.userId) return null;
     const customerName = findCustomerNameById(order.userId)?.toLowerCase() || '';
     const orderId = order.id.toString().toLowerCase();
     const status = order?.status?.toLowerCase();

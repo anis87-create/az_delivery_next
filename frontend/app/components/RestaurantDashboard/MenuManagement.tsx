@@ -1,46 +1,47 @@
 'use client'
-import { deleteCategory, getAllCategories, updateCategory } from '@/app/store/slices/categorySlice';
-import { updateItem } from '../../store/slices/itemSlice';
-import Image from 'next/image';
+import { deleteCategory, updateCategory } from '@/app/store/slices/categorySlice';
+import { updateItem, deleteItem } from '../../store/slices/itemSlice';
 import { useState } from 'react';
 import { HiSearch } from 'react-icons/hi';
 import { useDispatch, useSelector } from 'react-redux';
+import type { RootState, AppDispatch} from '../../store/store';
+import type { Item } from '@/app/types/item.types';
 import Swal from 'sweetalert2';
 
 const MenuManagement = () => {
   // Static categories data
-  const { categories, isLoading } = useSelector(state => state.categories);
-  const { items  } = useSelector(state => state.items);
+  const { categories } = useSelector((state:RootState) => state.categories);
+  const { items  } = useSelector((state:RootState) => state.items);
 
   const [updateShowCategory, setUpdateShowCategory]= useState(false);
-  const [categoryName, setCategoryName] = useState('');
-  const [selectedCategoryId, setSelectedCategoryId] = useState(null);
-  const dispatch = useDispatch();
+  const [categoryName, setCategoryName] = useState<string|null>('');
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string|null>(null);
+  const dispatch = useDispatch<AppDispatch>();
   
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState<string|null>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeView, setActiveView] = useState('items'); // 'items' ou 'categories'
-  const [openCategories, setOpenCategories] = useState({});
+  const [openCategories, setOpenCategories] = useState<Record<string, boolean>>({});
   const [updateShowItem, setUpdateShowItem] = useState(false);
-  const [selectedItem,  setSelectedItem] = useState(null);
-  const getCategoryName = (categoryId) => {
-    return categories.find(cat => cat._id === categoryId)?.name || 'Unknown';
-  };
+  const [selectedItem,  setSelectedItem] = useState<Item|null>(null);
+ 
 
-const [menuItem, setMenuItem] = useState(null);
-const [currentIngredient, setCurrentIngredient] = useState(selectedItem?.ingredients || '');
+
+const [currentIngredient, setCurrentIngredient] = useState<string>('');
 
 const handleAddIngredient = () => {
-  if (currentIngredient.trim() && !selectedItem.ingredients.includes(currentIngredient.trim())) {
+  if(!selectedItem) return null;
+  if (currentIngredient.trim() && !selectedItem?.ingredients.includes(currentIngredient.trim())) {
     setSelectedItem(prev => ({
-      ...prev,
-      ingredients: [...prev.ingredients, currentIngredient.trim()]
+      ...prev!,
+      ingredients: [...prev!.ingredients, currentIngredient.trim()]
     }));
     setCurrentIngredient('');
   }
 };
 
-const handleRemoveIngredient = (ingredient) => {
+const handleRemoveIngredient = (ingredient: string) => {
+  
   setSelectedItem(prev => ({
     ...prev,
     ingredients: prev.ingredients.filter(ing => ing !== ingredient)
@@ -51,9 +52,9 @@ const handleCancelMenuItem = () => {
   setUpdateShowItem(false);
 };
 
-const handleMenuItemChange = (field, value) => {
+const handleMenuItemChange = (field: keyof Item, value: string | number | boolean) => {
   setSelectedItem(prev => ({
-    ...prev,
+    ...prev!,
     [field]: value
   }));
 };
@@ -62,8 +63,7 @@ const handleMenuItemChange = (field, value) => {
 // Filter items by category and search query
   const filteredItems = items?.filter(item => {
     // Filter by category
-    const matchesCategory = selectedCategory === 'all' || item.categoryId === parseInt(selectedCategory);
-
+    const matchesCategory = selectedCategory === 'all' || item.categoryId ===  selectedCategory;  
     // Filter by search query (search in name and ingredients)
     const matchesSearch = searchQuery === '' ||
       item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -75,7 +75,7 @@ const handleMenuItemChange = (field, value) => {
     setCategoryName('');
     setUpdateShowCategory(false);
   };
-  const handleUpdateCategory = async (categoryName, id) => {
+  const handleUpdateCategory = async (categoryName: string, id: string) => {
     try {
        const formData = {name: categoryName};
        await dispatch(updateCategory({id, formData}));
@@ -95,7 +95,7 @@ const handleMenuItemChange = (field, value) => {
     }
    
   };
-  const handleRemoveCategory = async (id) => {
+  const handleRemoveCategory = async (id: string) => {
     const result = await Swal.fire({
     title: "Confirmer la suppression ?",
     text: "Cette action est irréversible.",
@@ -112,13 +112,13 @@ const handleMenuItemChange = (field, value) => {
      console.log(error);
    }
   }
-  const renderUpdatedCategory = (id) => {   
+  const renderUpdatedCategory = (id: string) => {   
      setUpdateShowCategory(true); 
      const category = categories.find(category => category._id === id);
      setCategoryName(category.name);
      setSelectedCategoryId(category._id); 
   } 
-  const toggleCategory = (categoryId) => {                                                                  
+  const toggleCategory = (categoryId: string) => {                                                                  
     setOpenCategories(prev => ({                                                                            
       ...prev,                                                                                              
       [categoryId]: !prev[categoryId]                                                                       
@@ -133,6 +133,33 @@ const handleMenuItemChange = (field, value) => {
       items: filteredItems.filter(item => item.categoryId === category._id)                                 
     }));                                                                                                    
   };    
+
+  const handleRemoveItem = async (id: string) => {
+    const result = await Swal.fire({
+    title: "Confirmer la suppression ?",
+    text: "Cette action est irréversible.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Oui, supprimer",
+    cancelButtonText: "Annuler",
+    reverseButtons: true,
+  });
+  if (!result.isConfirmed) return;  
+   try {
+     await dispatch(deleteItem(id));
+     Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Item supprimé avec succès!',
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true
+      });
+   } catch (error) {
+     console.log(error);
+   }
+  }
 
   return (
     <div className="space-y-6">
@@ -375,7 +402,9 @@ const handleMenuItemChange = (field, value) => {
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                             </svg>
                           </button>
-                          <button className="p-2 text-red-600 bg-red-50 rounded-md hover:bg-red-100 transition-colors">
+                          <button className="p-2 text-red-600 bg-red-50 rounded-md hover:bg-red-100 transition-colors"
+                          onClick={() => handleRemoveItem(item._id) }
+                          >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                             </svg>
@@ -614,9 +643,9 @@ const handleMenuItemChange = (field, value) => {
                 Cancel
               </button>
               <button
-                onClick={() =>{
+                onClick={async () =>{
                   try {
-                    dispatch(updateItem({itemForm : selectedItem, id: selectedItem._id})).unwrap();
+                    await dispatch(updateItem({itemForm : selectedItem, id: selectedItem._id})).unwrap();
                     Swal.fire({
                       toast: true,
                       position: 'top-end',

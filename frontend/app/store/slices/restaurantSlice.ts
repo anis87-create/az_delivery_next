@@ -1,6 +1,5 @@
-import { RestaurantFormState, RestaurantState } from "@/app/types/restaurant.types";
+import { BaseRestaurantInfo, RestaurantState } from "@/app/types/restaurant.types";
 import { createAsyncThunk, createSlice , PayloadAction} from "@reduxjs/toolkit";
-import { v4 as uuidv4 } from 'uuid';
 import { restaurantService } from "../services/restaurant";
 const initialState:RestaurantState = {
     restaurant: null,
@@ -9,7 +8,7 @@ const initialState:RestaurantState = {
     message: ''
 };
 
-export  const updateRestaurantInfo = createAsyncThunk<void, {id: string, form: RestaurantFormState}>('restaurant/update', async({id, form}, thunkAPI) => {
+export  const updateRestaurantInfo = createAsyncThunk<void, {id: string, form: FormData}>('restaurant/update', async({id, form}, thunkAPI) => {
    try {
            const minDelay = new Promise(resolve => setTimeout(resolve, 3000));
            const [userData] = await Promise.all([

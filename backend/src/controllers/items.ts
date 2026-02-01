@@ -50,11 +50,15 @@ export const updateItem = async (req: Request, res:Response) => {
        if(!req.params.id){
          return res.status(500).json({msg:'the id is undefined'});
     }
-     const item = await Item.updateOne({_id: req.params.id}, {
+     await Item.updateOne({_id: req.params.id}, {
         _id: req.params.id,
         ...req.body
     });
-    res.status(200).json(item);
+
+    res.status(200).json({
+        _id: req.params.id,
+        ...req.body
+    });
     } catch (error) {
         res.status(500).json({error});
     }
@@ -68,6 +72,7 @@ export const removeItem = async (req: Request, res:Response) => {
            return res.status(400).json({msg:'the id is undefined'});
          }
          await Item.deleteOne({_id: req.params.id});
+         res.status(200).json({msg:'Item deleted  succesfuly'});
     } catch (error) {
         res.status(500).json({error});
     }

@@ -2,9 +2,15 @@ import { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Image from 'next/image';
 import { FiUpload } from 'react-icons/fi';
-import { getRestaurantsByOwner, updateRestaurant, updateRestaurantInfo } from '../../store/slices/restaurantSlice';
+import { updateRestaurantInfo } from '../../store/slices/restaurantSlice';
 import { authMe } from '../../store/slices/authSlice';
+import { RootState, AppDispatch } from '@/app/store/store';
+import { BaseRestaurantInfo, Restaurant } from '@/app/types/restaurant.types';
 
+interface RestaurantUdpateProps {
+  id: string,
+  form: Restaurant
+}
 // Composant pour afficher l'image (Next.js Image ou img standard)
 // Déclaré en dehors du composant pour éviter les re-créations
 const PreviewImage = ({ src, alt, className }) => {
@@ -36,8 +42,8 @@ const PreviewImage = ({ src, alt, className }) => {
 
 const SettingsManagement = () => {
   const [activeTab, setActiveTab] = useState('General');
-  const {currentUser, user} = useSelector(state => state.auth);
-  const {isLoading, message, isError} = useSelector(state => state.restaurant);
+  const {user} = useSelector((state:RootState) => state.auth);
+  const {isLoading, message, isError} = useSelector((state:RootState) => state.restaurant);
   
   const [selectedFiles, setSelectedFiles] = useState({
     img: null,
@@ -49,7 +55,7 @@ const SettingsManagement = () => {
     img: null,
     coverImg: null
   });
-   const [restaurantData, setRestaurantData] = useState({
+   const [restaurantData, setRestaurantData] = useState<BaseRestaurantInfo|null>({
     name: user?.restaurant?.name || 'Mon Restaurant',
     email: user?.restaurant?.email || 'restaurant@example.com',
     coverImg: user?.restaurant?.coverImg  || null,
@@ -59,6 +65,9 @@ const SettingsManagement = () => {
     city: user?.restaurant?.city || '',
     zipCode: user?.restaurant?.zipCode || '',
     description: user?.restaurant?.description || '',
+    category: user?.restaurant?.category || '',
+    type: user?.restaurant?.type || '',
+    deliveryZone: user?.restaurant?.deliveryZone || '',
     openingHours: user?.restaurant?.openingHours || {
       monday: { open: '11:00', close: '22:00', closed: false },
       tuesday: { open: '11:00', close: '22:00', closed: false },
@@ -68,7 +77,7 @@ const SettingsManagement = () => {
       saturday: { open: '11:00', close: '23:00', closed: false },
       sunday: { open: '12:00', close: '21:00', closed: false }
     },
-    baseFee: user?.restaurant?.baseFee || 3,
+    baseFee: user?.restaurant?.baseFee,
     estimatedDeliveryTime: user?.restaurant?.estimatedDeliveryTime || ''
    /* deliverySettings: {
       baseFee: Number(user?.restaurant?.deliverySettings?.baseFee) || 3,
@@ -99,7 +108,7 @@ const SettingsManagement = () => {
     }
   };
 
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   // Nettoyer les URLs blob quand le composant est démonté ou que les URLs changent
   useEffect(() => {
@@ -127,6 +136,9 @@ const SettingsManagement = () => {
         city: user.restaurant.city || '',
         zipCode: user.restaurant.zipCode || '',
         description: user.restaurant.description || '',
+        category: user.restaurant.category || '',
+        type: user.restaurant.type || '',
+        deliveryZone: user.restaurant.deliveryZone || '',
         openingHours: user.restaurant.openingHours || {
           monday: { open: '11:00', close: '22:00', closed: false },
           tuesday: { open: '11:00', close: '22:00', closed: false },
@@ -136,10 +148,9 @@ const SettingsManagement = () => {
           saturday: { open: '11:00', close: '23:00', closed: false },
           sunday: { open: '12:00', close: '21:00', closed: false }
         },
-        baseFee: user?.restaurant?.baseFee || 3,
+        baseFee: user?.restaurant?.baseFee,
         estimatedDeliveryTime: user?.restaurant?.estimatedDeliveryTime || '',
-        img: user?.restaurant?.img,
-        coverImg: user?.restaurant?.coverImg
+        img: user?.restaurant?.img
       });
     }
   }, [user]); 
@@ -169,48 +180,38 @@ const SettingsManagement = () => {
     }));
   };
 
-  const handleDeliverySettingsChange = (field, value) => {
-    setRestaurantData(prev => ({
-      ...prev,
-      deliverySettings: {
-        ...prev.deliverySettings,
-        [field]: value
-      }
-    }));
-  };
 
 
   const handleSaveChanges = async () => {
-    const formData = new FormData();
+    const form = new FormData();
     // Débogage : voir ce qu'on va envoyer
 
     // Ajouter les données de base
-    formData.append('name', restaurantData.name);
-    formData.append('email', restaurantData.email);
-    formData.append('phone', restaurantData.phone);
-    formData.append('description', restaurantData.description);
-    formData.append('street', restaurantData.street);
-    formData.append('city', restaurantData.city);
-    formData.append('zipCode', restaurantData.zipCode);
-    formData.append('openingHours', JSON.stringify(restaurantData.openingHours));
-    formData.append('baseFee', Number(restaurantData.baseFee));
-    formData.append('estimatedDeliveryTime', restaurantData.estimatedDeliveryTime);
+  form.append('name', restaurantData.name);
+  form.append('email', restaurantData.email);
+  form.append('phone', restaurantData.phone);
+  form.append('description', restaurantData.description);
+  form.append('street', restaurantData.street);
+  form.append('city', restaurantData.city);
+  form.append('zipCode', restaurantData.zipCode);
+  form.append('openingHours', JSON.stringify(restaurantData.openingHours));
+  form.append('baseFee',restaurantData.baseFee);
+  form.append('estimatedDeliveryTime', restaurantData.estimatedDeliveryTime);
 
     // N'ajouter les images que si elles ont été modifiées
     if (selectedFiles.img) {
-      formData.append('img', selectedFiles.img);
+    form.append('img', selectedFiles.img);
     }
 
     if (selectedFiles.coverImg) {
-      formData.append('coverImg', selectedFiles.coverImg);
+    form.append('coverImg', selectedFiles.coverImg);
     }
 
 
 
     try {
       // Sauvegarder les modifications
-      await dispatch(updateRestaurantInfo({id:user?.restaurant?._id, form:formData
-      })).unwrap();
+      await dispatch(updateRestaurantInfo({id:user?.restaurant?._id, form})).unwrap();
       // Réinitialiser les fichiers sélectionnés
      
 
