@@ -43,3 +43,8 @@ export interface RestaurantState {
   isLoading: boolean | null,
   message: string
 }
+
+export interface ImageProps {
+   img: string | null,
+   coverImg: string | null 
+}

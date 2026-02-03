@@ -9,31 +9,39 @@ import Image from 'next/image';
 import { createCateogry, getAllCategories } from '@/app/store/slices/categorySlice';
 import { createItem , updateItem, deleteItem, getAllItems} from '../../../store/slices/itemSlice';
 import Swal from 'sweetalert2';
+import { AppDispatch, RootState } from '@/app/store/store';
+import { ItemProps } from '@/app/types/item.types';
 
-
-const DashboardNavbar = ({ restaurantName, restaurantEmail, restaurantLogo, currentSection = 'Dashboard', onMenuClick }) => {
+interface DashboardNavbarProps {
+  restaurantName?: string,
+  restaurantEmail?: string,
+  restaurantLogo?: string,
+  currentSection?:string,
+  onMenuClick?: (event: React.MouseEvent<HTMLButtonElement>) => void,
+}
+const DashboardNavbar = ({ restaurantName, restaurantEmail, restaurantLogo, currentSection = 'Dashboard', onMenuClick}:DashboardNavbarProps) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
   const [categoryName, setCategoryName] = useState('');
-  const { categories } = useSelector(state => state.categories);
+  const { categories } = useSelector((state:RootState) => state.categories);
   
-  const { user } = useSelector(state => state.auth);
+  const { user } = useSelector((state:RootState) => state.auth);
   const restaurant = user?.restaurant;
-  const { items } = useSelector(state => state.items);
+  const { items } = useSelector((state:RootState) => state.items);
   // Add Menu Item states
   const [showAddMenuItemModal, setShowAddMenuItemModal] = useState(false);
-  const [menuItem, setMenuItem] = useState({
+  const [menuItem, setMenuItem] = useState<ItemProps>({
     categoryId: '',
     name: '',
     ingredients: [],
-    price: '',
+    price: 0,
     imageUrl: '',
     isAvailable: true,
     isPopular: false
   });
   const [currentIngredient, setCurrentIngredient] = useState('');
   const router = useRouter();
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   const handleLogout = () => {
     dispatch(logout());
@@ -84,7 +92,7 @@ const DashboardNavbar = ({ restaurantName, restaurantEmail, restaurantLogo, curr
         categoryId: '',
         name: '',
         ingredients: [],
-        price: '',
+        price: 0,
         imageUrl: '',
         isAvailable: false,
         isPopular: false
@@ -113,7 +121,7 @@ const DashboardNavbar = ({ restaurantName, restaurantEmail, restaurantLogo, curr
     }
   };
 
-  const handleRemoveIngredient = (ingredientToRemove) => {
+  const handleRemoveIngredient = (ingredientToRemove:string) => {
     setMenuItem(prev => ({
       ...prev,
       ingredients: prev.ingredients.filter(ing => ing !== ingredientToRemove)
@@ -126,7 +134,7 @@ const DashboardNavbar = ({ restaurantName, restaurantEmail, restaurantLogo, curr
       name: null,
       ingredients: [],
       price:  0,
-      imageUrl: null,
+      imageUrl: '',
       isAvailable: false,
       isPopular: false
     });
@@ -134,7 +142,7 @@ const DashboardNavbar = ({ restaurantName, restaurantEmail, restaurantLogo, curr
     setShowAddMenuItemModal(false);
   };
 
-  const handleMenuItemChange = (field, value) => {
+  const handleMenuItemChange = (field:string, value:string | number | boolean) => {
     setMenuItem(prev => ({
       ...prev,
       [field]: value
@@ -375,7 +383,7 @@ const DashboardNavbar = ({ restaurantName, restaurantEmail, restaurantLogo, curr
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                 >
                   <option value="">Select a category</option>
-                  {categories?.filter(category => category.restaurantId === restaurant._id).map((cat) => (
+                  {categories?.map((cat) => (
                     <option key={cat._id} value={cat._id}>{cat?.name}</option>
                   ))}
                 </select>

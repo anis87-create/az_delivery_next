@@ -1,8 +1,16 @@
 'use client'
 
 import Image from "next/image";
-
-const Sidebar = ({ restaurantName, restaurantLogo, currentSection, onSectionChange, isOpen, onClose }) => {
+interface SidebarProps {
+  restaurantName: string,
+  restaurantLogo: string,
+  currentSection: string,
+  onSectionChange: (section: string) => void,
+  onClose?: () => void,
+  isOpen: boolean,
+  isClose: boolean 
+}
+const Sidebar = ({ restaurantName, restaurantLogo, currentSection, onSectionChange, isOpen, onClose }: SidebarProps) => {
   
   const menuItems = [
     {
@@ -36,7 +44,7 @@ const Sidebar = ({ restaurantName, restaurantLogo, currentSection, onSectionChan
   ];
 
   
-  const handleMenuClick = (itemName) => {
+  const handleMenuClick = (itemName: string) => {
     onSectionChange(itemName);
     if (onClose) onClose();
   };

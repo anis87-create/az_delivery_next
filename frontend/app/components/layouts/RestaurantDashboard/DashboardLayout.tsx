@@ -7,19 +7,24 @@ import MenuManagement from '../../RestaurantDashboard/MenuManagement';
 import SettingsManagement from '../../RestaurantDashboard/SettingsManagement';
 import { useDispatch, useSelector } from 'react-redux';
 import { authMe } from '../../../store/slices/authSlice';
-
+import { RootState, AppDispatch } from '@/app/store/store';
+interface DashboardLayoutProps {
+  restaurantName?: string,
+  restaurantEmail?: string,
+  restaurantLogo?: string | null
+}
 const DashboardLayout = ({
   restaurantName = "Mon Restaurant",
   restaurantEmail = "restaurant@example.com",
   restaurantLogo = null
-}) => {
+}: DashboardLayoutProps) => {
   const [currentSection, setCurrentSection] = useState('Dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isChangingTab, setIsChangingTab] = useState(false);
   const isFirstMount = useRef(true);
   const previousSection = useRef('Dashboard'); // Track la section précédente
-  const dispatch = useDispatch();
-  const { user, isLoading } = useSelector(state => state.auth);
+  const dispatch = useDispatch<AppDispatch>();
+  const { user, isLoading } = useSelector((state:RootState) => state.auth);
   const restaurant = user?.restaurant;
 
   // Effet pour appeler authMe lors du changement de tab SEULEMENT
@@ -106,6 +111,7 @@ const DashboardLayout = ({
         currentSection={currentSection}
         onSectionChange={setCurrentSection}
         isOpen={sidebarOpen}
+        isClose={!sidebarOpen}
         onClose={() => setSidebarOpen(false)}
       />
 

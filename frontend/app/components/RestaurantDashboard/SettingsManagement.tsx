@@ -5,15 +5,16 @@ import { FiUpload } from 'react-icons/fi';
 import { updateRestaurantInfo } from '../../store/slices/restaurantSlice';
 import { authMe } from '../../store/slices/authSlice';
 import { RootState, AppDispatch } from '@/app/store/store';
-import { BaseRestaurantInfo, Restaurant } from '@/app/types/restaurant.types';
+import { BaseRestaurantInfo, ImageProps, Restaurant } from '@/app/types/restaurant.types';
 
-interface RestaurantUdpateProps {
-  id: string,
-  form: Restaurant
+interface PreviewImageProps {
+  src: string,
+  alt: string,
+  className: string
 }
 // Composant pour afficher l'image (Next.js Image ou img standard)
 // Déclaré en dehors du composant pour éviter les re-créations
-const PreviewImage = ({ src, alt, className }) => {
+const PreviewImage = ({ src, alt, className }: PreviewImageProps) => {
   // Next.js <Image> ne supporte pas les Data URLs (base64 avec blob:)
   // On utilise <img> standard pour les URLs blob
   if (src && (src.startsWith('data:') || src.startsWith('blob:'))) {
@@ -45,13 +46,13 @@ const SettingsManagement = () => {
   const {user} = useSelector((state:RootState) => state.auth);
   const {isLoading, message, isError} = useSelector((state:RootState) => state.restaurant);
   
-  const [selectedFiles, setSelectedFiles] = useState({
+  const [selectedFiles, setSelectedFiles] = useState<{ img: File | null; coverImg: File | null }>({
     img: null,
     coverImg: null
   });
 
   // State pour les URLs de prévisualisation (blob URLs pour les nouveaux fichiers)
-  const [previewUrls, setPreviewUrls] = useState({
+  const [previewUrls, setPreviewUrls] = useState<ImageProps>({
     img: null,
     coverImg: null
   });
@@ -90,7 +91,7 @@ const SettingsManagement = () => {
   const coverImgInputRef = useRef(null);
 
   // Fonction helper pour obtenir l'URL de prévisualisation
-  const getPreviewUrl = (type) => {
+  const getPreviewUrl = (type:string) => {
     // 1. Priorité : nouvelle image sélectionnée (blob URL)
     if (previewUrls[type]) {
       return previewUrls[type];
@@ -167,7 +168,7 @@ const SettingsManagement = () => {
     }));    
   };
 
-  const handleOpeningHoursChange = (day, field, value) => {
+  const handleOpeningHoursChange = (day:string, field:string, value: string|boolean) => {
     setRestaurantData(prev => ({
       ...prev,
       openingHours: {

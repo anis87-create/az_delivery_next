@@ -1,6 +1,5 @@
 export interface ItemProps {
   categoryId: string,
-  restaurantId: string,
   name: string,
   ingredients: string [],
   price: number,
