@@ -8,7 +8,7 @@ interface SidebarProps {
   onSectionChange: (section: string) => void,
   onClose?: () => void,
   isOpen: boolean,
-  isClose: boolean 
+  isClose?: boolean 
 }
 const Sidebar = ({ restaurantName, restaurantLogo, currentSection, onSectionChange, isOpen, onClose }: SidebarProps) => {
   
@@ -61,8 +61,10 @@ const Sidebar = ({ restaurantName, restaurantLogo, currentSection, onSectionChan
               {restaurantLogo ? (
                 <Image
                   src={restaurantLogo} 
-                  alt={restaurantName}
+                  alt={restaurantName || 'Restaurant logo'}
                   className="w-8 h-8 rounded object-cover"
+                  width={32}
+                  height={32}
                 />
               ) : (
                 <span className="text-white font-bold text-lg">

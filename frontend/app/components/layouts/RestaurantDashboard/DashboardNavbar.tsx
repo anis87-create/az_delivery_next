@@ -25,11 +25,8 @@ const DashboardNavbar = ({ restaurantName, restaurantEmail, restaurantLogo, curr
   const [categoryName, setCategoryName] = useState('');
   const { categories } = useSelector((state:RootState) => state.categories);
   
-  const { user } = useSelector((state:RootState) => state.auth);
-  const restaurant = user?.restaurant;
-  const { items } = useSelector((state:RootState) => state.items);
   // Add Menu Item states
-  const [showAddMenuItemModal, setShowAddMenuItemModal] = useState(false);
+  const [showAddMenuItemModal, setShowAddMenuItemModal] = useState<Boolean>(false);
   const [menuItem, setMenuItem] = useState<ItemProps>({
     categoryId: '',
     name: '',
@@ -130,8 +127,8 @@ const DashboardNavbar = ({ restaurantName, restaurantEmail, restaurantLogo, curr
 
   const handleCancelMenuItem = () => {
     setMenuItem({
-      categoryId: null,
-      name: null,
+      categoryId: '',
+      name: '',
       ingredients: [],
       price:  0,
       imageUrl: '',
@@ -262,8 +259,10 @@ const DashboardNavbar = ({ restaurantName, restaurantEmail, restaurantLogo, curr
                   {restaurantLogo ? (
                     <Image
                       src={restaurantLogo} 
-                      alt={restaurantName}
+                      alt={restaurantName || 'Restaurant logo'}
                       className="w-6 h-6 sm:w-8 sm:h-8 rounded object-cover"
+                      width={32}
+                      height={32}
                     />
                   ) : (
                     <span className="text-white font-bold text-sm sm:text-lg">
