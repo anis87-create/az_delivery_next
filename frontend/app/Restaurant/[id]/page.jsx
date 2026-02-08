@@ -10,14 +10,17 @@ import { useDispatch } from 'react-redux';
 import Link from 'next/link';
 import Avatar from '@/app/components/common/Avatar.jsx';
 import QuantityContainer from '@/app/components/QuantityContainer.jsx';
+import { getOneRestaurant } from '@/app/store/slices/restaurantSlice';
 
 
 const RestaurantPage = () => {
   const { id } = useParams();
-  const {restaurants} = useAppSelector(state => state.restaurant);
-  const restaurant = restaurants.find((restaurant) => restaurant.id === Number(id));
+  const {restaurant} = useAppSelector(state => state.restaurant);
 
-  const { items }  = useAppSelector(state => state.items);
+  
+  
+
+
   //const comments = getCommentsByRestaurantId(parseInt(id))
   //const totalComments = getTotalCommentsCount(parseInt(id))
   const { user, isAuthenticated } = useAppSelector (state => state.auth);
@@ -36,7 +39,6 @@ const RestaurantPage = () => {
   const [commentsFiltredByRestaurant, setCommentsFiltredByRestaurant] = useState([]);
   const {categories} = useAppSelector(state => state.categories);
 
-
   /**
    * Effect hook pour filtrer les commentaires du restaurant et calculer la note moyenne
    * S'exécute à chaque changement de la liste des commentaires, de l'ID du restaurant ou du dispatch
@@ -44,7 +46,8 @@ const RestaurantPage = () => {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMounted(true);
-  }, []);
+    dispatch(getOneRestaurant(id));
+  }, [dispatch, id]);
   
   const addItem = () => {
     setButtonHidden(true);
@@ -75,13 +78,17 @@ const RestaurantPage = () => {
     )
   }
 
-  const groupedItems = items.filter((item) => Number(id) === item.restaurantId).reduce((acc, item) => {
+  
+  const groupedItems = restaurant?.items?.filter((item) => id === item.restaurantId).reduce((acc, item) => {
     if (!acc[item.categoryId]) {
       acc[item.categoryId] = []
     }
+
     acc[item.categoryId].push(item)
     return acc
   }, {});
+
+  
   const findCategoryById = (categoryId) => categories?.find((category) => category.id === Number(categoryId))?.name;
 
   /**
@@ -118,9 +125,9 @@ const RestaurantPage = () => {
     <div className="min-h-screen bg-gray-50 mt-32.5">
       {/* Header avec image du restaurant */}
       <div className="relative h-64 md:h-80 lg:h-96 overflow-hidden">
-        <Image
-          src={restaurant.coverImg} 
-          alt={restaurant.name}
+        <img
+          src={restaurant?.restaurant.coverImg} 
+          alt={restaurant?.restaurant.name}
           className="w-full h-full object-cover"
           width={80}
           height={80}
@@ -135,21 +142,21 @@ const RestaurantPage = () => {
           <FaArrowLeft className="text-gray-800" />
         </Link>
 
-        {/* Informations du restaurant */}
+        {/* Informations du restaurant?.restaurant */}
         <div className="absolute bottom-6 left-6 right-6 text-white">
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">{restaurant.name}</h1>
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">{restaurant?.restaurant.name}</h1>
           <div className="flex items-center gap-4 mb-2">
             <div className="flex items-center gap-1">
               <FaStar className="text-yellow-400" />
-              <span className="font-semibold">{restaurant.rating}</span>
+              <span className="font-semibold">{restaurant?.restaurant.rating}</span>
             </div>
             <div className="flex items-center gap-1">
               <MdAccessTime />
-              <span>{restaurant.deliverySettings?.estimatedDeliveryTime || '10-30 min'}</span>
+              <span>{restaurant?.restaurant.deliverySettings?.estimatedDeliveryTime || '10-30 min'}</span>
             </div>
           </div>
           <div className="flex gap-2 mb-3">
-            {restaurant.tags.map((tag, index) => (
+            {restaurant?.restaurant.tags.map((tag, index) => (
               <span 
                 key={index}
                 className="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-sm"
@@ -161,7 +168,7 @@ const RestaurantPage = () => {
           {/* Delivery Info */}
           <div className="flex gap-4 text-sm">
             <span className="bg-orange-500/80 backdrop-blur-sm px-3 py-1 rounded-full">
-              Delivery: {restaurant.deliverySettings?.deliveryFee || 0} TND
+              Delivery: {restaurant?.restaurant.deliverySettings?.deliveryFee || 0} TND
             </span>
           </div>
         </div>
@@ -179,7 +186,7 @@ const RestaurantPage = () => {
             <div className="grid gap-4">
               {categoryItems?.map((item) => (
                 <div 
-                  key={item.id}
+                  key={item._id}
                   className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow"
                 >
                   <div className="flex justify-between items-start">
@@ -206,21 +213,23 @@ const RestaurantPage = () => {
                   </div>
                   
                   {/* Contrôles de quantité */}
-                  <QuantityContainer
+                {/**
+                 *  <QuantityContainer
                    key={item.id}
                    addItem={addItem}
                    item={item}
                   />
+                 */} 
                 </div>
               ))}
             </div>
           </div>
         ))}
 
-        {/* Section Commentaires - Affiche tous les avis clients pour ce restaurant */}
+        {/* Section Commentaires - Affiche tous les avis clients pour ce restaurant?.restaurant */}
         <div className="mt-12">
           <div className="flex items-center justify-between mb-6">
-            {/* Titre avec le nombre total de commentaires filtrés pour ce restaurant */}
+            {/* Titre avec le nombre total de commentaires filtrés pour ce restaurant?.restaurant */}
             <h2 className="text-2xl font-bold text-gray-800">
               Avis clients ({commentsFiltredByRestaurant.length})
             </h2>
@@ -315,18 +324,16 @@ const RestaurantPage = () => {
                   onClick={ (e) => {
                     e.preventDefault();
                     // Appelle la fonction reply pour soumettre le nouveau commentaire
-                    reply({
-                    restaurantId: restaurant.id,
-                    userId: user.id,
+                    /*reply({
+                    restaurantId: restaurant._id,
+                    userId: user._id,
                     userName: user?.fullName || 'User',
                     userAvatar: user?.avatar,
-                    comment: commentContent, // Contenu du commentaire saisi
+                    comment: commentContent,
                     likes: 0,
-                    rating: rateCount // Nombre d'étoiles sélectionnées
-                  })}
-
-
-                }
+                    rating: rateCount
+                  })*/
+                }}
                 >
                   <FaPaperPlane className="text-sm" />
                   Publier l&apos;avis
@@ -337,113 +344,27 @@ const RestaurantPage = () => {
           )}
 
           {/* Affichage conditionnel des commentaires : liste ou message "Aucun avis" */}
+          {/* TODO: Commenté car comment.id n'utilise pas _id (backend pas encore connecté pour les commentaires)
           {commentsFiltredByRestaurant.length > 0 ? (
             <div className="space-y-6">
-              {/* Boucle sur tous les commentaires filtrés pour ce restaurant */}
               {commentsFiltredByRestaurant?.map((comment) => (
                 <div
-                  key={comment.id}
+                  key={comment._id}
                   className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
                 >
-                  {/* Header du commentaire avec avatar et informations utilisateur */}
-                  <div className="flex items-start gap-4 mb-4">
-                    {/* Affiche l'avatar de l'utilisateur s'il existe, sinon affiche Avatar avec initiales */}
-                    {users?.find(user => comment?.userId === user?.id)?.avatar ? (
-                      <Image
-                        src={users.find(user => comment?.userId === user?.id).avatar}
-                        alt={findCommentUserName(comment)}
-                        className="w-[32px] h-[32px] rounded-full object-cover"
-                        width={32}
-                        height={32}
-                      />
-                    ) : (
-                      <Avatar
-                        name={`${findCommentUserName(comment)}`}
-                        size="w-[32px] h-[32px]"
-                        fontSize='text-xs'
-                      />
-                    )}
-
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-2">
-                        {/* Nom de l'utilisateur qui a écrit le commentaire */}
-                        <h4 className="font-semibold text-gray-800">{comment.userName}</h4>
-                        {/* Date de création du commentaire formatée en français */}
-                        <span className="text-sm text-gray-500">
-                          {new Date(comment.created_at).toLocaleDateString('fr-FR', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                          })}
-                        </span>
-                      </div>
-
-                      {/* Affichage de la note sous forme d'étoiles (Rating) */}
-                      <div className="flex items-center gap-1 mb-3">
-                        {/* Génère 5 étoiles, colorées selon la note du commentaire */}
-                        {[...Array(5)].map((_, index) => (
-                          <FaStar
-                            key={index}
-                            className={`text-sm ${
-                              index < comment.rating
-                                ? 'text-yellow-500'
-                                : 'text-gray-300'
-                            }`}
-                          />
-                        ))}
-                        {/* Affiche la note numérique */}
-                        <span className="text-sm text-gray-600 ml-2">
-                          {comment.rating}/5
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  {/* Contenu textuel du commentaire */}
-                  <p className="text-gray-700 mb-4 leading-relaxed">
-                    {comment.comment}
-                  </p>
-
-                  {/* Actions disponibles pour chaque commentaire (Like et Supprimer) */}
-                  <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                    {/* Bouton Like - Change de couleur si l'utilisateur a déjà liké */}
-                    <button className={`flex items-center gap-2 ${comment.likedBy && comment.likedBy.includes(user.id) ? "text-red-500 hover:text-gray-500" : "text-gray-500 hover:text-red-600"} transition-colors`}
-                     onClick={() => {
-                      // Dispatch l'action toggleLike pour ajouter/retirer le like
-                      dispatch(toggleLike({
-                        commentId: comment.id,
-                        userId: user.id
-                      }));
-                    }}
-                    >
-                      {/* Affiche le nombre de likes si > 0 */}
-                      <span className="text-sm">{comment.likes>0 ? comment.likes: ''}</span>
-                      <FaHeart className="text-sm" />
-                    </button>
-
-
-                      {/* Bouton Supprimer le commentaire */}
-                      <button
-                        className="flex items-center gap-2 text-gray-500 hover:text-red-600 transition-colors"
-                        onClick={() => {
-                          // Dispatch l'action removeComment pour supprimer le commentaire
-                          dispatch(removeComment({
-                            id: comment.id
-                          }));
-                        }}
-                      >
-                        <FaTrash className="text-sm" />
-                      </button>
-
-                  </div>
+                  ...
                 </div>
               ))}
             </div>
           ) : (
-            // Affiche un message si aucun commentaire n'existe pour ce restaurant
             <div className="text-center py-8">
               <p className="text-gray-500">Aucun avis pour le moment</p>
             </div>
           )}
+          */}
+          <div className="text-center py-8">
+            <p className="text-gray-500">Aucun avis pour le moment</p>
+          </div>
         </div>
       </div>
     </div>

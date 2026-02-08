@@ -1,5 +1,6 @@
 import {Request, Response} from 'express';
 import  Restaurant from '../models/Restaurant';
+import Item from '../models/Items';
 
 export const updateRestaurant = async (req: Request, res: Response) => {
     const userId:string|undefined = req.params.id;
@@ -72,4 +73,31 @@ export const updateRestaurant = async (req: Request, res: Response) => {
         })
     }
     
+}
+
+export const getAllRestaurants = async (req:Request, res: Response) => {
+  try {
+    const restaurants = await Restaurant.find();
+    res.status(200).json(restaurants);
+  } catch (error) {
+     console.log(error);
+  }
+}
+
+export const getOneRestaurant = async (req: Request, res:Response) => {
+  try {
+    const { id } = req.params;
+    if(!id){
+      return res.status(200).json({msg:'the id is not defined!'});
+    }
+    const restaurant = await Restaurant.findById(id);
+  
+    const restaurantItems = await Item.find({restaurantId: id});
+    res.status(200).json({
+      restaurant,
+      items: restaurantItems
+    });
+  } catch (error) {
+    console.log(error);
+  }
 }

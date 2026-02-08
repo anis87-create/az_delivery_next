@@ -6,5 +6,7 @@ import  multer from '../middlewares/multer-config';
 
 
 router.put('/:id', protect, multer, restaurantCtrl.updateRestaurant);
+router.get('/all', restaurantCtrl.getAllRestaurants);
+router.get('/:id', restaurantCtrl.getOneRestaurant)
 
 export default router;

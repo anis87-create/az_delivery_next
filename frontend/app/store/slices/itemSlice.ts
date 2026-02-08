@@ -110,9 +110,7 @@ const itemSlice = createSlice({
          state.isLoading = false;
          state.isSuccess = false;
          state.isError = false;
-         const index = state.items.findIndex(item => item._id === payload._id);
-         console.log(payload);
-         
+         const index = state.items.findIndex(item => item._id === payload._id);         
          state.items[index] = payload;
        }),
        builder.addCase(updateItem.rejected, (state) => {

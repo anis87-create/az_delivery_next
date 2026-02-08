@@ -6,19 +6,24 @@ import { useAppSelector } from "./hooks";
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi2';
 import Category from "./components/layouts/Category.jsx";
 import RestaurantCard from "./components/RestaurantCard.jsx";
+import PopularDish from "./components/PopularDish.jsx";
+import SpecialOffer from "./components/SpecialOffer.jsx";
 import { useRouter } from 'next/navigation';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { getAllRestaurants } from "./store/slices/restaurantSlice";
 
 export default function Home() {
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
   const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
   const {isLoading , user} = useSelector(state => state.auth);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMounted(true);
-  }, []);
+    dispatch(getAllRestaurants());
+  }, [dispatch]);
 
   // Vérifier l'authentification et rediriger si nécessaire
   useEffect(() => {
@@ -125,13 +130,41 @@ export default function Home() {
   const [currentSlide, setCurrentSlide] = useState(0);
  // const {favorites} = useAppSelector(state => state.favorites);
 
-  const {restaurants } = useAppSelector(state => state.restaurant);
- //const { orders } = useAppSelector(state => state.order);
-  // Optimize favorites lookup with Set for O(1) performance
- /* const favoriteIds = useMemo(() => {
-    return new Set(favorites.map((fav:any) => fav.id));
-  }, [favorites]);*/
+  const { restaurants } = useAppSelector(state => state.restaurant);
 
+  // Mock data - à remplacer par des données du backend plus tard
+  const favoriteIds = new Set();
+
+  const trendingDishes = [
+    { id: 1, name: 'Margherita Pizza', restaurant: 'Pizza Palace', price: 12.99, rating: 4.8, img: 'https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?w=400&auto=format&fit=crop&q=60' },
+    { id: 2, name: 'Classic Burger', restaurant: 'Burger House', price: 10.50, rating: 4.6, img: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&auto=format&fit=crop&q=60' },
+    { id: 3, name: 'Chicken Tacos', restaurant: 'Taco Fiesta', price: 9.99, rating: 4.7, img: 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=400&auto=format&fit=crop&q=60' },
+    { id: 4, name: 'Salmon Sushi', restaurant: 'Sushi Master', price: 15.99, rating: 4.9, img: 'https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=400&auto=format&fit=crop&q=60' },
+  ];
+
+  const specialOffers = [
+    { id: 1, name: 'Double Cheeseburger', restaurant: 'Burger House', oldPrice: 14.99, newPrice: 9.99, discount: 33, img: 'https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=400&auto=format&fit=crop&q=60' },
+    { id: 2, name: 'Family Pizza', restaurant: 'Pizza Palace', oldPrice: 24.99, newPrice: 17.49, discount: 30, img: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&auto=format&fit=crop&q=60' },
+    { id: 3, name: 'Sushi Platter', restaurant: 'Sushi Master', oldPrice: 29.99, newPrice: 19.99, discount: 33, img: 'https://images.unsplash.com/photo-1553621042-f6e147245754?w=400&auto=format&fit=crop&q=60' },
+  ];
+
+  const topRatedRestaurants = [
+    { id: 101, name: 'Le Gourmet', rate: 4.9, time: '25-35', tags: ['French', 'Fine Dining'], img: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&auto=format&fit=crop&q=60', badge: 'Top Rated' },
+    { id: 102, name: 'Pasta Paradise', rate: 4.8, time: '20-30', tags: ['Italian', 'Pasta'], img: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&auto=format&fit=crop&q=60', badge: 'Popular' },
+    { id: 103, name: 'Thai Orchid', rate: 4.7, time: '30-40', tags: ['Thai', 'Spicy'], img: 'https://images.unsplash.com/photo-1552566626-52f8b828add9?w=400&auto=format&fit=crop&q=60', badge: 'Authentic' },
+  ];
+
+  const newRestaurants = [
+    { id: 201, name: 'Green Bowl', rate: 4.5, time: '15-25', tags: ['Healthy', 'Salads'], img: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&auto=format&fit=crop&q=60', isNew: true },
+    { id: 202, name: 'Wok Express', rate: 4.3, time: '20-30', tags: ['Chinese', 'Noodles'], img: 'https://images.unsplash.com/photo-1526318896980-cf78c088247c?w=400&auto=format&fit=crop&q=60', isNew: true },
+    { id: 203, name: 'Kebab King', rate: 4.4, time: '15-20', tags: ['Turkish', 'Kebab'], img: 'https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=400&auto=format&fit=crop&q=60', isNew: true },
+  ];
+
+  const recommendedForYou = [
+    { id: 301, name: 'Burger Barn', rate: 4.6, time: '15-25', tags: ['Burgers', 'American'], img: 'https://images.unsplash.com/photo-1550547660-d9450f859349?w=400&auto=format&fit=crop&q=60', reason: 'Based on your orders' },
+    { id: 302, name: 'Noodle House', rate: 4.5, time: '20-30', tags: ['Asian', 'Noodles'], img: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=400&auto=format&fit=crop&q=60', reason: 'You might like' },
+    { id: 303, name: 'Curry Corner', rate: 4.7, time: '25-35', tags: ['Indian', 'Curry'], img: 'https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=400&auto=format&fit=crop&q=60', reason: 'Popular near you' },
+  ];
   // Ensure currentSlide is always valid
   const safeCurrentSlide = currentSlide >= 0 && currentSlide < sliderImages.length ? currentSlide : 0;
   const currentSlideData = sliderImages[safeCurrentSlide] || sliderImages[0];
@@ -235,7 +268,6 @@ export default function Home() {
         </div>
      </div>
 
-     {/*🔥 Trending section 
      <div className='container mx-auto w-[90%]'> 
        <div className='flex flex-col my-8 mx-0 md:my-12 md:mx-0 lg:my-[4rem] lg:mx-0'>
            <div className="flex justify-between items-center mb-4 sm:mb-6">
@@ -246,7 +278,7 @@ export default function Home() {
                <p className="text-gray-600 text-sm mt-1">Most popular dishes right now</p>
              </div>
              <button
-               onClick={() => navigate('/search?category=trending')}
+               onClick={() => router.push('/search?category=trending')}
                className="text-orange-500 hover:text-orange-600 font-medium text-sm sm:text-base transition-colors duration-200"
              >
                View All
@@ -254,16 +286,15 @@ export default function Home() {
            </div>
            <div className='grid lg:grid-cols-4 gap-4 md:grid-cols-2 md:gap-4'>
             {trendingDishes.map(dish => 
-              <PopularDish 
+              <PopularDish
                 key={dish.id}
                 dish={dish}
               />
             )}
            </div>
        </div>
-     </div> */}
+     </div> 
 
-     {/*💰 Special Offers section 
      <div className='container mx-auto w-[90%]'> 
        <div className='flex flex-col my-8 mx-0 md:my-12 md:mx-0 lg:my-[4rem] lg:mx-0'>
            <div className="flex justify-between items-center mb-4 sm:mb-6">
@@ -274,7 +305,7 @@ export default function Home() {
                <p className="text-gray-600 text-sm mt-1">Save on your favorite dishes</p>
              </div>
              <button
-               onClick={() => navigate('/search?category=offers')}
+               onClick={() => router.push('/search?category=offers')}
                className="text-orange-500 hover:text-orange-600 font-medium text-sm sm:text-base transition-colors duration-200"
              >
                View All
@@ -289,9 +320,8 @@ export default function Home() {
             )}
            </div>
        </div>
-     </div> */}
+     </div> 
 
-     {/*⭐ Top Rated section 
      <div className='container mx-auto w-[90%]'> 
        <div className='flex flex-col my-8 mx-0 md:my-12 md:mx-0 lg:my-[4rem] lg:mx-0'>
            <div className="flex justify-between items-center mb-4 sm:mb-6">
@@ -302,7 +332,7 @@ export default function Home() {
                <p className="text-gray-600 text-sm mt-1">Highest rated restaurants by our customers</p>
              </div>
              <button
-               onClick={() => navigate('/search?category=top-rated')}
+               onClick={() => router.push('/search?category=top-rated')}
                className="text-orange-500 hover:text-orange-600 font-medium text-sm sm:text-base transition-colors duration-200"
              >
                View All
@@ -325,9 +355,8 @@ export default function Home() {
             )}
            </div>
        </div>
-     </div> */}
+     </div> 
 
-     {/*🚀 New Arrivals section 
      <div className='container mx-auto w-[90%]'> 
        <div className='flex flex-col my-8 mx-0 md:my-12 md:mx-0 lg:my-[4rem] lg:mx-0'>
            <div className="flex justify-between items-center mb-4 sm:mb-6">
@@ -338,7 +367,7 @@ export default function Home() {
                <p className="text-gray-600 text-sm mt-1">Discover our newest restaurant partners</p>
              </div>
              <button
-               onClick={() => navigate('/search?category=new')}
+               onClick={() => router.push('/search?category=new')}
                className="text-orange-500 hover:text-orange-600 font-medium text-sm sm:text-base transition-colors duration-200"
              >
                View All
@@ -362,9 +391,9 @@ export default function Home() {
             )}
            </div>
        </div>
-     </div> */}
+     </div>
 
-     {/*🎯 Recommended For You section 
+
      <div className='container mx-auto w-[90%]'> 
        <div className='flex flex-col my-8 mx-0 md:my-12 md:mx-0 lg:my-[4rem] lg:mx-0'>
            <div className="flex justify-between items-center mb-4 sm:mb-6">
@@ -375,7 +404,7 @@ export default function Home() {
                <p className="text-gray-600 text-sm mt-1">Personalized selection based on your taste</p>
              </div>
              <button
-               onClick={() => navigate('/search?category=recommended')}
+               onClick={() => router.push('/search?category=recommended')}
                className="text-orange-500 hover:text-orange-600 font-medium text-sm sm:text-base transition-colors duration-200"
              >
                View All
@@ -398,7 +427,7 @@ export default function Home() {
             )}
            </div>
        </div>
-     </div> */}
+     </div>
 
      {/**cafes and bars section */}
      <>
@@ -416,12 +445,12 @@ export default function Home() {
            <div className='grid lg:grid-cols-3 gap-4 md:grid-cols-2 md:gap-4'>
             {restaurants?.filter((place) => place.type === 'quick_bite').slice(0, 3).map((place) =>
               <RestaurantCard
-                key={place.id}
-                id={place.id}
-                img={place.coverImg}
+                key={place._id}
+                id={place._id}
+                img={place.img}
                 name={place.name}
                 rate={place.rate}
-                time={'10-30'}
+                time={place?.estimatedDeliveryTime}
                 tags={place.tags}
                 userId= {user?._id}
                 isActive ={ false}
@@ -448,12 +477,12 @@ export default function Home() {
            <div className='grid lg:grid-cols-3 gap-4 md:grid-cols-2 md:gap-4'>
             {restaurants?.filter((restaurant) => restaurant.type === 'restaurant').slice(0, 6).map((restaurant) =>
               <RestaurantCard
-                key={restaurant.id}
-                id={restaurant.id}
-                img={restaurant.coverImg}
+                key={restaurant._id}
+                id={restaurant._id}
+                img={restaurant.img}
                 name={restaurant.name}
                 rate={restaurant.rate}
-                time={'10-30'}
+                time={restaurant?.estimatedDeliveryTime}
                 tags={restaurant.tags}
                 userId= {user?._id}
                 isActive ={ false }

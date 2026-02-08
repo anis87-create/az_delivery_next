@@ -10,7 +10,7 @@ import Swal from 'sweetalert2';
 
 const MenuManagement = () => {
   // Static categories data
-  const { categories } = useSelector((state:RootState) => state.categories);
+  const { categories } = useSelector((state:RootState) => state.categories);  
   const { items  } = useSelector((state:RootState) => state.items);
 
   const [updateShowCategory, setUpdateShowCategory]= useState(false);

@@ -25,7 +25,14 @@ export const createItem = async (req: Request, res:Response) => {
        const item = new Item({
         restaurantId: req.user?.restaurant?._id,
           ...req.body});
-       const existedItem = await Item.findOne({name: req.body.name});
+        if(!req.user?._id){
+            return res.status(500).json({msg:'the id is undefined'});
+        }
+
+        if(!req.user.restaurant?._id){
+           return res.status(500).json({msg:'the id of restaurant is undefined'});
+        }   
+       const existedItem = await Item.findOne({name: req.body.name, restaurantId: req.user?.restaurant?._id});
        if(existedItem){
          return res.status(409).json({msg:'the item already exist!'});
        }

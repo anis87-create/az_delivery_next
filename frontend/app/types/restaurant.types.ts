@@ -1,3 +1,5 @@
+import { Item } from "./item.types";
+
 // Image interface
 export interface Image {
   name: string;
@@ -20,7 +22,7 @@ export interface BaseRestaurantInfo {
   description: string,
   city: string,
   baseFee: string,
-  estimatedDeliveryTime: string
+  estimatedDeliveryTime: string,
 }
 
 // Restaurant form state - extends la base et ajoute les champs spécifiques au formulaire
@@ -41,7 +43,8 @@ export interface RestaurantState {
   restaurant: Restaurant | null,
   isError: boolean | null,
   isLoading: boolean | null,
-  message: string
+  message: string,
+  restaurants: Restaurant[] | null
 }
 
 export interface ImageProps {

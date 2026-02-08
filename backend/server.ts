@@ -20,7 +20,7 @@ app.use(cors());
 app.use('/images', express.static(path.join(process.cwd(), 'images')));
 // Routes
 app.use('/api/auth', authRouter);
-app.use('/api/owner/restaurant', restaurantRouter);
+app.use('/api/restaurant', restaurantRouter);
 app.use('/api/items', itemRouter);
 app.use('/api/categories', categoryRouter);
 
