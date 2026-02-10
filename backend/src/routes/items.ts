@@ -1,6 +1,6 @@
 import * as express from 'express';
 import * as itemsCtrl from '../controllers/items';
-import protect from '../middlewares/auth';
+import {protect} from '../middlewares/auth';
 const router = express.Router();
 
 router.get('/',protect, itemsCtrl.getAllItems);

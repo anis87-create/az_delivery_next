@@ -6,16 +6,18 @@ import { useAppSelector } from '../../hooks';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Link from 'next/link';
 import Avatar from '@/app/components/common/Avatar.jsx';
 import QuantityContainer from '@/app/components/QuantityContainer.jsx';
 import { getOneRestaurant } from '@/app/store/slices/restaurantSlice';
+import moment from 'moment';
+import { getAllCategories } from '@/app/store/slices/categorySlice';
 
 
 const RestaurantPage = () => {
   const { id } = useParams();
-  const {restaurant} = useAppSelector(state => state.restaurant);
+  const {restaurant, isLoading} = useAppSelector(state => state.restaurant);
 
   
   
@@ -37,7 +39,7 @@ const RestaurantPage = () => {
   const [rateCount, setRateCount] = useState(0);
   // État local pour stocker les commentaires filtrés appartenant au restaurant actuel
   const [commentsFiltredByRestaurant, setCommentsFiltredByRestaurant] = useState([]);
-  const {categories} = useAppSelector(state => state.categories);
+  const { categories } = useAppSelector(state => state.categories);
 
   /**
    * Effect hook pour filtrer les commentaires du restaurant et calculer la note moyenne
@@ -47,11 +49,14 @@ const RestaurantPage = () => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMounted(true);
     dispatch(getOneRestaurant(id));
+    dispatch(getAllCategories(id));
   }, [dispatch, id]);
   
   const addItem = () => {
     setButtonHidden(true);
   }
+
+  
 
   // Show loading state while mounting to prevent hydration mismatch
   if (!isMounted) {
@@ -89,8 +94,9 @@ const RestaurantPage = () => {
   }, {});
 
   
-  const findCategoryById = (categoryId) => categories?.find((category) => category.id === Number(categoryId))?.name;
-
+  const findCategoryById = (categoryId) => categories?.find((category) => category._id === categoryId)?.name;
+  
+   
   /**
    * Fonction pour soumettre un nouveau commentaire
    * Ajoute le commentaire au store Redux et réinitialise le formulaire
@@ -116,6 +122,18 @@ const RestaurantPage = () => {
    */
   const findCommentUserName = (comment) => {
     return users?.find(user => comment?.userId ===  user?.id)?.fullName;
+  }
+  const displayOpenHours = (openHours) => {
+    const currentDay = moment().format('dddd').toLowerCase();
+
+    const result = Object.entries(openHours).find(([day]) => day === currentDay);
+    return `${result[1].open}-${result[1].close}`;
+  }
+
+  const displayOpenHoursStatus = (openHours) => {
+    const currentDay = moment().format('dddd').toLowerCase();
+    const result = Object.entries(openHours).find(([day]) => day === currentDay);
+    return result[1].closed ? 'closed' : 'opened';
   }
 
 
@@ -150,10 +168,29 @@ const RestaurantPage = () => {
               <FaStar className="text-yellow-400" />
               <span className="font-semibold">{restaurant?.restaurant.rating}</span>
             </div>
+            
             <div className="flex items-center gap-1">
               <MdAccessTime />
               <span>{restaurant?.restaurant.deliverySettings?.estimatedDeliveryTime || '10-30 min'}</span>
             </div>
+          </div>
+          <div className="flex items-center gap-4 mb-2">
+            <div className={`inline-flex items-center gap-1 rounded-full border border-white px-2.5 py-0.5 text-xs font-semibold ${
+              !restaurant?.restaurant?.baseFee ? 'bg-green-500 text-white' : ''
+            }`}>
+              <span>{!restaurant?.restaurant?.baseFee ? 'free delivery' : `$${restaurant?.restaurant?.baseFee}`}</span>
+            </div>
+            <div className="inline-flex items-center gap-1 rounded-full border border-white px-2.5 py-0.5 text-xs font-semibold">
+              <MdAccessTime />
+              <span>{displayOpenHours(restaurant?.restaurant?.openingHours)}</span>
+            </div>
+            <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+              displayOpenHoursStatus(restaurant?.restaurant?.openingHours) === 'opened'
+                ? 'bg-green-500 text-white'
+                : 'bg-red-500 text-white'
+            }`}>
+              {displayOpenHoursStatus(restaurant?.restaurant?.openingHours)}
+            </span>
           </div>
           <div className="flex gap-2 mb-3">
             {restaurant?.restaurant.tags.map((tag, index) => (
@@ -180,8 +217,8 @@ const RestaurantPage = () => {
         
         {Object.entries(groupedItems).map(([category, categoryItems]) => (
           <div key={category} className="mb-8">
-            <h3 className="text-xl font-semibold text-gray-800 mb-4 capitalize">
-            {findCategoryById(category)}
+            <h3 className="text-xl font-groupedItemssemibold text-red-500 mb-4 capitalize">
+            {findCategoryById(category)} 
             </h3>
             <div className="grid gap-4">
               {categoryItems?.map((item) => (
@@ -201,7 +238,7 @@ const RestaurantPage = () => {
                     </div>
                     {item.imageUrl && (
                       <div className="ml-4">
-                        <Image 
+                        <img
                           src={item.imageUrl} 
                           alt={item.name}
                           className="w-20 h-20 object-cover rounded-lg"
@@ -213,13 +250,13 @@ const RestaurantPage = () => {
                   </div>
                   
                   {/* Contrôles de quantité */}
-                {/**
-                 *  <QuantityContainer
-                   key={item.id}
+                {
+                 <QuantityContainer
+                   key={item._id}
                    addItem={addItem}
                    item={item}
                   />
-                 */} 
+                 } 
                 </div>
               ))}
             </div>

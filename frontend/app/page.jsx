@@ -421,6 +421,7 @@ export default function Home() {
                 time={restaurant.time}
                 tags={restaurant.tags}
                 reason={restaurant.reason}
+                baseFee={restaurant.baseFee}
                 userId= {user?._id}
                 isActive ={ favoriteIds.has(restaurant.id) }
               />
@@ -454,6 +455,7 @@ export default function Home() {
                 tags={place.tags}
                 userId= {user?._id}
                 isActive ={ false}
+                baseFee={place.baseFee}
               />
             )}
            </div>

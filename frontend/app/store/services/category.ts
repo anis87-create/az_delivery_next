@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { privateApi } from './api';
+import { privateApi, publicApi } from './api';
 const API_URL = 'http://localhost:5000/api/categories';
 interface CategoryForm{
     name: string
@@ -14,9 +14,14 @@ export const categoryService = {
        throw error;                                                                                         
     }                                                                                                       
   },    
-   async getAll(){
+   async getAll(id?:string){
     try {
-         const response = await privateApi.get(API_URL); 
+        let response = null;
+        if(id){
+           response = await publicApi.get(API_URL+`?restaurantId=${id}`); 
+        }else {
+           response = await privateApi.get(API_URL);
+        }
          return response;
     } catch (error) {
         console.log(error);

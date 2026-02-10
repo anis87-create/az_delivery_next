@@ -58,7 +58,7 @@ const QuantityContainer = ({item, addItem}) => {
       </div>
     )
   }
-  if(isAuth=== true){
+  if(isAuthenticated=== true){
     return (
         <div className="mt-3 flex items-center justify-between">
           <button

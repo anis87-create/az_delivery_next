@@ -223,7 +223,7 @@ Si ma solution existe : tu proposes 3 améliorations max, classées par priorit�
 
 Infos que tu dois me demander si elles manquent : stack, structure des données, où ça bloque, messages d’erreur.
 
-si je termine une étape tu me dis quelle est l'étape suivante que je dois moi meme le faire en frontend ou en backend.
+
 
 
 

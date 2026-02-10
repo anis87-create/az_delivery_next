@@ -4,16 +4,21 @@ import Restaurant from '../models/Restaurant';
 
 export const getAllCategories =  async (req: Request, res:Response) => {
    try {
-    if(!req.user?._id){
+    
+     let restaurantId = null;
+     if(req.query.restaurantId){
+        restaurantId = req.query.restaurantId
+     }else {
+         if(!req.user?._id){
             return res.status(500).json({msg:'the id is undefined'});
-    }
-    if(!req.user.restaurant?._id){
-           return res.status(500).json({msg:'the id of category is undefined'});
+         }
+         restaurantId = req.user.restaurant?._id;
+        if(!restaurantId){
+            return res.status(500).json({msg:'the id of category is undefined'});
+        }
      }
-     console.log(req.user);
      
-     const categories = await Category.find({restaurantId: req.user.restaurant?._id});
-     console.log(req.user.restaurant?._id);
+     const categories = await Category.find({restaurantId});
      
      res.status(200).send(categories);
    } catch (error) {

@@ -31,10 +31,10 @@ export const createCateogry = createAsyncThunk<Category, CategoryForm>(
     }                                                                                                       
   );       
 
-export const getAllCategories = createAsyncThunk<Category[], void>(
+export const getAllCategories = createAsyncThunk<Category[], string | undefined>(
   "categories/get",
-  async () => {
-   const response =  await categoryService.getAll();   
+  async (restaurantId?: string) => {
+   const response =  await categoryService.getAll(restaurantId);      
    return response.data;
   }
 );

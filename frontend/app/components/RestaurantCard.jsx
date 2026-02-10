@@ -7,7 +7,7 @@ import { HiChevronRight, HiOutlineHeart } from 'react-icons/hi';
 import { useAppSelector } from '../hooks.ts';
 import Image from 'next/image';
 
-const RestaurantCard = React.memo(({ id, img, name, rate, time, tags, isActive = false }) => {
+const RestaurantCard = React.memo(({ id, img, name, rate, time, tags, isActive = false, baseFee='' }) => {
   const { isAuthenticated } = useAppSelector(state => state.auth);
 
   return (
@@ -60,6 +60,11 @@ const RestaurantCard = React.memo(({ id, img, name, rate, time, tags, isActive =
               </div>
             </div>
           </div>
+          <span className={`font-bold py-1 rounded-full ${
+              !baseFee ? 'text-sm bg-green-500 text-white px-3' : 'text-lg text-red-500'
+            }`}>
+              {baseFee ? baseFee + '$' : 'Free delivery'}
+          </span>
         </div>
       </div>
     </Link>
