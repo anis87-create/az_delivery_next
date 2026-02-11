@@ -56,20 +56,23 @@ const RestaurantPage = () => {
     setButtonHidden(true);
   }
 
+
+
   
 
   // Show loading state while mounting to prevent hydration mismatch
-  if (!isMounted) {
+
+ if(isLoading){
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Chargement...</p>
+          <div className="inline-block animate-spin rounded-full h-16 w-16 border-b-4 border-green-500 mb-4"></div>
+          <p className="text-xl font-semibold text-gray-700">Loading...</p>
         </div>
       </div>
     )
   }
-
+  
   if (!restaurant) {
     return (
       <div className="min-h-screen flex items-center justify-center">

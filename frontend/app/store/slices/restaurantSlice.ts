@@ -62,8 +62,7 @@ export const getOneRestaurant = createAsyncThunk<Restaurant, string>('restaurant
              error.response.data &&
              error.response.data.message) ||
            error.message ||
-           error.toString()
-           
+           error.toString();
          return thunkAPI.rejectWithValue(message)
        }
 })
