@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import Item from '../models/Items';
-import Restaurant from '../models/Restaurant';
 
 
 
