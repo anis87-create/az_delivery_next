@@ -1,71 +1,107 @@
 import CartItem from '../models/CartItem';
+import Item from '../models/Items';
 import type { Request, Response } from 'express';
 
-export const getAllCartItems = async (req:Request, res: Response) => {
-    console.log('gertAll');
-    
-   try {
-     if(!req.user?._id){
-            return res.status(500).json({msg:'the id is undefined'});
-         }
-
-     const cartItems = await CartItem.find({userId: req.user._id});
-     res.status(200).json(cartItems);
-   } catch (error) {
-     console.log(error);
-   }
-}
-
-export const addToCartItem = async (req: Request, res:Response) => {
+export const getAllCartItems = async (req: Request, res: Response) => {
     try {
-       const {id} = req.params;
-       if(!id){
-        return res.status(400).json({msg:'id undefined'});
-       }
-       if(!req.user?._id){
-        return res.status(401).json({msg:'the user is undefined'});
-       }
-       const cartItem = new CartItem({
-         restaurantId : req.user.restaurant?._id ? req.user.restaurant?._id : req.body.restaurantId,
-         userId: req.user?._id
-       })
-
-       cartItem.save();
-
-       // 1 seule requête : si l'item existe déjà, on met à jour sa quantité
-       const updated = await CartItem.findOneAndUpdate(
-         { userId: req.user._id, "items.itemId": id },
-         { $set: { "items.$.quantity": req.body.quantity } },
-         { new: true }
-       );
-
-       // Si updated est null, l'item n'existe pas encore → on l'ajoute
-       if(!updated){
-         const cart = await CartItem.findOneAndUpdate(
-           { userId: req.user._id },
-           { $push: { items: { itemId: id, price: req.body.price, } } },
-           { new: true }
-         );
-
-         
-         if(!cart){
-           return res.status(404).json({msg:'cart not found'});
-         }
-         return res.status(201).json(cart);
-       }
-
-       res.status(200).json(updated);
+        if (!req.user?._id) {
+            return res.status(500).json({ msg: 'the id is undefined' });
+        }
+        const cartItem = await CartItem.findOne({ userId: req.user._id });
+        res.status(200).json(cartItem);
     } catch (error) {
-      console.log(error);
-      res.status(500).json({msg:'server error'});
+        console.log(error);
     }
 }
 
-export const removeCartItem = async (req: Request, res:Response) => {
-  try {
-    await CartItem.deleteOne({_id: req.params.id});
-    res.status(200).json({msg:'the cartItem is deleted succesfully'});
-  } catch (error) {
-     
-  }
+export const addToCartItem = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        if (!id) {
+            return res.status(400).json({ msg: 'id undefined' });
+        }
+        if (!req.user?._id) {
+            return res.status(401).json({ msg: 'the user is undefined' });
+        }
+
+        // Récupérer l'item depuis la DB
+        const itemDoc = await Item.findById(id);
+        if (!itemDoc) {
+            return res.status(404).json({ msg: 'item not found' });
+        }
+
+        let cartItem = await CartItem.findOne({ userId: req.user._id });
+        if (!cartItem) {
+            cartItem = new CartItem({
+                restaurantId: req.body.restaurantId,
+                userId: req.user._id
+            });
+            await cartItem.save();
+        }
+
+        // Si l'item existe déjà dans le panier, incrémenter la quantité
+        const updated = await CartItem.findOneAndUpdate(
+            { userId: req.user._id, "items._id": id },
+            { $inc: { "items.$.quantity": 1 } },
+            { new: true }
+        );
+
+        // Sinon, spread les champs de l'item + quantity dans le tableau
+        if (!updated) {
+            const { _id, ...itemFields } = itemDoc.toObject();
+            const cart = await CartItem.findOneAndUpdate(
+                { userId: req.user._id },
+                { $push: { items: { _id, ...itemFields, quantity: 1 } } },
+                { new: true }
+            );
+
+            if (!cart) {
+                return res.status(404).json({ msg: 'cart not found' });
+            }
+            return res.status(201).json(cart);
+        }
+
+        res.status(200).json(updated);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ msg: 'server error' });
+    }
+}
+
+export const removeCartItem = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        if (!id) {
+            return res.status(400).json({ msg: 'the item id is not found' });
+        }
+        if (!req.user?._id) {
+            return res.status(401).json({ msg: 'the user is undefined' });
+        }
+
+        const cart = await CartItem.findOne({ userId: req.user._id });
+        const targetItem = cart?.items.find(i => i._id.toString() === id);
+
+        if (!cart || !targetItem) {
+            return res.status(404).json({ msg: 'item not found' });
+        }
+
+        if (targetItem.quantity === 1) {
+            const updated = await CartItem.findOneAndUpdate(
+                { userId: req.user._id },
+                { $pull: { items: { _id: id } } },
+                { new: true }
+            );
+            return res.status(200).json(updated);
+        }
+
+        const updated = await CartItem.findOneAndUpdate(
+            { userId: req.user._id, "items._id": id },
+            { $inc: { "items.$.quantity": -1 } },
+            { new: true }
+        );
+        return res.status(200).json(updated);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ msg: 'server error' });
+    }
 }

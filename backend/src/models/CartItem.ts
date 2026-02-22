@@ -1,34 +1,46 @@
 import mongoose, { Schema, Types, Model } from 'mongoose';
-interface CartItem {
-    itemId: string,
-    quantity: number,
-    price: number
+
+interface CartEntry {
+    _id: Types.ObjectId;
+    name: string;
+    price: number;
+    imageUrl?: string;
+    ingredients?: string[];
+    categoryId?: Types.ObjectId;
+    restaurantId?: Types.ObjectId;
+    isAvailable?: boolean;
+    isPopular?: boolean;
+    quantity: number;
 }
 
 interface ICart {
-    userId: Types.ObjectId,
-    restaurantId: Types.ObjectId,
-    items: CartItem[]
+    userId: Types.ObjectId;
+    restaurantId: Types.ObjectId;
+    items: CartEntry[];
 }
 
-
-interface ICartDocument  extends ICart {
-    createdAt: Date,
-    updateAt: Date
+interface ICartDocument extends ICart {
+    createdAt: Date;
+    updateAt: Date;
 }
 
-
-const CartItemSubSchema = new Schema<CartItem>({
-    itemId: {type: String, required: true},
-    quantity: {type: Number, default: 1},
-    price: {type: Number, required: true}
-}, {_id: false});
+const CartEntrySchema = new Schema<CartEntry>({
+    _id: { type: Schema.Types.ObjectId, required: true },
+    name: { type: String, required: true },
+    price: { type: Number, required: true },
+    imageUrl: { type: String },
+    ingredients: { type: [String] },
+    categoryId: { type: Schema.Types.ObjectId },
+    restaurantId: { type: Schema.Types.ObjectId },
+    isAvailable: { type: Boolean },
+    isPopular: { type: Boolean },
+    quantity: { type: Number, default: 1 }
+}, { _id: false });
 
 const CartItemSchema = new Schema<ICartDocument>({
-    userId: {type: Schema.Types.ObjectId, ref:'User', required: true},
-    restaurantId: {type: Schema.Types.ObjectId, ref:'Restaurant', required: true},
-    items: {type: [CartItemSubSchema]},
-
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    restaurantId: { type: Schema.Types.ObjectId, ref: 'Restaurant', required: true },
+    items: { type: [CartEntrySchema] }
 }, {
     timestamps: true
 });

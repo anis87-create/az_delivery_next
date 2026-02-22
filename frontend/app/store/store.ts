@@ -3,7 +3,7 @@ import authSlice  from './slices/authSlice';
 import  restaurantSlice  from './slices/restaurantSlice';
 import itemSlice from './slices/itemSlice';
 import categorySlice from './slices/categorySlice';
-import  cartSlice  from './slices/carteSlice.js';
+import cartItemSlice from './slices/cartItemSlice';
 
 export const store = configureStore({
     reducer: {
@@ -11,7 +11,7 @@ export const store = configureStore({
        restaurant: restaurantSlice,
        items: itemSlice,
        categories: categorySlice,
-       cart: cartSlice
+       cartItem: cartItemSlice
     }
 });
 export type RootState = ReturnType<typeof store.getState>;

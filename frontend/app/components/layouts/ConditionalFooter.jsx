@@ -9,7 +9,7 @@ export default function ConditionalFooter() {
   const { isLoading } = useSelector(state => state.auth);
 
   // Hide footer on login, register and restaurantDashboard pages
-  if (pathname === '/login' || pathname === '/register' || pathname === '/restaurantDashboard' || isLoading === true) {
+  if (pathname === '/login' || pathname === '/register' || pathname === '/restaurantDashboard'  || isLoading === true) {
     return null;
   }
 

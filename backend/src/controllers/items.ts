@@ -12,7 +12,7 @@ export const getAllItems = async (req: Request, res:Response) => {
         if(!req.user.restaurant?._id){
            return res.status(500).json({msg:'the id of restaurant is undefined'});
         }
-        const items = await Item.find({restaurantId: req.user.restaurant?._id});
+        const items = await Item.find({restaurantId:  req.user.restaurant?._id});
         res.status(200).json(items);
     } catch (error) {
         res.status(500).json({error});
