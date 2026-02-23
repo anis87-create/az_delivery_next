@@ -147,7 +147,6 @@ const DashboardNavbar = ({ restaurantName, restaurantEmail, restaurantLogo, curr
 
   };
   useEffect(() => {
-    dispatch(getAllCategories());
     dispatch(getAllItems());
   }, [dispatch]);
 

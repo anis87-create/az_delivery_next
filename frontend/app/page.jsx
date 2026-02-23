@@ -11,6 +11,7 @@ import SpecialOffer from "./components/SpecialOffer.jsx";
 import { useRouter } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
 import { getAllRestaurants } from "./store/slices/restaurantSlice";
+import { getCartItem } from "./store/slices/cartItemSlice";
 
 export default function Home() {
   const router = useRouter();
@@ -23,6 +24,7 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMounted(true);
     dispatch(getAllRestaurants());
+    dispatch(getCartItem());
   }, [dispatch]);
 
   // Vérifier l'authentification et rediriger si nécessaire
@@ -45,7 +47,6 @@ export default function Home() {
       // Les customers restent sur Home
     }
 
-    // Marquer qu'on a fini de vérifier l'authentification
     setHasCheckedAuth(true);
   }, [isMounted, isLoading, user, router]);
 

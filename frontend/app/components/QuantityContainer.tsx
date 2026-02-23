@@ -50,8 +50,6 @@ const QuantityContainer = ({ item }: Props) => {
   }
 
   const decrementCounter = (id: string) => {
-    console.log('decrementCounter');
-    
     dispatch(removeFromCartItem(id));
   }
 
@@ -63,7 +61,7 @@ const QuantityContainer = ({ item }: Props) => {
             className="w-10 h-10 bg-gray-200 hover:bg-gray-300 rounded-full flex items-center justify-center transition-colors"
             onClick={() => decrementCounter(item._id)}
           >
-            <span className="text-gray-600 text-sm">−</span>
+            <span className="text-gray-600 text-sm cursor-pointer">−</span>
           </button>
 
           <span className="text-lg font-semibold text-gray-800 min-w-8 text-center">
@@ -74,7 +72,7 @@ const QuantityContainer = ({ item }: Props) => {
             className="w-10 h-10 bg-orange-500 hover:bg-orange-600 rounded-full flex items-center justify-center transition-colors"
             onClick={() => incrementCounter(item._id)}
           >
-            <span className="text-white text-sm">+</span>
+            <span className="text-white text-sm cursor-pointer">+</span>
           </button>
         </div>
       );

@@ -5,17 +5,27 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store/store';
 import { AppDispatch } from '../hooks';
 import { getCartItem } from '../store/slices/cartItemSlice';
-import { getAllItems } from '../store/slices/itemSlice';
-const hasItems = true;
+import { getAllCategories } from '../store/slices/categorySlice';
+
 
 const Cart = () => {
   const { cartItem } = useSelector((state:RootState) => state.cartItem);
-  const { items } = useSelector((state:RootState) => state.items);
+  const {categories} = useSelector((state:RootState) => state.categories);
   const dispatch = useDispatch<AppDispatch>();
   useEffect(() => {
     dispatch(getCartItem());
   }, [dispatch]);
 
+  useEffect(() => {
+    const restaurantId = cartItem?.items[0]?.restaurantId;
+    if (restaurantId) {
+      dispatch(getAllCategories(restaurantId));
+    }
+  }, [dispatch, cartItem?.items]);
+
+  const getCategoryNameById = (categoryId: string) => {
+    return categories.find(c => c._id === categoryId)?.name ?? 'Category';
+  };
 
   return (
     <>
@@ -41,21 +51,20 @@ const Cart = () => {
                       <h2 className="text-xl font-semibold mb-4">Order Items</h2>
                       <div className="space-y-4">
                         {/* Item row */}
-                        <div className="flex items-center gap-4 p-4 border rounded-lg">
+                        {
+                         cartItem.items.map(item => (
+                        <div key={item._id} className="flex items-center gap-4 p-4 border rounded-lg">
                           {/* imageUrl sera remplacé par la vraie donnée */}
-                          {null ? (
                             <img
-                              alt="Classic Cheeseburger"
+                              alt="image"
                               className="w-16 h-16 object-cover rounded-lg"
-                              src=""
+                              src={item.imageUrl}
                             />
-                          ) : (
-                            <div className="w-16 h-16 rounded-lg bg-gray-200 flex-shrink-0" />
-                          )}
+                          
                           <div className="flex-1">
-                            <h3 className="font-semibold">Classic Cheeseburger</h3>
-                            <p className="text-gray-600 text-sm">Burger Palace</p>
-                            <p className="text-orange-500 font-semibold">$8.99</p>
+                            <h3 className="font-semibold">{item.name}</h3>
+                            <p className="text-gray-600 text-sm">{getCategoryNameById(item.categoryId)}</p>
+                            <p className="text-orange-500 font-semibold">${item.price}</p>
                           </div>
                           <div className="flex items-center gap-3">
                             <button className="inline-flex items-center justify-center border border-input bg-background hover:bg-accent hover:text-accent-foreground h-8 w-8 rounded-md">
@@ -63,7 +72,7 @@ const Cart = () => {
                                 <path d="M5 12h14" />
                               </svg>
                             </button>
-                            <span className="font-semibold min-w-[2rem] text-center">1</span>
+                            <span className="font-semibold min-w-8 text-center">1</span>
                             <button className="inline-flex items-center justify-center border border-input bg-background hover:bg-accent hover:text-accent-foreground h-8 w-8 rounded-md">
                               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
                                 <path d="M5 12h14" /><path d="M12 5v14" />
@@ -76,6 +85,8 @@ const Cart = () => {
                             </button>
                           </div>
                         </div>
+                          ))
+                        }
                       </div>
                     </div>
                   </div>
