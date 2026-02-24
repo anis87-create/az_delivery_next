@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import RegisterForm from '../components/RegisterForm';
 
 import { useRouter } from 'next/navigation';
-import { useAppSelector, RootState, useAppDispatch } from '../hooks';
+import { useAppSelector, RootState, useAppDispatch } from '../hooks/hooks';
 
 const Register:React.FC = () => {
   const dispatch = useAppDispatch();

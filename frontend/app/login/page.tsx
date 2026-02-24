@@ -3,7 +3,7 @@ import Image from 'next/image';
 import LoginForm from '../components/LoginForm';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAppSelector, RootState } from '../hooks';
+import { useAppSelector, RootState } from '../hooks/hooks';
 
 const Login: React.FC = () => {
   const router = useRouter();

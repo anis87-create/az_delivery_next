@@ -1,6 +1,6 @@
 import React, { useState, ChangeEvent, FormEvent } from 'react';
 import Link from 'next/link';
-import { useAppDispatch, useAppSelector, RootState } from '../hooks';
+import { useAppDispatch, useAppSelector, RootState } from '../hooks/hooks';
 import {login} from '../store/slices/authSlice';
 import type { LoginCredentials } from '@/app/types';
 

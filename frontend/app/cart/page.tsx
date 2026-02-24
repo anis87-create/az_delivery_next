@@ -3,33 +3,24 @@ import React, { useEffect } from 'react'
 import Link from 'next/link'
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store/store';
-import { AppDispatch } from '../hooks';
-import { getCartItem } from '../store/slices/cartItemSlice';
-import { getAllCategories } from '../store/slices/categorySlice';
+import { AppDispatch } from '../hooks/hooks';
+import {  getCartItem, selectCartItems } from '../store/slices/cartItemSlice';
+import {useCartActions} from '../hooks/userCartActions';
 
 
 const Cart = () => {
-  const { cartItem } = useSelector((state:RootState) => state.cartItem);
-  const {categories} = useSelector((state:RootState) => state.categories);
+  const items = useSelector(selectCartItems);
   const dispatch = useDispatch<AppDispatch>();
+  const [incrementCounter, decrementCounter] = useCartActions();
   useEffect(() => {
     dispatch(getCartItem());
   }, [dispatch]);
 
-  useEffect(() => {
-    const restaurantId = cartItem?.items[0]?.restaurantId;
-    if (restaurantId) {
-      dispatch(getAllCategories(restaurantId));
-    }
-  }, [dispatch, cartItem?.items]);
-
-  const getCategoryNameById = (categoryId: string) => {
-    return categories.find(c => c._id === categoryId)?.name ?? 'Category';
-  };
+ 
 
   return (
     <>
-      {cartItem?.items.length > 0 ? (
+      {items.length > 0 ? (
         <div className="min-h-screen bg-gray-50">
           <main className="container px-4 py-40">
             <div className="max-w-4xl mx-auto">
@@ -52,8 +43,8 @@ const Cart = () => {
                       <div className="space-y-4">
                         {/* Item row */}
                         {
-                         cartItem.items.map(item => (
-                        <div key={item._id} className="flex items-center gap-4 p-4 border rounded-lg">
+                         items.map(item => (
+                        <div key={item._id} className="flex items-center gap-4 p-4 shadow-sm rounded-lg">
                           {/* imageUrl sera remplacé par la vraie donnée */}
                             <img
                               alt="image"
@@ -63,22 +54,27 @@ const Cart = () => {
                           
                           <div className="flex-1">
                             <h3 className="font-semibold">{item.name}</h3>
-                            <p className="text-gray-600 text-sm">{getCategoryNameById(item.categoryId)}</p>
+                            <p className="text-gray-600 text-sm">{item.restaurantName ?? ''}</p>
                             <p className="text-orange-500 font-semibold">${item.price}</p>
                           </div>
                           <div className="flex items-center gap-3">
-                            <button className="inline-flex items-center justify-center border border-input bg-background hover:bg-accent hover:text-accent-foreground h-8 w-8 rounded-md">
+                            <button className="inline-flex items-center justify-center shadow-sm bg-background hover:bg-accent hover:text-accent-foreground h-8 w-8 rounded-md cursor-pointer"
+                              onClick={() => decrementCounter(item._id)}
+                            >
                               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
                                 <path d="M5 12h14" />
                               </svg>
                             </button>
-                            <span className="font-semibold min-w-8 text-center">1</span>
-                            <button className="inline-flex items-center justify-center border border-input bg-background hover:bg-accent hover:text-accent-foreground h-8 w-8 rounded-md">
+                            <span className="font-semibold min-w-8 text-center">{item.quantity}</span>
+                            <button className="inline-flex items-center justify-center shadow-sm bg-background hover:bg-accent hover:text-accent-foreground h-8 w-8 rounded-md cursor-pointer"
+                             onClick={() => incrementCounter(item._id)}
+                            >
                               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
                                 <path d="M5 12h14" /><path d="M12 5v14" />
                               </svg>
                             </button>
-                            <button className="inline-flex items-center justify-center h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md">
+                            <button className="inline-flex items-center justify-center h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md"
+                            >
                               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
                                 <path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /><line x1="10" x2="10" y1="11" y2="17" /><line x1="14" x2="14" y1="11" y2="17" />
                               </svg>
@@ -104,10 +100,6 @@ const Cart = () => {
                       <div className="flex justify-between">
                         <span>Delivery Fee</span>
                         <span>$1.99</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Tax</span>
-                        <span>$0.76</span>
                       </div>
                       <div className="border-t pt-3">
                         <div className="flex justify-between font-semibold text-lg">

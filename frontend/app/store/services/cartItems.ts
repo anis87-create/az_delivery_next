@@ -7,8 +7,8 @@ export const cartItemService = {
         const response = await privateApi.get(API_URL);
         return response.data;
     },
-    async addToCartItem(id: string, restaurantId: string) {
-        const response = await privateApi.patch(`${API_URL}/${id}`, { restaurantId });
+    async addToCartItem(id: string) {
+        const response = await privateApi.patch(`${API_URL}/${id}`);
         return response.data;
     },
     async removeFromCartItem(id: string) {

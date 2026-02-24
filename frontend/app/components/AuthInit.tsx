@@ -1,6 +1,6 @@
 'use client'
 import React, { useEffect } from 'react'
-import { useAppDispatch } from '../hooks'
+import { useAppDispatch } from '../hooks/hooks'
 import { authMe } from '../store/slices/authSlice';
 
 interface AuthInitProps {

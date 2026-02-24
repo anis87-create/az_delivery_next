@@ -4,7 +4,7 @@ import React, { ChangeEvent, FormEvent, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid';
 import { register } from '../store/slices/authSlice';
 import { useSelector } from 'react-redux';
-import {RootState, useAppDispatch} from '../hooks';
+import {RootState, useAppDispatch} from '../hooks/hooks';
 import type { UserFormState, RestaurantFormState, RegisterFormProps } from '@/app/types';
 
 const RegisterForm= ({ onRoleChange}: RegisterFormProps) => {

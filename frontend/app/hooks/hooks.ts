@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from 'react-redux'
-import type { store } from './store/store'
+import type { store } from '../store/store'
 
 // Infer the `RootState` and `AppDispatch` types from the store itself
 export type RootState = ReturnType<typeof store.getState>

@@ -6,8 +6,7 @@ interface CartEntry {
     price: number;
     imageUrl?: string;
     ingredients?: string[];
-    categoryId?: Types.ObjectId;
-    restaurantId?: Types.ObjectId;
+    restaurantName?: string;
     isAvailable?: boolean;
     isPopular?: boolean;
     quantity: number;
@@ -15,7 +14,6 @@ interface CartEntry {
 
 interface ICart {
     userId: Types.ObjectId;
-    restaurantId: Types.ObjectId;
     items: CartEntry[];
 }
 
@@ -30,8 +28,7 @@ const CartEntrySchema = new Schema<CartEntry>({
     price: { type: Number, required: true },
     imageUrl: { type: String },
     ingredients: { type: [String] },
-    categoryId: { type: Schema.Types.ObjectId },
-    restaurantId: { type: Schema.Types.ObjectId },
+    restaurantName: { type: String },
     isAvailable: { type: Boolean },
     isPopular: { type: Boolean },
     quantity: { type: Number, default: 1 }
@@ -39,7 +36,6 @@ const CartEntrySchema = new Schema<CartEntry>({
 
 const CartItemSchema = new Schema<ICartDocument>({
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    restaurantId: { type: Schema.Types.ObjectId, ref: 'Restaurant', required: true },
     items: { type: [CartEntrySchema] }
 }, {
     timestamps: true

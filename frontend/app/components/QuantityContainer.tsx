@@ -2,10 +2,10 @@
 
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
-import { addCartItem, getCartItem, removeFromCartItem } from '../store/slices/cartItemSlice';
-import { useParams } from 'next/navigation';
+import { getCartItem } from '../store/slices/cartItemSlice';
 import { RootState, AppDispatch } from '../store/store';
 import { Item } from '../types/item.types';
+import { useCartActions } from '../hooks/userCartActions';
 
 interface Props {
   item: Item & { _id: string };
@@ -15,11 +15,10 @@ const QuantityContainer = ({ item }: Props) => {
   const dispatch = useDispatch<AppDispatch>();
   const { cartItem } = useSelector((state: RootState) => state.cartItem);
   const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
-  const params = useParams();
-
+  const [incrementCounter, decrementCounter] = useCartActions();
   useEffect(() => {
     dispatch(getCartItem());
-  }, [dispatch, item.restaurantId]);
+  }, [dispatch]);
 
   const cartItemsIds = new Set(
     cartItem?.items?.map(entry => entry._id).filter(Boolean)
@@ -36,22 +35,10 @@ const QuantityContainer = ({ item }: Props) => {
 
   const handleClick = () => {
     if (!user?._id) return;
-    dispatch(addCartItem({
-      id: item._id,
-      restaurantId: Array.isArray(params.id) ? params.id[0] : params.id,
-    }));
+    incrementCounter(item._id);
   };
 
-  const incrementCounter = (id: string) => {
-    dispatch(addCartItem({
-      id,
-      restaurantId: Array.isArray(params.id) ? params.id[0] : params.id,
-    }));
-  }
-
-  const decrementCounter = (id: string) => {
-    dispatch(removeFromCartItem(id));
-  }
+  
 
   if (isAuthenticated) {
     if (isItemFound) {

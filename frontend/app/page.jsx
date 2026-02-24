@@ -2,7 +2,7 @@
 import Image from "next/image";
 import sliderImg from '../public/images/slider_img.avif';
 import { useEffect, useState } from "react";
-import { useAppSelector } from "./hooks";
+import { useAppSelector } from "./hooks/hooks";
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi2';
 import Category from "./components/layouts/Category.jsx";
 import RestaurantCard from "./components/RestaurantCard.jsx";

@@ -1,5 +1,6 @@
 import CartItem from '../models/CartItem';
 import Item from '../models/Items';
+import Restaurant from '../models/Restaurant';
 import type { Request, Response } from 'express';
 
 export const getAllCartItems = async (req: Request, res: Response) => {
@@ -32,10 +33,7 @@ export const addToCartItem = async (req: Request, res: Response) => {
 
         let cartItem = await CartItem.findOne({ userId: req.user._id });
         if (!cartItem) {
-            cartItem = new CartItem({
-                restaurantId: req.body.restaurantId,
-                userId: req.user._id
-            });
+            cartItem = new CartItem({ userId: req.user._id });
             await cartItem.save();
         }
 
@@ -48,10 +46,13 @@ export const addToCartItem = async (req: Request, res: Response) => {
 
         // Sinon, spread les champs de l'item + quantity dans le tableau
         if (!updated) {
-            const { _id, ...itemFields } = itemDoc.toObject();
+            const { _id, categoryId, restaurantId, ...itemFields } = itemDoc.toObject();
+            const restaurant = itemDoc.restaurantId
+                ? await Restaurant.findById(itemDoc.restaurantId).select('name')
+                : null;
             const cart = await CartItem.findOneAndUpdate(
                 { userId: req.user._id },
-                { $push: { items: { _id, ...itemFields, quantity: 1 } } },
+                { $push: { items: { _id, ...itemFields, restaurantName: restaurant?.name ?? '', quantity: 1 } } },
                 { new: true }
             );
 

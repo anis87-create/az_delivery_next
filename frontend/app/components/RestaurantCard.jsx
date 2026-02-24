@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { FaStar } from 'react-icons/fa';
 import { MdAccessTime } from 'react-icons/md';
 import { HiChevronRight, HiOutlineHeart } from 'react-icons/hi';
-import { useAppSelector } from '../hooks.ts';
+import { useAppSelector } from '../hooks/hooks';
 import Image from 'next/image';
 
 const RestaurantCard = React.memo(({ id, img, name, rate, time, tags, isActive = false, baseFee='' }) => {

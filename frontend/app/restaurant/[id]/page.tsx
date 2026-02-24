@@ -1,7 +1,7 @@
 'use client'
 import { FaPaperPlane, FaStar, FaArrowLeft } from 'react-icons/fa';
 import { MdAccessTime } from 'react-icons/md';
-import { useAppSelector } from '../../hooks';
+import { useAppSelector } from '../../hooks/hooks';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -45,7 +45,6 @@ const RestaurantPage = () => {
   const restaurant = restaurantState as unknown as RestaurantData | null;
 
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
-  const [buttonHidden, setButtonHidden] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
   // État local pour stocker le contenu du commentaire en cours de rédaction
@@ -66,6 +65,7 @@ const RestaurantPage = () => {
     dispatch(getOneRestaurant(id));
     dispatch(getAllCategories(id));
   }, [dispatch, id]);
+
 
   // Show loading state while mounting to prevent hydration mismatch
   if (isLoading) {
