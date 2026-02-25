@@ -8,11 +8,11 @@ export const cartItemService = {
         return response.data;
     },
     async addToCartItem(id: string) {
-        const response = await privateApi.patch(`${API_URL}/${id}`);
+        const response = await privateApi.patch(`${API_URL}/${id}/increment`);
         return response.data;
     },
     async removeFromCartItem(id: string) {
-        const response = await privateApi.delete(`${API_URL}/${id}`);
+        const response = await privateApi.patch(`${API_URL}/${id}/decrement`);
         return response.data;
     }
 }

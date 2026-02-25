@@ -4,7 +4,7 @@ import {protect} from '../middlewares/auth';
 const router = express.Router();
 
 router.get('/', protect,  cartItemsCtrl.getAllCartItems);
-router.patch('/:id', protect, cartItemsCtrl.addToCartItem);
-router.delete('/:id', protect, cartItemsCtrl.removeCartItem);
+router.patch('/:id/increment', protect, cartItemsCtrl.incrementCartItem);
+router.patch('/:id/decrement', protect, cartItemsCtrl.decrementCartItem);
 
 export default router;

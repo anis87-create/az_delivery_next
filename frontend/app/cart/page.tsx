@@ -1,15 +1,19 @@
 'use client'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store/store';
 import { AppDispatch } from '../hooks/hooks';
-import {  getCartItem, selectCartItems } from '../store/slices/cartItemSlice';
+import {  getCartItem, getSubTotalPrice, getDeliveryFees, selectCartItems, removeFromCartItem } from '../store/slices/cartItemSlice';
 import {useCartActions} from '../hooks/userCartActions';
+
 
 
 const Cart = () => {
   const items = useSelector(selectCartItems);
+  const subTotalPrice = useSelector(getSubTotalPrice);
+  const deliveryFees = useSelector(getDeliveryFees);
+  const totalDeliveryFee = deliveryFees.reduce((sum, r) => sum + r.baseFee, 0);
   const dispatch = useDispatch<AppDispatch>();
   const [incrementCounter, decrementCounter] = useCartActions();
   useEffect(() => {
@@ -55,7 +59,7 @@ const Cart = () => {
                           <div className="flex-1">
                             <h3 className="font-semibold">{item.name}</h3>
                             <p className="text-gray-600 text-sm">{item.restaurantName ?? ''}</p>
-                            <p className="text-orange-500 font-semibold">${item.price}</p>
+                            <p className="text-orange-500 font-semibold">{item.price} TND</p>
                           </div>
                           <div className="flex items-center gap-3">
                             <button className="inline-flex items-center justify-center shadow-sm bg-background hover:bg-accent hover:text-accent-foreground h-8 w-8 rounded-md cursor-pointer"
@@ -74,6 +78,9 @@ const Cart = () => {
                               </svg>
                             </button>
                             <button className="inline-flex items-center justify-center h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md"
+                            onClick={() => {
+                                dispatch(removeFromCartItem(item._id))
+                            }}
                             >
                               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
                                 <path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /><line x1="10" x2="10" y1="11" y2="17" /><line x1="14" x2="14" y1="11" y2="17" />
@@ -95,16 +102,21 @@ const Cart = () => {
                     <div className="space-y-3 mb-6">
                       <div className="flex justify-between">
                         <span>Subtotal</span>
-                        <span>$8.99</span>
+                        <span>{subTotalPrice.toFixed(2)} TND</span>
                       </div>
-                      <div className="flex justify-between">
-                        <span>Delivery Fee</span>
-                        <span>$1.99</span>
+                      <div className="flex flex-col gap-1">
+                        <span className="font-medium">Delivery Fee :</span>
+                        {deliveryFees.map((r) => (
+                          <div key={r.restaurantName} className="flex justify-between text-sm text-gray-600">
+                            <span>{r.restaurantName}</span>
+                            <span>{r.baseFee === 0 ? 'Free' : `${r.baseFee} TND`}</span>
+                          </div>
+                        ))}
                       </div>
                       <div className="border-t pt-3">
                         <div className="flex justify-between font-semibold text-lg">
                           <span>Total</span>
-                          <span>$12.73</span>
+                          <span>{(subTotalPrice + totalDeliveryFee).toFixed(2)} TND</span>
                         </div>
                       </div>
                     </div>

@@ -15,7 +15,7 @@ export const getAllCartItems = async (req: Request, res: Response) => {
     }
 }
 
-export const addToCartItem = async (req: Request, res: Response) => {
+export const incrementCartItem = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
         if (!id) {
@@ -48,11 +48,11 @@ export const addToCartItem = async (req: Request, res: Response) => {
         if (!updated) {
             const { _id, categoryId, restaurantId, ...itemFields } = itemDoc.toObject();
             const restaurant = itemDoc.restaurantId
-                ? await Restaurant.findById(itemDoc.restaurantId).select('name')
+                ? await Restaurant.findById(itemDoc.restaurantId).select('name baseFee')
                 : null;
             const cart = await CartItem.findOneAndUpdate(
                 { userId: req.user._id },
-                { $push: { items: { _id, ...itemFields, restaurantName: restaurant?.name ?? '', quantity: 1 } } },
+                { $push: { items: { _id, ...itemFields, restaurantName: restaurant?.name ?? '', restaurantId: itemDoc.restaurantId, baseFee: restaurant?.baseFee ?? 0, quantity: 1 } } },
                 { new: true }
             );
 
@@ -69,7 +69,7 @@ export const addToCartItem = async (req: Request, res: Response) => {
     }
 }
 
-export const removeCartItem = async (req: Request, res: Response) => {
+export const decrementCartItem = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
         if (!id) {
@@ -101,6 +101,26 @@ export const removeCartItem = async (req: Request, res: Response) => {
             { new: true }
         );
         return res.status(200).json(updated);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ msg: 'server error' });
+    }
+}
+
+export const removeCartItem = async (req:Request, res:Response) => {
+    try {
+        const { id } = req.params;
+        if (!id) {
+            return res.status(400).json({ msg: 'the item id is not found' });
+        }
+        if (!req.user?._id) {
+            return res.status(401).json({ msg: 'the user is undefined' });
+        }
+        await CartItem.findOneAndDelete(
+                { userId: req.user._id },
+                { $pull: { items: { _id: id } } }
+        );
+        return res.status(200).json({msg:'the item is deleted!'});
     } catch (error) {
         console.log(error);
         res.status(500).json({ msg: 'server error' });

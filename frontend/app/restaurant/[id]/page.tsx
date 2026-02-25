@@ -176,7 +176,7 @@ const RestaurantPage = () => {
             <div className={`inline-flex items-center gap-1 rounded-full border border-white px-2.5 py-0.5 text-xs font-semibold ${
               !restaurant?.restaurant?.baseFee ? 'bg-green-500 text-white' : ''
             }`}>
-              <span>{!restaurant?.restaurant?.baseFee ? 'free delivery' : `$${restaurant?.restaurant?.baseFee}`}</span>
+              <span>{!restaurant?.restaurant?.baseFee ? 'free delivery' : `${restaurant?.restaurant?.baseFee} TND`}</span>
             </div>
             <div className="inline-flex items-center gap-1 rounded-full border border-white px-2.5 py-0.5 text-xs font-semibold">
               <MdAccessTime />

@@ -7,6 +7,8 @@ interface CartEntry {
     imageUrl?: string;
     ingredients?: string[];
     restaurantName?: string;
+    restaurantId?: Types.ObjectId;
+    baseFee?: number;
     isAvailable?: boolean;
     isPopular?: boolean;
     quantity: number;
@@ -29,6 +31,8 @@ const CartEntrySchema = new Schema<CartEntry>({
     imageUrl: { type: String },
     ingredients: { type: [String] },
     restaurantName: { type: String },
+    restaurantId: { type: Schema.Types.ObjectId, ref: 'Restaurant' },
+    baseFee: { type: Number },
     isAvailable: { type: Boolean },
     isPopular: { type: Boolean },
     quantity: { type: Number, default: 1 }

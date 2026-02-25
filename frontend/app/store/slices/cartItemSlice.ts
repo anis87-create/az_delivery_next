@@ -109,6 +109,18 @@ export const selectTotalQuantityOfCartItems = (state: { cartItem: CartItemState 
     }, 0) ?? 0;
 };
 export const getSubTotalPrice = (state: {cartItem: CartItemState}) => {
-    return state.cartItem.cartItem.items?.reduce((total, currentItem) => total + currentItem.price, 0) ?? 0;
+    return state?.cartItem?.cartItem?.items?.reduce((total, currentItem) => total + ((currentItem.price*currentItem.quantity) + currentItem.baseFee), 0) ?? 0;
 }
+
+export const getDeliveryFees = (state: { cartItem: CartItemState }): { restaurantName: string; baseFee: number }[] => {
+    const items = state.cartItem.cartItem?.items ?? [];
+    const seen = new Map<string, { restaurantName: string; baseFee: number }>();
+    for (const item of items) {
+        const key = item.restaurantId ?? item.restaurantName ?? 'unknown';
+        if (!seen.has(key)) {
+            seen.set(key, { restaurantName: item.restaurantName ?? '', baseFee: item.baseFee ?? 0 });
+        }
+    }
+    return Array.from(seen.values());
+};
 export default cartItemSlice.reducer;

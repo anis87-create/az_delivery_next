@@ -63,7 +63,7 @@ const RestaurantCard = React.memo(({ id, img, name, rate, time, tags, isActive =
           <span className={`font-bold py-1 rounded-full ${
               !baseFee ? 'text-sm bg-green-500 text-white px-3' : 'text-lg text-red-500'
             }`}>
-              {baseFee ? baseFee + '$' : 'Free delivery'}
+              {baseFee ? baseFee + ' TND' : 'Free delivery'}
           </span>
         </div>
       </div>
