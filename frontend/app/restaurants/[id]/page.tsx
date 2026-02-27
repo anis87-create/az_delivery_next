@@ -93,7 +93,7 @@ const RestaurantPage = () => {
   }
 
   const groupedItems: Record<string, Item[]> = restaurant?.items
-    ?.filter((item) => id === item.restaurantId)
+    ?.filter((item) => id === item.restaurantId && item.isAvailable === true)
     .reduce<Record<string, Item[]>>((acc, item) => {
       if (!acc[item.categoryId]) {
         acc[item.categoryId] = [];

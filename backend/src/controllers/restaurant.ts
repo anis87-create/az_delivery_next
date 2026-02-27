@@ -77,7 +77,7 @@ export const updateRestaurant = async (req: Request, res: Response) => {
 
 export const getAllRestaurants = async (req:Request, res: Response) => {
   try {
-    const restaurants = await Restaurant.find();
+    const restaurants = await Restaurant.find();    
     res.status(200).json(restaurants);
   } catch (error) {
      console.log(error);

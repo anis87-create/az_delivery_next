@@ -1,3 +1,4 @@
+import { isGeneratorFunction } from 'util/types';
 import CartItem from '../models/CartItem';
 import Item from '../models/Items';
 import Restaurant from '../models/Restaurant';
@@ -116,13 +117,13 @@ export const removeCartItem = async (req:Request, res:Response) => {
         if (!req.user?._id) {
             return res.status(401).json({ msg: 'the user is undefined' });
         }
-        await CartItem.findOneAndDelete(
+       const cartItem =  await CartItem.findOneAndUpdate(
                 { userId: req.user._id },
-                { $pull: { items: { _id: id } } }
+                { $set: { "items": [] } },
+                { new: true }
         );
-        return res.status(200).json({msg:'the item is deleted!'});
+        return res.status(200).json(cartItem);
     } catch (error) {
-        console.log(error);
         res.status(500).json({ msg: 'server error' });
     }
 }

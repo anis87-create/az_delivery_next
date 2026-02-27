@@ -1,5 +1,5 @@
 import axios from 'axios';
-const API_URL = 'http://localhost:5000/api/restaurant';
+const API_URL = 'http://localhost:5000/api/restaurants';
 
 export const restaurantService = {
     async update(restaurantId: string, restaurantData:any){

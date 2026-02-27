@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store/store';
 import { AppDispatch } from '../hooks/hooks';
-import {  getCartItem, getSubTotalPrice, getDeliveryFees, selectCartItems, removeFromCartItem } from '../store/slices/cartItemSlice';
+import {  getCartItem, getSubTotalPrice, getDeliveryFees, selectCartItems, removeFromCartItem, clearItems } from '../store/slices/cartItemSlice';
 import {useCartActions} from '../hooks/userCartActions';
 
 
@@ -16,6 +16,7 @@ const Cart = () => {
   const totalDeliveryFee = deliveryFees.reduce((sum, r) => sum + r.baseFee, 0);
   const dispatch = useDispatch<AppDispatch>();
   const [incrementCounter, decrementCounter] = useCartActions();
+  const { user } = useSelector((state:RootState) => state.auth);
   useEffect(() => {
     dispatch(getCartItem());
   }, [dispatch]);
@@ -30,7 +31,11 @@ const Cart = () => {
             <div className="max-w-4xl mx-auto">
               <div className="flex items-center justify-between mb-8">
                 <h1 className="text-3xl font-bold">Your Cart</h1>
-                <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors border h-10 px-4 py-2 text-red-600 border-red-600 hover:bg-red-50 bg-transparent">
+                <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors border h-10 px-4 py-2 text-red-600 border-red-600 hover:bg-red-50 bg-transparent"
+                 onClick={() => {
+                  dispatch(clearItems(user._id));
+                 }}
+                >
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 mr-2">
                     <path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /><line x1="10" x2="10" y1="11" y2="17" /><line x1="14" x2="14" y1="11" y2="17" />
                   </svg>

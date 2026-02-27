@@ -7,12 +7,16 @@ export const cartItemService = {
         const response = await privateApi.get(API_URL);
         return response.data;
     },
-    async addToCartItem(id: string) {
-        const response = await privateApi.patch(`${API_URL}/${id}/increment`);
+    async addToCartItem(itemId: string) {
+        const response = await privateApi.patch(`${API_URL}/${itemId}/increment`);
         return response.data;
     },
-    async removeFromCartItem(id: string) {
-        const response = await privateApi.patch(`${API_URL}/${id}/decrement`);
+    async removeFromCartItem(itemId: string) {
+        const response = await privateApi.patch(`${API_URL}/${itemId}/decrement`);
         return response.data;
+    },
+    async clearItems(userId: string){
+       const response = await privateApi.patch(`${API_URL}/${userId}/clearItems`);
+       return response.data; 
     }
 }
