@@ -3,6 +3,7 @@ import mongoose  from "mongoose";
 const {Schema} = mongoose;
 interface IItem {
     itemId: Types.ObjectId,
+    categoryId: string
     name: string,
     price: number,
     quantity: number,
@@ -34,17 +35,24 @@ enum PaymentStatusEnum {
     failed = 'failed'
 }
 
+enum AddressTypeEnum {
+    home = 'home',
+    work = 'work',
+    other = 'other'
+}
+
 interface IOrder {
     userId: Types.ObjectId,
     restaurantId: Types.ObjectId,
     items: IItem[],
-    subtotal: number,
+    subTotal: number,
     deliveryFee: number,
     total: number,
     status: StatusEnum,
     deliveryAddress: Address,
     paymentMethod: PaymentEnum,
-    paymentStatus: PaymentStatusEnum
+    paymentStatus: PaymentStatusEnum,
+    addressType: AddressTypeEnum
 }
 
 interface IOrderDocument extends IOrder,Document {
@@ -62,7 +70,7 @@ const OrderSchema = new Schema<IOrderDocument>({
       quantity: {type: Number, required: true, min: 1},
       imageUrl: {type: String, required: true}
    }], required: true},
-   subtotal: {type: Number, required:true},
+   subTotal: {type: Number, required:true},
    deliveryFee: {type: Number, required: true},
    total: {type:Number, required: true},
    status: {
@@ -85,6 +93,12 @@ const OrderSchema = new Schema<IOrderDocument>({
     type: String,
     enum: Object.values(PaymentStatusEnum),
     default: PaymentStatusEnum.pending,
+    required: true
+   },
+   addressType: {
+    type: String,
+    enum: Object.values(AddressTypeEnum),
+    default: AddressTypeEnum.home,
     required: true
    }
 }, {timestamps: true});

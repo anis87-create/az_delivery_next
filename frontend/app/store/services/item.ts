@@ -8,7 +8,6 @@ export const  ItemService = {
            const response =  await privateApi.get(API_URL);           
            return response;
         } catch (error) {
-            console.log(error);
             throw error;
         }
     },
@@ -17,7 +16,6 @@ export const  ItemService = {
           const response = await privateApi.post(API_URL, form);
           return response;
         } catch (error) {
-            console.log(error);
             throw error;
         }
     },
@@ -25,7 +23,6 @@ export const  ItemService = {
         try {
            await privateApi.delete(`${API_URL}/${id}`); 
         } catch (error) {
-            console.log(error);
             throw error;
         }
     },
@@ -34,7 +31,6 @@ export const  ItemService = {
             const response = await privateApi.put(`${API_URL}/${id}`, form);
             return response;
         } catch (error) {
-            console.log(error);
             throw error;
         }
     }

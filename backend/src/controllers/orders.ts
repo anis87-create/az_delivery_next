@@ -82,13 +82,13 @@ const getOneOrder = async (req: Request, res: Response) => {
 
 const updateStatus = async (req: Request, res: Response) => {
     try {
-        const { id, status } = req.params;
+        const { id } = req.params;
         if(!id) {
             return res.status(400).json({msg:'the id is undefined'});
         }
         let updatedOrder = await Order.findOneAndUpdate(
             { _id:id },
-            { $set: { status } },
+            { $set: { status: req.body.status } },
             { new: true }
         )
         if(!updatedOrder){

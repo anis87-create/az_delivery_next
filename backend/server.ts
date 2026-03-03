@@ -6,6 +6,7 @@ import restaurantRouter from './src/routes/restaurant';
 import itemRouter from './src/routes/items';
 import categoryRouter from './src/routes/category';
 import cartItemRouter from './src/routes/cartItems';
+import orderRouter  from './src/routes/orders';
 import connectDB from './src/config/db';
 import * as path from 'path';
 
@@ -25,6 +26,7 @@ app.use('/api/restaurants', restaurantRouter);
 app.use('/api/items', itemRouter);
 app.use('/api/categories', categoryRouter);
 app.use('/api/cartItems', cartItemRouter);
+app.use('/api/orders', orderRouter);
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

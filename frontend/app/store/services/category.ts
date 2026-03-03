@@ -9,8 +9,7 @@ export const categoryService = {
     try {                                                                                                                                                                                                                                                                                                                          
        const response = await privateApi.post(API_URL, form);                                                                                                                                                                                                                                
        return response;                                                                                
-    } catch (error) {                                                                                       
-       console.log('Service: ERREUR:', error);                                                              
+    } catch (error) {                                                                                                                                                    
        throw error;                                                                                         
     }                                                                                                       
   },    
@@ -24,7 +23,6 @@ export const categoryService = {
         }
          return response;
     } catch (error) {
-        console.log(error);
         throw error;
     }
    },
@@ -34,7 +32,6 @@ export const categoryService = {
         const response = await privateApi.put(`${API_URL}/${id}`, form); 
         return response;
     } catch (error) {
-        console.log(error);
         throw error;
     }
 
@@ -44,7 +41,6 @@ export const categoryService = {
     try {
         await privateApi.delete(`${API_URL}/${id}`);
     } catch (error) {
-         console.log(error);
          throw error;
     }
    }  
