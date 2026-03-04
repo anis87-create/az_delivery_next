@@ -3,7 +3,7 @@ import mongoose  from "mongoose";
 const {Schema} = mongoose;
 interface IItem {
     itemId: Types.ObjectId,
-    categoryId: string
+    restaurantId: Types.ObjectId,
     name: string,
     price: number,
     quantity: number,
@@ -43,7 +43,6 @@ enum AddressTypeEnum {
 
 interface IOrder {
     userId: Types.ObjectId,
-    restaurantId: Types.ObjectId,
     items: IItem[],
     subTotal: number,
     deliveryFee: number,
@@ -52,7 +51,7 @@ interface IOrder {
     deliveryAddress: Address,
     paymentMethod: PaymentEnum,
     paymentStatus: PaymentStatusEnum,
-    addressType: AddressTypeEnum
+    addressType: AddressTypeEnum,
 }
 
 interface IOrderDocument extends IOrder,Document {
@@ -62,9 +61,9 @@ interface IOrderDocument extends IOrder,Document {
 
 const OrderSchema = new Schema<IOrderDocument>({
    userId: {type: Schema.Types.ObjectId, ref:'User', required: true},
-   restaurantId: {type: Schema.Types.ObjectId, ref:'Restaurant', required: true},
    items: {type: [{
       itemId: {type: Schema.Types.ObjectId, ref:'Item', required: true},
+      restaurantId: {type: Schema.Types.ObjectId, ref:'Restaurant', required: true},
       name: {type: String, required: true},
       price: {type: Number, required: true, min: 0},
       quantity: {type: Number, required: true, min: 1},

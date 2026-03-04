@@ -1,47 +1,28 @@
-import axios from 'axios';
+import { Category } from '@/app/types/category.types';
 import { privateApi, publicApi } from './api';
-const API_URL = 'http://localhost:5000/api/categories';
+const API_URL = '/categories';
 interface CategoryForm{
     name: string
 }
 export const categoryService = {
-    async create(form: CategoryForm){                                                                         
-    try {                                                                                                                                                                                                                                                                                                                          
-       const response = await privateApi.post(API_URL, form);                                                                                                                                                                                                                                
-       return response;                                                                                
-    } catch (error) {                                                                                                                                                    
-       throw error;                                                                                         
-    }                                                                                                       
-  },    
-   async getAll(id?:string){
-    try {
-        let response = null;
+    async create(form: CategoryForm):Promise<Category>{
+        const res = await privateApi.post(API_URL, form);
+        return res.data;
+    },
+    async getAll(id?:string):Promise<Category[]>{
+        let res = null;
         if(id){
-           response = await publicApi.get(API_URL+`?restaurantId=${id}`); 
+            res = await publicApi.get(API_URL+`?restaurantId=${id}`);
         }else {
-           response = await privateApi.get(API_URL);
+            res = await privateApi.get(API_URL);
         }
-         return response;
-    } catch (error) {
-        throw error;
-    }
-   },
-   async update(id:string , form:CategoryForm){
-    try {
-              
-        const response = await privateApi.put(`${API_URL}/${id}`, form); 
-        return response;
-    } catch (error) {
-        throw error;
-    }
-
-   
-   },
-   async delete (id: string){
-    try {
+        return res.data;
+    },
+    async update(id:string , form:CategoryForm):Promise<Category>{
+        const res = await privateApi.put(`${API_URL}/${id}`, form);
+        return res.data;
+    },
+    async delete(id: string): Promise<void>{
         await privateApi.delete(`${API_URL}/${id}`);
-    } catch (error) {
-         throw error;
     }
-   }  
 }

@@ -1,44 +1,25 @@
+import { Order, OrderProps,  OrderStatus } from '@/app/types/order.types';
 import { privateApi } from './api';
-const API_URL = `http://localhost:5000/api/orders`;
+const API_URL = `/orders`;
 export const OrderService = {
-    async getAllOrders(){
-      try {
+    async getAllOrders():Promise<Order[]>{
         const res =  await privateApi.get(API_URL);
         return res.data;
-      } catch (error) {
-        throw error;
-      }
     },
-    async getOneOrder(id: string){
-     try {
+    async getOneOrder(id: string):Promise<Order>{
         const res = await privateApi.get(`${API_URL}/${id}`);
         return res.data;
-     } catch (error) {
-        throw error;
-     }
     },
-    async submitOrder(orderData){
-       try {
+    async submitOrder(orderData: OrderProps):Promise<Order>{
          const res = await privateApi.post(API_URL, orderData);
          return res.data;
-       } catch (error) {
-        throw error;
-       }
     },
-    async updateStatus(id:string, status){
-        try {
+    async updateStatus(id:string, status: OrderStatus):Promise<Order>{
           const res = await privateApi.patch(`${API_URL}/${id}`, status);
           return res.data;  
-        } catch (error) {
-          throw error;
-        }
     },
-    async removeOrder(id: string){
-       try {
+    async removeOrder(id: string):Promise<void>{
          const res = await privateApi.delete(`${API_URL}/${id}`);
          return res.data;
-       } catch (error) {
-         throw error;
-       }
     } 
 }

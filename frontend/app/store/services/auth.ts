@@ -1,9 +1,10 @@
 
+import { LoginResponse } from '@/app/types';
 import axios from 'axios';
-const API_URL = 'http://localhost:5000/api/auth/';
+const API_URL = '/auth';
 export const authService = {
 
-  async login(data:any) {
+  async login(data:any): Promise<LoginResponse> {
     const response = await axios.post(API_URL+'login', data);
     if(response.data && typeof window !== 'undefined'){
       localStorage.setItem('token', response.data.token)

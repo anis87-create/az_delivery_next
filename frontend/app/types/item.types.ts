@@ -1,5 +1,6 @@
 export interface ItemProps {
   categoryId: string,
+  restaurantId: string,
   name: string,
   ingredients: string [],
   price: number,
@@ -8,16 +9,10 @@ export interface ItemProps {
   isPopular: boolean
 }
 
-export interface Item {
+export interface Item extends ItemProps {
   _id: string,  
-  categoryId: string,
-  restaurantId: string,
-  name: string,
-  ingredients: string [],
-  price: number,
-  imageUrl: string,
-  isAvailable: boolean,
-  isPopular: boolean
+  createdAt: string,
+  updatedAt: string
 }
 
 export interface itemState {
