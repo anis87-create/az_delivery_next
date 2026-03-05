@@ -10,15 +10,13 @@ const initialState:itemState = {
 export const getAllItems =  createAsyncThunk<Item[], void>
 ('items/get', 
        async () => {
-     const response = await ItemService.getAll();
-     return response.data;
+     return await ItemService.getAll();
 });
 export const createItem = createAsyncThunk<Item, ItemProps>
 ('items/post',
     async (form, thunkAPI) => {
       try {
-        const response = await ItemService.create(form);
-        return response.data;
+        return await ItemService.create(form);
       } catch (error: any) {
         const message =
         (error.response &&
@@ -49,8 +47,7 @@ export const updateItem = createAsyncThunk<Item, ItemFormUpdate>
 ('items/put', 
     async ({itemForm, id}, thunkAPI) => {
    try {
-     const response = await ItemService.update(itemForm, id);     
-     return response.data;
+     return await ItemService.update(itemForm, id);     
    } catch (error: any) {
     const message =
         (error.response &&

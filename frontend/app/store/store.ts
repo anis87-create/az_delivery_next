@@ -4,6 +4,7 @@ import  restaurantSlice  from './slices/restaurantSlice';
 import itemSlice from './slices/itemSlice';
 import categorySlice from './slices/categorySlice';
 import cartItemSlice from './slices/cartItemSlice';
+import orderSlice from './slices/orderSlice';
 
 export const store = configureStore({
     reducer: {
@@ -11,7 +12,8 @@ export const store = configureStore({
        restaurant: restaurantSlice,
        items: itemSlice,
        categories: categorySlice,
-       cartItem: cartItemSlice
+       cartItem: cartItemSlice,
+       orders: orderSlice
     }
 });
 export type RootState = ReturnType<typeof store.getState>;

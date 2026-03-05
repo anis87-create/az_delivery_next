@@ -56,9 +56,17 @@ export interface OrderProps {
     addressType: AddressType,
 }
 export interface Order extends OrderProps {
-    _ID: string,
+    _id: string,
     createdAt: string,
     updatedAt: string
 }
+export interface OrderState {
+   orders: Order[],
+   order: Order | null,
+   isLoading: boolean,
+   isError: boolean,
+   message: string
+}
+
 
 
