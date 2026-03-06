@@ -4,7 +4,7 @@ import Item from '../models/Items';
 import Restaurant from '../models/Restaurant';
 import type { Request, Response } from 'express';
 
-export const getAllCartItems = async (req: Request, res: Response) => {
+export const getCartItem = async (req: Request, res: Response) => {
     try {
         if (!req.user?._id) {
             return res.status(500).json({ msg: 'the id is undefined' });

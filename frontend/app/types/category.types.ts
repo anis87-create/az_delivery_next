@@ -8,10 +8,9 @@ export interface CategoryForm {
 }
 
 export interface CategoryState {
-    category: Category,
-    isError:  boolean |null,
-    isLoading: boolean | null,
-    isSuccess: boolean | null,
-    categories: Category[]
+    category: Category | null,
+    isError: boolean,
+    isLoading: boolean,
+    categories: Category[],
+    message: string
 }
-

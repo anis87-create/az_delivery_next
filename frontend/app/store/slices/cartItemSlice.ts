@@ -6,67 +6,63 @@ const initialState: CartItemState = {
     cartItem: null,
     isLoading: false,
     isError: false,
+    message:''
 }
 
-export const getCartItem = createAsyncThunk<CartItem | null, void>(
+export const getCartItem = createAsyncThunk<CartItem | null, void, {rejectValue: string}>(
     'cartItems/get',
     async (_, thunkAPI) => {
         try {
-            const cartItem = await cartItemService.getCartItems();
-            return cartItem ?? null;
+            return await cartItemService.getCartItem() ?? null;
         } catch (error: any) {
-            const message =
-                (error.response?.data?.message) ||
-                error.message ||
-                error.toString();
-            return thunkAPI.rejectWithValue(message);
+             const message =
+          (error as { response?: { data?: { msg?: string } } }).response?.data?.msg ||
+          (error as Error).message ||
+          String(error);
+         return thunkAPI.rejectWithValue(message);
         }
     }
 );
 
-export const addCartItem = createAsyncThunk<CartItem, string>(
+export const addCartItem = createAsyncThunk<CartItem, string, {rejectValue: string}>(
     'cartItems/add',
     async (id, thunkAPI) => {
         try {
-            const response = await cartItemService.addToCartItem(id);
-            return response;
+            return await cartItemService.addToCartItem(id);
         } catch (error: any) {
-            const message =
-                (error.response?.data?.message) ||
-                error.message ||
-                error.toString();
-            return thunkAPI.rejectWithValue(message);
+             const message =
+          (error as { response?: { data?: { msg?: string } } }).response?.data?.msg ||
+          (error as Error).message ||
+          String(error);
+      return thunkAPI.rejectWithValue(message);
         }
     }
 );
 
-export const removeFromCartItem = createAsyncThunk<CartItem, string>(
+export const removeFromCartItem = createAsyncThunk<CartItem, string, {rejectValue: string}>(
     'cartItems/remove',
     async (id, thunkAPI) => {
         try {
-            const response = await cartItemService.removeFromCartItem(id);
-            return response;
+            return await cartItemService.removeFromCartItem(id);
         } catch (error: any) {
             const message =
-                (error.response?.data?.message) ||
-                error.message ||
-                error.toString();
-            return thunkAPI.rejectWithValue(message);
+          (error as { response?: { data?: { msg?: string } } }).response?.data?.msg ||
+          (error as Error).message ||
+          String(error);
+      return thunkAPI.rejectWithValue(message);
         }
     }
 );
-export const clearItems = createAsyncThunk<CartItem, string>('cartItems/clearItems', async(userId, thunkAPI) => {
+export const clearItems = createAsyncThunk<CartItem, string, {rejectValue: string}>('cartItems/clearItems', async(userId, thunkAPI) => {
      try {
-        const response = await cartItemService.clearItems(userId);
-        return response; 
-     } catch (error) {
+     return await cartItemService.clearItems(userId);
+    
+     } catch (error: any) {
         const message =
-                (error.response?.data?.message) ||
-                error.message ||
-                error.toString();
-            console.log(message);
-            
-            return thunkAPI.rejectWithValue(message);
+          (error as { response?: { data?: { msg?: string } } }).response?.data?.msg ||
+          (error as Error).message ||
+          String(error);
+      return thunkAPI.rejectWithValue(message);
      }
 });
 
@@ -85,9 +81,10 @@ const cartItemSlice = createSlice({
                 state.isLoading = false;
                 state.cartItem = payload;
             })
-            .addCase(getCartItem.rejected, (state) => {
+            .addCase(getCartItem.rejected, (state,{payload} ) => {
                 state.isLoading = false;
                 state.isError = true;
+                state.message = payload ?? 'Une erreur est survenue';
             })
             .addCase(addCartItem.pending, (state) => {
                 state.isLoading = true;
@@ -97,9 +94,10 @@ const cartItemSlice = createSlice({
                 state.isLoading = false;
                 state.cartItem = payload;
             })
-            .addCase(addCartItem.rejected, (state) => {
+            .addCase(addCartItem.rejected, (state, { payload }) => {
                 state.isLoading = false;
                 state.isError = true;
+                state.message = payload ?? 'Une erreur est survenue';
             })
             .addCase(removeFromCartItem.pending, (state) => {
                 state.isLoading = true;
@@ -109,9 +107,10 @@ const cartItemSlice = createSlice({
                 state.isLoading = false;
                 state.cartItem = payload;
             })
-            .addCase(removeFromCartItem.rejected, (state) => {
+            .addCase(removeFromCartItem.rejected, (state, { payload }) => {
                 state.isLoading = false;
                 state.isError = true;
+                state.message = payload ?? 'Une erreur est survenue';
             })
             .addCase(clearItems.pending, (state) => {
                 state.isLoading = true;
@@ -124,7 +123,8 @@ const cartItemSlice = createSlice({
             })
             .addCase(clearItems.rejected, (state, {payload}) => {
                 state.isLoading = false;
-                state.isError = false;
+                state.isError = true;
+                state.message = payload ?? 'Une erreur est survenue';
             });
     }
 });

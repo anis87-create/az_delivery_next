@@ -6,6 +6,7 @@ export interface CartItemState {
     cartItem: CartItem | null;
     isLoading: boolean;
     isError: boolean;
+    message: string
 }
 
 export interface CartItem {

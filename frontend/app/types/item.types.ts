@@ -10,15 +10,15 @@ export interface ItemProps {
 }
 
 export interface Item extends ItemProps {
-  _id: string,  
+  _id: string,
   createdAt: string,
   updatedAt: string
 }
 
 export interface itemState {
     isLoading: boolean,
-    isSuccess: boolean,
-    isError : boolean,
+    isError: boolean,
+    message: string,
     items: Item[]
 }
 

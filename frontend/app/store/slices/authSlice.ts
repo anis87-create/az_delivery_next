@@ -4,31 +4,28 @@ import type { User, LoginCredentials, RegisterData, LoginResponse, AuthState } f
 
 const initialState: AuthState = {
     user: null,
-    isError: null,
+    isError: false,
     isAuthenticated: false,
-    isLoading: null,
+    isLoading: false,
     message: '',
 };
 
-export const register = createAsyncThunk<User, RegisterData>(
+export const register = createAsyncThunk<User, RegisterData, { rejectValue: string }>(
   'auth/register',
   async(user, thunkAPI) => {
     try {
        return await authService.register(user)
-    } catch (error: any) {
-      
-         const message =
-        (error.response &&
-          error.response.data &&
-          error.response.data.msg) ||
-        error.message ||
-        error.toString()
+    } catch (error) {
+      const message =
+        (error as { response?: { data?: { msg?: string } } }).response?.data?.msg ||
+        (error as Error).message ||
+        String(error);
       return thunkAPI.rejectWithValue(message)
     }
   }
 )
 
-export const login = createAsyncThunk<LoginResponse, LoginCredentials>(
+export const login = createAsyncThunk<LoginResponse, LoginCredentials, { rejectValue: string }>(
   'auth/login',
   async(user, thunkAPI) => {
     try {
@@ -39,39 +36,33 @@ export const login = createAsyncThunk<LoginResponse, LoginCredentials>(
         ]);
 
         return userData;
-    } catch (error: any) {
-         const message =
-        (error.response &&
-          error.response.data &&
-          error.response.data.msg) ||
-        error.message ||
-        error.toString()
+    } catch (error) {
+      const message =
+        (error as { response?: { data?: { msg?: string } } }).response?.data?.msg ||
+        (error as Error).message ||
+        String(error);
       return thunkAPI.rejectWithValue(message)
     }
   }
 )
 
-export const authMe = createAsyncThunk<User, void>(
+export const authMe = createAsyncThunk<User, void, { rejectValue: string }>(
   'auth/authme',
   async(_, thunkAPI) => {
     try {
-        // Create a minimum delay promise of 3 seconds
         const minDelay = new Promise(resolve => setTimeout(resolve, 3000));
 
-        // Wait for both the API call and the minimum delay
         const [userData] = await Promise.all([
             authService.getAuthenticatedUser(),
             minDelay
         ]);
 
         return userData;
-    } catch (error: any) {
-          const message =
-        (error.response &&
-          error.response.data &&
-          error.response.data.msg) ||
-        error.message ||
-        error.toString()
+    } catch (error) {
+      const message =
+        (error as { response?: { data?: { msg?: string } } }).response?.data?.msg ||
+        (error as Error).message ||
+        String(error);
       return thunkAPI.rejectWithValue(message)
     }
   }
@@ -95,13 +86,13 @@ export const authSlice = createSlice({
             state.isLoading = true;
         })
         .addCase(register.fulfilled, (state, {payload}) => {
-            state.isLoading= false;
+            state.isLoading = false;
             state.isAuthenticated = false;
             state.user = payload;
         })
         .addCase(register.rejected, (state, {payload}) => {
             state.isError = true;
-            state.message = payload as string;
+            state.message = payload ?? 'Une erreur est survenue';
             state.user = null;
             state.isLoading = false;
         })
@@ -109,13 +100,13 @@ export const authSlice = createSlice({
             state.isLoading = true;
         })
         .addCase(login.fulfilled, (state, {payload}) => {
-            state.isLoading= false;
+            state.isLoading = false;
             state.isAuthenticated = true;
             state.user = payload.user;
         })
         .addCase(login.rejected, (state, {payload}) => {
             state.isError = true;
-            state.message = payload as string;
+            state.message = payload ?? 'Une erreur est survenue';
             state.user = null;
             state.isLoading = false;
         })
@@ -129,7 +120,7 @@ export const authSlice = createSlice({
         })
         .addCase(authMe.rejected, (state, {payload}) => {
             state.isError = true;
-            state.message = payload as string;
+            state.message = payload ?? 'Une erreur est survenue';
             state.user = null;
             state.isAuthenticated = false;
         })

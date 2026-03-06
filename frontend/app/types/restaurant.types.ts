@@ -18,15 +18,12 @@ export interface BaseRestaurantInfo {
   tags?: string[];
   email: string,
   openingHours: any,
-  phone: string, 
+  phone: string,
   description: string,
   city: string,
   baseFee: string,
   estimatedDeliveryTime: string,
 }
-
-// Restaurant form state - extends la base et ajoute les champs spécifiques au formulaire
-
 
 // Restaurant data structure - extends la base et ajoute les champs spécifiques à l'API
 export interface Restaurant extends BaseRestaurantInfo {
@@ -41,13 +38,13 @@ export interface RegisterFormProps {
 
 export interface RestaurantState {
   restaurant: Restaurant | null,
-  isError: boolean | null,
-  isLoading: boolean | null,
+  isError: boolean,
+  isLoading: boolean,
   message: string,
-  restaurants: Restaurant[] | null
+  restaurants: Restaurant[]
 }
 
 export interface ImageProps {
    img: string | null,
-   coverImg: string | null 
+   coverImg: string | null
 }

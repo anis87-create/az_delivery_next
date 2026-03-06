@@ -52,10 +52,8 @@ export interface LoginResponse {
 // Auth Redux state
 export interface AuthState {
   user: User | null;
-  isError: boolean | null;
+  isError: boolean;
   isAuthenticated: boolean;
-  isLoading: boolean | null;
+  isLoading: boolean;
   message: string;
 }
-
-

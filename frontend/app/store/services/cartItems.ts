@@ -4,7 +4,7 @@ import { privateApi } from './api';
 const API_URL = '/cartItems';
 
 export const cartItemService = {
-    async getCartItems():Promise<CartItem[]> {
+    async getCartItem():Promise<CartItem> {
         const res = await privateApi.get(API_URL);
         return res.data;
     },
@@ -12,11 +12,11 @@ export const cartItemService = {
         const res = await privateApi.patch(`${API_URL}/${itemId}/increment`);
         return res.data;
     },
-    async removeFromCartItem(itemId: string):Promise<void> {
+    async removeFromCartItem(itemId: string):Promise<CartItem> {
         const res = await privateApi.patch(`${API_URL}/${itemId}/decrement`);
         return res.data;
     },
-    async clearItems(userId: string):Promise<void>{
+    async clearItems(userId: string):Promise<CartItem>{
        const res = await privateApi.patch(`${API_URL}/${userId}/clearItems`);
        return res.data; 
     }
