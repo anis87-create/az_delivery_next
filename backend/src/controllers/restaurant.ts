@@ -80,7 +80,10 @@ export const getAllRestaurants = async (req: Request, res: Response) => {
     const restaurants = await Restaurant.find();    
     res.status(200).json(restaurants);
   } catch (error) {
-     console.log(error);
+     res.status(500).json({
+          message: 'Erreur lors du fetch',
+          error: error instanceof Error ? error.message : 'Unknown error'
+        })
   }
 }
 

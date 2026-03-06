@@ -1,5 +1,9 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { AppDispatch, RootState } from '../hooks/hooks'
+import { getCartItem, getSubTotalPrice } from '../store/slices/cartItemSlice'
+import { getAllOrders } from '../store/slices/orderSlice'
 
 type AddressType = 'home' | 'work' | 'other'
 type PaymentMethod = 'card' | 'cash'
@@ -10,8 +14,16 @@ const inputClass =
 const labelClass = 'block text-sm font-medium text-gray-700 mb-1'
 
 export default function CheckoutPage() {
-  const [addressType, setAddressType] = useState<AddressType>('home')
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card')
+  const [addressType, setAddressType] = useState<AddressType>('home');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card');
+  const dispatch = useDispatch<AppDispatch>();
+  const {cartItem} = useSelector((state:RootState)=> state.cartItem);
+  const { orders } = useSelector((state:RootState) => state.orders);
+  const subTotalPrice = useSelector(getSubTotalPrice);
+  useEffect(() => {
+     dispatch(getCartItem());
+     dispatch(getAllOrders());
+  }, [dispatch]);
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
@@ -172,28 +184,30 @@ export default function CheckoutPage() {
             {/* Order Summary */}
             <div className="rounded-lg border border-gray-100 bg-white shadow-sm p-8">
               <h2 className="text-xl font-semibold mb-6">Order Summary</h2>
-
-              {/* Item */}
-              <div className="space-y-4 mb-6">
+            
+              {/* Item(s) */}
+              {cartItem?.items.map((item) => (
+                <div className="space-y-4 mb-6" key={item._id}>
                 <div className="flex items-start">
-                  <div className="relative w-14 h-14 flex-shrink-0 mr-4">
+                  <div className="relative w-14 h-14 shrink-0 mr-4">
                     <img
-                      alt="Classic Cheeseburger"
+                      alt="image"
                       className="w-full h-full object-cover rounded-md"
-                      src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=60&h=60&fit=crop"
+                      src={item.imageUrl}
                     />
                     <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                      3
+                      {item.quantity}
                     </span>
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-medium text-sm">Classic Cheeseburger</h3>
-                    <p className="text-xs text-gray-500">Burger Palace</p>
-                    <p className="text-xs text-gray-500 mt-1">Cheese Type: American</p>
+                    <h3 className="font-medium text-sm">{item.name}</h3>
+                    <p className="text-xs text-gray-500">{item.restaurantName}</p>
                   </div>
-                  <div className="text-sm font-medium">$26.97</div>
+                  <div className="text-sm font-medium">${subTotalPrice}</div>
                 </div>
               </div>
+              ))}
+              
 
               <hr className="my-5" />
 
@@ -201,16 +215,9 @@ export default function CheckoutPage() {
               <div className="space-y-3">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-500">Subtotal</span>
-                  <span>$26.97</span>
+                  <span>${subTotalPrice}</span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Delivery Fee</span>
-                  <span>$1.99</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Service Fee</span>
-                  <span>$0.99</span>
-                </div>
+          
                 <hr className="my-2" />
                 <div className="flex justify-between font-semibold">
                   <span>Total</span>
