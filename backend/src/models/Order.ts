@@ -35,23 +35,22 @@ enum PaymentStatusEnum {
     failed = 'failed'
 }
 
-enum AddressTypeEnum {
-    home = 'home',
-    work = 'work',
-    other = 'other'
-}
+
 
 interface IOrder {
     userId: Types.ObjectId,
+    firstName: string,
+    lastName: string,
+    email: string,
+    phoneNumber: string,
     items: IItem[],
     subTotal: number,
-    deliveryFee: number,
     total: number,
     status: StatusEnum,
     deliveryAddress: Address,
     paymentMethod: PaymentEnum,
     paymentStatus: PaymentStatusEnum,
-    addressType: AddressTypeEnum,
+
 }
 
 interface IOrderDocument extends IOrder,Document {
@@ -61,6 +60,9 @@ interface IOrderDocument extends IOrder,Document {
 
 const OrderSchema = new Schema<IOrderDocument>({
    userId: {type: Schema.Types.ObjectId, ref:'User', required: true},
+   firstName: {type: String, required: true},
+   lastName: {type: String, required: true},
+   email: {type: String, required: true},
    items: {type: [{
       itemId: {type: Schema.Types.ObjectId, ref:'Item', required: true},
       restaurantId: {type: Schema.Types.ObjectId, ref:'Restaurant', required: true},
@@ -70,7 +72,6 @@ const OrderSchema = new Schema<IOrderDocument>({
       imageUrl: {type: String, required: true}
    }], required: true},
    subTotal: {type: Number, required:true},
-   deliveryFee: {type: Number, required: true},
    total: {type:Number, required: true},
    status: {
     type: String,
@@ -85,7 +86,7 @@ const OrderSchema = new Schema<IOrderDocument>({
    paymentMethod: {
     type: String,
     enum: Object.values(PaymentEnum),
-    default: PaymentEnum.card,
+    default: PaymentEnum.cash,
     required: true
    },
    paymentStatus: {
@@ -94,12 +95,6 @@ const OrderSchema = new Schema<IOrderDocument>({
     default: PaymentStatusEnum.pending,
     required: true
    },
-   addressType: {
-    type: String,
-    enum: Object.values(AddressTypeEnum),
-    default: AddressTypeEnum.home,
-    required: true
-   }
 }, {timestamps: true});
 
 const Order: Model<IOrderDocument> = mongoose.model<IOrderDocument>('order', OrderSchema);

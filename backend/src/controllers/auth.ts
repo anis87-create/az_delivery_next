@@ -66,7 +66,7 @@ export const login = async (req: Request, res: Response) => {
 
 export const register = async (req:Request, res:Response) => {
     try {
-      const { fullName, email, password, name, category, type, street, city, zipCode, phone, deliveryZone, restaurantEmail } = req.body;
+      const { fullName, email, password, name, category, type, street, city, zipCode, phoneNumber, deliveryZone, restaurantEmail } = req.body;
       let emailFound = await User.findOne({email});
       if(emailFound){
         return res.status(409).json({msg:'the user already exist!'})
@@ -114,8 +114,8 @@ export const register = async (req:Request, res:Response) => {
           if(!zipCode){
             return res.status(400).json({msg:'zipCode  is required'})
           }
-          if(!phone){
-            return res.status(400).json({msg:'phone  is required'})
+          if(!phoneNumber){
+            return res.status(400).json({msg:'phoneNumber  is required'})
           }
           if(!deliveryZone){
             return res.status(400).json({msg:'deliveryZone  is required'})
@@ -146,15 +146,16 @@ export const authMe = async (req:Request, res:Response) => {
       return res.status(401).json({msg: 'User not authorized'});
     }
     const user = await User.findById(req.user._id);
+
     if(!user){
        return res.status(404).json({ msg: "User not found" });
     }
-    const { _id, fullName, email, role } = user;
+    const { _id, fullName, email, phoneNumber, address, role } = user;
     if(req.user.role === 'customer'){
-      res.status(200).json({_id, fullName, email, role});
+      res.status(200).json({_id, fullName, email, phoneNumber, address, role});
     }else {
       const restaurant = await Restaurant.findOne({owner: req.user._id});
-      res.status(200).json({_id, fullName, email, role, restaurant});
+      res.status(200).json({_id, fullName, email, role, phoneNumber, restaurant});
     }
 
 

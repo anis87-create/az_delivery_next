@@ -1,13 +1,19 @@
-import { Restaurant } from './restaurant.types';
+import { Restaurant, RestaurantSchema } from './restaurant.types';
+import {z} from 'zod';
 
 // Base User interface
-export interface User {
-  _id?: string;
-  fullName: string;
-  email: string;
-  role: 'customer' | 'restaurant_owner';
-  restaurant?: Restaurant;
-}
+export const UserSchema = z.object({
+   _id: z.string(),
+   fullName: z.string(),
+   phoneNumber: z.string(),
+   email: z.string(),
+   address: z.string(),
+   role: z.enum(['customer', 'restaurant_owner']), 
+   restaurant: RestaurantSchema.optional(),
+})
+
+
+export type User = z.infer<typeof UserSchema>;
 
 // Login credentials (consolidated from LoginCredentials + FormState)
 export interface LoginCredentials {
@@ -20,7 +26,7 @@ export interface UserFormState {
   fullName: string;
   email: string;
   password: string;
-  phone?: string;
+  phoneNumber?: string;
   address: string;
   role: string;
 }

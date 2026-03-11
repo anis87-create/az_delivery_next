@@ -13,7 +13,7 @@ const RegisterForm= ({ onRoleChange}: RegisterFormProps) => {
     fullName:'',
     email:'',
     password:'',
-    phone:'',
+    phoneNumber:'',
     address:'',
     role:''
   });
@@ -101,7 +101,7 @@ const RegisterForm= ({ onRoleChange}: RegisterFormProps) => {
             fullName: form.fullName,
             email: form.email,
             password: form.password,
-            phone: form.phone,
+            phone: form.phoneNumber,
             address: form.address,
             role: 'restaurant_owner',
             // Données du restaurant
@@ -126,7 +126,7 @@ const RegisterForm= ({ onRoleChange}: RegisterFormProps) => {
             fullName: form.fullName,
             email: form.email,
             password: form.password,
-            phone: form.phone,
+            phoneNumber: form.phoneNumber,
             address: form.address,
             role: form.role
           };
@@ -202,7 +202,7 @@ const RegisterForm= ({ onRoleChange}: RegisterFormProps) => {
                   </label>
                   <input
                     id="phone"
-                    name="phone"
+                    name="phoneNumber"
                     type="tel"
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     placeholder="Enter your phone number"

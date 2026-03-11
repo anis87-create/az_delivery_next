@@ -1,6 +1,16 @@
-import { Item } from './item.types';
+import { ItemSchema } from './item.types';
+import {z} from 'zod';
 
-export type CartEntry = Omit<Item, 'categoryId' | 'restaurantId'> & { quantity: number; restaurantName?: string; restaurantId?: string; baseFee?: number };
+export const CartEntrySchema = ItemSchema.omit({
+    categoryId: true,
+    restaurantId: true
+}).extend({
+    quantity: z.number(),
+    restaurantName: z.string().optional(),                                                                  
+    restaurantId: z.string().optional(),  // re-ajouté en optional                                          
+    baseFee: z.number().optional(),    
+})
+
 
 export interface CartItemState {
     cartItem: CartItem | null;
@@ -9,8 +19,12 @@ export interface CartItemState {
     message: string
 }
 
-export interface CartItem {
-    _id: string;
-    items: CartEntry[];
-    userId: string;
-}
+
+
+export const CartItemSchema = z.object({
+    _id: z.string(),
+    items: z.array(CartEntrySchema),
+    userId: z.string()
+});
+export type CartEntry = z.infer<typeof CartEntrySchema>;
+export type CartItem  = z.infer<typeof CartItemSchema>;

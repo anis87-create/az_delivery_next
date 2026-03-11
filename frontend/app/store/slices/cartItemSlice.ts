@@ -136,7 +136,10 @@ export const selectTotalQuantityOfCartItems = (state: { cartItem: CartItemState 
         return total + currentItem.quantity;
     }, 0) ?? 0;
 };
-export const getSubTotalPrice = (state: {cartItem: CartItemState}) => {
+export const getSubTotalPrice = (state : {cartItem: CartItemState}) => {
+    return state?.cartItem?.cartItem?.items?.reduce((total, currentItem) => total + ((currentItem.price*currentItem.quantity)), 0) ?? 0;
+}
+export const getTotalPrice = (state: {cartItem: CartItemState}) => {
     return state?.cartItem?.cartItem?.items?.reduce((total, currentItem) => total + ((currentItem.price*currentItem.quantity) + currentItem.baseFee), 0) ?? 0;
 }
 

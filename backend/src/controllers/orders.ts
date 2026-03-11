@@ -21,6 +21,18 @@ const addOrder = async (req: Request, res: Response) => {
         }
         let order = await Order.findOne({  userId: req.user._id });
         if(!order){
+            if(!req.body.firstName) {
+                return res.status(400).json({ msg: 'firstName is required' });
+            }
+            if(!req.body.lastName) {
+                return res.status(400).json({ msg: 'lastName is required' });
+            }
+            if(!req.body.email) {
+                return res.status(400).json({ msg: 'email is required' });
+            }
+            if(!req.body.phoneNumber) {
+                return res.status(400).json({ msg: 'phoneNumber is required' });
+            }
             if(!req.body.deliveryAddress) {
                 return res.status(400).json({ msg: 'deliveryAddress is required' });
            }
@@ -33,7 +45,10 @@ const addOrder = async (req: Request, res: Response) => {
             if(!req.body.deliveryAddress.zipCode) {
                 return res.status(400).json({msg:'the zipCode is required'});
             }
-            order = new Order({...req.body});
+            order = new Order({
+                userId: req.user._id,
+                ...req.body
+            });
             await order.save();
             return res.status(201).json(order);
         }else {

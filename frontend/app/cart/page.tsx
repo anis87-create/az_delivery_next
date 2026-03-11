@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store/store';
 import { AppDispatch } from '../hooks/hooks';
-import {  getCartItem, getSubTotalPrice, getDeliveryFees, selectCartItems, removeFromCartItem, clearItems } from '../store/slices/cartItemSlice';
+import {  getCartItem,  getDeliveryFees, selectCartItems, removeFromCartItem, clearItems, getTotalPrice, getSubTotalPrice } from '../store/slices/cartItemSlice';
 import {useCartActions} from '../hooks/userCartActions';
 
 
@@ -12,8 +12,8 @@ import {useCartActions} from '../hooks/userCartActions';
 const Cart = () => {
   const items = useSelector(selectCartItems);
   const subTotalPrice = useSelector(getSubTotalPrice);
+  const totalPrice = useSelector(getTotalPrice);
   const deliveryFees = useSelector(getDeliveryFees);
-  const totalDeliveryFee = deliveryFees.reduce((sum, r) => sum + r.baseFee, 0);
   const dispatch = useDispatch<AppDispatch>();
   const [incrementCounter, decrementCounter] = useCartActions();
   const { user } = useSelector((state:RootState) => state.auth);
@@ -121,7 +121,7 @@ const Cart = () => {
                       <div className="border-t pt-3">
                         <div className="flex justify-between font-semibold text-lg">
                           <span>Total</span>
-                          <span>{(subTotalPrice + totalDeliveryFee).toFixed(2)} TND</span>
+                          <span>{totalPrice} TND</span>
                         </div>
                       </div>
                     </div>

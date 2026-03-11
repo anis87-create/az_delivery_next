@@ -8,7 +8,7 @@ interface IUser {
    fullName: string,
    email: string,
    password: string,
-   phone?: string,
+   phoneNumber?: string,
    address?: string,
    role: UserRole
 };
@@ -32,7 +32,7 @@ const userSchema = new Schema<IUserDocument>({
     }
     },
     password: {type: String, required: true},
-    phone: {type: String},
+    phoneNumber: {type: String},
     address:{type: String},
     role: {
         type: String,

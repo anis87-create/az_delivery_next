@@ -1,12 +1,15 @@
+import {z} from 'zod';
 
-interface OrderItem {
-    itemId: string,
-    restaurantId: string,
-    name: string,
-    price: number,
-    quantity: number,
-    imageUrl: string
-}
+export const OrderItemSchema = z.object({
+    itemId: z.string(),
+    restaurantId: z.string(),
+    name: z.string(),
+    price: z.number(),
+    quantity: z.number(),
+    imageUrl: z.string()
+});
+export type OrderItem = z.infer<typeof OrderItemSchema>;
+
 export const ORDER_Status = {
     pending: 'pending',
     confirmed: 'confirmed',
@@ -31,35 +34,46 @@ export const PAYMENT_STATUS = {
 } as const;
 export type PaymentStatus = typeof PAYMENT_STATUS[keyof typeof PAYMENT_STATUS];
 
-export const ADDRESS_TYPE = {
-    home : 'home',
-    work : 'work',
-    other : 'other'
-} as const;
-export type AddressType = typeof ADDRESS_TYPE[keyof typeof ADDRESS_TYPE];
-interface Address {
-    street : string,
-    city: string,
-    zipCode: string
-}
+
+export const AddressSchema = z.object({
+    street: z.string(),
+    city: z.string(),
+    zipCode: z.string()
+});
+
+export type Address = z.infer<typeof AddressSchema>;
 
 export interface OrderProps {
     userId: string,
+    firstName: string,
+    lastName: string,
+    email: string,
+    phoneNumber: string,
     items: OrderItem[],
     subTotal: number,
-    deliveryFee: number,
     total: number,
-    status: OrderStatus,
     deliveryAddress: Address,
     paymentMethod :  PaymentMethod,
     paymentStatus :  PaymentStatus,
-    addressType: AddressType,
 }
-export interface Order extends OrderProps {
-    _id: string,
-    createdAt: string,
-    updatedAt: string
-}
+
+export const OrderSchema = z.object({
+    _id: z.string(),
+    userId: z.string(),
+    firstName: z.string(),
+    lastName: z.string(),
+    email: z.string(),
+    phoneNumber: z.string(),
+    items: z.array(OrderItemSchema),
+    subTotal: z.number(),
+    total: z.number(),
+    deliveryAddress: AddressSchema,
+    paymentMethod: z.enum(['card', 'cash']),
+    paymentStatus: z.enum(['pending', 'paid', 'failed']),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+})
+export type Order = z.infer<typeof OrderSchema>;
 export interface OrderState {
    orders: Order[],
    order: Order | null,
@@ -68,5 +82,16 @@ export interface OrderState {
    message: string
 }
 
+export interface OrderForm {
+    firstName: string,
+    lastName: string,
+    email: string,
+    phoneNumber: string,
+    street: string,
+    city: string,
+    zipCode: string,
+    paymentMethod: string,
+    paymentStatus: string
+}
 
 

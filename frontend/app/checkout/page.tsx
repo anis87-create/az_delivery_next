@@ -2,34 +2,77 @@
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from '../hooks/hooks'
-import { getCartItem, getSubTotalPrice } from '../store/slices/cartItemSlice'
-import { getAllOrders } from '../store/slices/orderSlice'
-
+import { getCartItem,  getSubTotalPrice,  getTotalPrice } from '../store/slices/cartItemSlice'
+import { addOrder, getAllOrders } from '../store/slices/orderSlice'
+import { OrderForm } from '../types/order.types'
 type AddressType = 'home' | 'work' | 'other'
-type PaymentMethod = 'card' | 'cash'
 
 const inputClass =
-  'flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50'
+  'flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 read-only:bg-gray-100 read-only:text-gray-500 read-only:cursor-not-allowed'
 
 const labelClass = 'block text-sm font-medium text-gray-700 mb-1'
 
+
 export default function CheckoutPage() {
-  const [addressType, setAddressType] = useState<AddressType>('home');
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card');
   const dispatch = useDispatch<AppDispatch>();
   const {cartItem} = useSelector((state:RootState)=> state.cartItem);
-  const { orders } = useSelector((state:RootState) => state.orders);
-  const subTotalPrice = useSelector(getSubTotalPrice);
+  const { user } = useSelector((state:RootState) => state.auth);
+  const totalPrice = useSelector(getTotalPrice);
+  const subTotal = useSelector(getSubTotalPrice);
+  
+  const [form, setForm] = useState<OrderForm>({
+    firstName: user?.fullName.split(' ')[0],
+    lastName: user?.fullName.split(' ')[1],
+    email: user?.email,
+    phoneNumber: user?.phoneNumber,
+    street: user?.address || '',
+    city: '',
+    zipCode: '',
+    paymentMethod: 'cash',
+    paymentStatus: 'pending'
+  });
+
+  
+  
   useEffect(() => {
      dispatch(getCartItem());
      dispatch(getAllOrders());
   }, [dispatch]);
-
+  const submitOrder = (e: React.FormEvent) => {
+    e.preventDefault();
+    dispatch(addOrder({
+      userId: user?._id || '',
+      firstName: form.firstName,
+      lastName: form.lastName,
+      email: form.email,
+      phoneNumber: form.phoneNumber,
+      items: cartItem?.items.map((item)=>({
+        itemId: item._id,
+        restaurantId: item.restaurantId,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        imageUrl: item.imageUrl
+      })) || [],
+      subTotal,
+      total: totalPrice,
+      deliveryAddress: {
+         street: form.street,
+         city: form.city,
+         zipCode: form.zipCode
+      },
+      paymentMethod: form.paymentMethod as 'card' | 'cash',
+      paymentStatus: form.paymentStatus as 'pending' | 'paid' | 'failed',
+    }));
+  }
+ const handleChange = (field:string, value:string) => {
+   setForm(prev => ({ ...prev, [field]: value }));
+ };
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
 {/* Main */}
       <main className="flex-1 container px-6 py-16 mt-20">
-        <form className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <form className="grid grid-cols-1 lg:grid-cols-3 gap-8" onSubmit={submitOrder}>
           {/* Left column */}
           <div className="lg:col-span-2 space-y-8">
             {/* Delivery Information */}
@@ -38,61 +81,40 @@ export default function CheckoutPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
                 <div>
-                  <label className={labelClass} htmlFor="name">Full Name*</label>
-                  <input className={inputClass} id="name" name="name" placeholder="John Doe" required />
+                  <label className={labelClass} htmlFor="firstName">First Name*</label>
+                  <input className={inputClass} id="firstName" name="firstName" placeholder="John" required value={form.firstName} readOnly />
+                </div>
+                <div>
+                  <label className={labelClass} htmlFor="lastName">Last Name*</label>
+                  <input className={inputClass} id="lastName" name="lastName" placeholder="Doe" required value={form.lastName} readOnly />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+                <div>
+                  <label className={labelClass} htmlFor="email">Email Address*</label>
+                  <input className={inputClass} id="email" name="email" type="email" placeholder="john.doe@example.com" required value={form.email} readOnly />
                 </div>
                 <div>
                   <label className={labelClass} htmlFor="phone">Phone Number*</label>
-                  <input className={inputClass} id="phone" name="phone" placeholder="+1 (555) 123-4567" required />
-                </div>
-              </div>
-
-              <div className="mb-5">
-                <label className={labelClass} htmlFor="email">Email Address*</label>
-                <input className={inputClass} id="email" name="email" type="email" placeholder="john.doe@example.com" required />
-              </div>
-
-              {/* Address Type */}
-              <div className="mb-5">
-                <span className="block text-sm font-medium text-gray-700 mb-3">Address Type</span>
-                <div className="flex space-x-4">
-                  {(['home', 'work', 'other'] as AddressType[]).map((type) => (
-                    <label key={type} className="flex items-center space-x-2 cursor-pointer">
-                      <button
-                        type="button"
-                        role="radio"
-                        aria-checked={addressType === type}
-                        onClick={() => setAddressType(type)}
-                        className={`w-4 h-4 rounded-full border flex items-center justify-center transition-colors ${
-                          addressType === type
-                            ? 'border-orange-500 text-orange-500'
-                            : 'border-gray-400'
-                        }`}
-                      >
-                        {addressType === type && (
-                          <span className="w-2 h-2 rounded-full bg-orange-500 block" />
-                        )}
-                      </button>
-                      <span className="text-sm font-medium capitalize">{type}</span>
-                    </label>
-                  ))}
+                  <input className={inputClass} id="phone" name="phoneNumber" placeholder="+1 (555) 123-4567" required value={form.phoneNumber}  readOnly/>
                 </div>
               </div>
 
               <div className="mb-5">
                 <label className={labelClass} htmlFor="address">Street Address*</label>
-                <input className={inputClass} id="address" name="address" placeholder="123 Main St" required />
+                <input className={inputClass} id="address" name="address" placeholder="123 Main St" required value={form.street} readOnly />
               </div>
 
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
                   <label className={labelClass} htmlFor="city">City*</label>
-                  <input className={inputClass} id="city" name="city" placeholder="Anytown" required />
+                  <input className={inputClass} id="city" name="city" placeholder="Anytown" required value={form.city} onChange={(e) => handleChange('city', e.target.value)} />
                 </div>
                 <div>
                   <label className={labelClass} htmlFor="zipCode">ZIP Code*</label>
-                  <input className={inputClass} id="zipCode" name="zipCode" placeholder="12345" required />
+                  <input className={inputClass} id="zipCode" name="zipCode" placeholder="12345" required value={form.zipCode} onChange={(e) => handleChange('zipCode', e.target.value)} />
                 </div>
               </div>
             </div>
@@ -105,19 +127,19 @@ export default function CheckoutPage() {
                 {/* Card */}
                 <label
                   className={`flex items-center space-x-3 p-4 border rounded-md cursor-pointer hover:bg-gray-50 transition-colors ${
-                    paymentMethod === 'card' ? 'border-orange-400 bg-orange-50' : 'border-gray-200'
+                    form.paymentMethod === 'card' ? 'border-orange-400 bg-orange-50' : 'border-gray-200'
                   }`}
                 >
                   <button
                     type="button"
                     role="radio"
-                    aria-checked={paymentMethod === 'card'}
-                    onClick={() => setPaymentMethod('card')}
-                    className={`w-4 h-4 rounded-full border flex-shrink-0 flex items-center justify-center ${
-                      paymentMethod === 'card' ? 'border-orange-500' : 'border-gray-400'
+                    aria-checked={form.paymentMethod === 'card'}
+                    onClick={() => handleChange('paymentMethod', 'card')}
+                    className={`w-4 h-4 rounded-full border shrink-0 flex items-center justify-center ${
+                      form.paymentMethod === 'card' ? 'border-orange-500' : 'border-gray-400'
                     }`}
                   >
-                    {paymentMethod === 'card' && (
+                    {form.paymentMethod === 'card' && (
                       <span className="w-2 h-2 rounded-full bg-orange-500 block" />
                     )}
                   </button>
@@ -130,19 +152,19 @@ export default function CheckoutPage() {
                 {/* Cash */}
                 <label
                   className={`flex items-center space-x-3 p-4 border rounded-md cursor-pointer hover:bg-gray-50 transition-colors ${
-                    paymentMethod === 'cash' ? 'border-orange-400 bg-orange-50' : 'border-gray-200'
+                    form.paymentMethod === 'cash' ? 'border-orange-400 bg-orange-50' : 'border-gray-200'
                   }`}
                 >
                   <button
                     type="button"
                     role="radio"
-                    aria-checked={paymentMethod === 'cash'}
-                    onClick={() => setPaymentMethod('cash')}
-                    className={`w-4 h-4 rounded-full border flex-shrink-0 flex items-center justify-center ${
-                      paymentMethod === 'cash' ? 'border-orange-500' : 'border-gray-400'
+                    aria-checked={form.paymentMethod === 'cash'}
+                    onClick={() => handleChange('paymentMethod', 'cash')}
+                    className={`w-4 h-4 rounded-full border shrink-0 flex items-center justify-center ${
+                      form.paymentMethod === 'cash' ? 'border-orange-500' : 'border-gray-400'
                     }`}
                   >
-                    {paymentMethod === 'cash' && (
+                    {form.paymentMethod === 'cash' && (
                       <span className="w-2 h-2 rounded-full bg-orange-500 block" />
                     )}
                   </button>
@@ -154,7 +176,7 @@ export default function CheckoutPage() {
               </div>
 
               {/* Card details — shown only when card is selected */}
-              {paymentMethod === 'card' && (
+              {form.paymentMethod === 'card' && (
                 <div className="space-y-4">
                   <div>
                     <label className={labelClass} htmlFor="cardNumber">Card Number</label>
@@ -202,8 +224,9 @@ export default function CheckoutPage() {
                   <div className="flex-1">
                     <h3 className="font-medium text-sm">{item.name}</h3>
                     <p className="text-xs text-gray-500">{item.restaurantName}</p>
+                    <p className="text-xs text-green-600 font-medium">{item.baseFee ? `${item.baseFee} TND` : 'Free delivery'}</p>
                   </div>
-                  <div className="text-sm font-medium">${subTotalPrice}</div>
+                  <div className="text-sm font-medium">{item.price} TND</div>
                 </div>
               </div>
               ))}
@@ -211,27 +234,19 @@ export default function CheckoutPage() {
 
               <hr className="my-5" />
 
-              {/* Totals */}
-              <div className="space-y-3">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Subtotal</span>
-                  <span>${subTotalPrice}</span>
-                </div>
-          
-                <hr className="my-2" />
-                <div className="flex justify-between font-semibold">
-                  <span>Total</span>
-                  <span>$29.95</span>
-                </div>
+              {/* Total */}
+              <div className="flex justify-between font-semibold">
+                <span>Total</span>
+                <span>{totalPrice} TND</span>
               </div>
             </div>
 
             {/* Submit */}
             <button
               type="submit"
-              className="inline-flex items-center justify-center w-full h-12 rounded-md bg-green-500 hover:bg-green-600 text-white font-medium text-base transition-colors"
+              className="inline-flex items-center justify-center w-full h-12 rounded-md bg-green-500 hover:bg-green-600 text-white font-medium text-base transition-colors cursor-pointer"
             >
-              Place Order • $29.95
+              Place Order • {totalPrice}
             </button>
           </div>
         </form>
