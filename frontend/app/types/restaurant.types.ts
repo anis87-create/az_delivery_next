@@ -32,21 +32,22 @@ export type Restaurant = z.infer<typeof RestaurantSchema>;
 
 // ─── Form / UI Types (not API responses) ─────────────────────────────────────
 
-export interface RestaurantFormState {
-  name: string;
-  img: File | null;
-  coverImg: File | null;
-  type: string;
-  category: string;
-  tags: string[];
-  street: string;
-  city: string;
-  zipCode: string;
-  phone: string;
-  email: string;
-  description: string;
-  deliveryZone: string;
-}
+export const RestaurantFormStateSchema = z.object({
+  name: z.string(),
+  img: z.instanceof(File).nullable(),
+  coverImg: z.instanceof(File).nullable(),
+  type: z.string(),
+  category: z.string(),
+  tags: z.array(z.string()),
+  street: z.string(),
+  city: z.string(),
+  zipCode: z.string(),
+  phone: z.string(),
+  email: z.string(),
+  description: z.string(),
+  deliveryZone: z.string(),
+});
+export type RestaurantFormState = z.infer<typeof RestaurantFormStateSchema>;
 
 export interface RegisterFormProps {
   onRoleChange(role: string): void;

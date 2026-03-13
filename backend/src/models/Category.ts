@@ -1,21 +1,24 @@
-import mongoose, { Model, Schema, Types } from 'mongoose';
-interface ICategory {
-    name: string,
-    restaurantId: Types.ObjectId
-}
-
-interface ICategoryDocument  extends ICategory, Document {
-    createdAt: Date,
-    updatedAt: Date
-}
+import mongoose, { Schema } from 'mongoose';
+import {z} from 'zod';
+import { objectIdSchema } from '../utils/zod.utils';
 
 
-const categorySchema = new Schema<ICategoryDocument>({
-   name: {type: String, required: true},
-   restaurantId: { type: mongoose.Schema.Types.ObjectId, ref: 'Restaurant', required: true },
+
+export const categorySchema = z.object({
+    name: z.string().trim().min(1),
+    restaurantId: objectIdSchema,
+})
+
+export type ICategory = z.infer<typeof categorySchema>;
+
+const categoryMongooseSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    restaurantId: { type: Schema.Types.ObjectId, ref:'Restaurant', required: true }
 }, {
     timestamps: true
-});
+})
 
-const Category: Model<ICategoryDocument> = mongoose.model<ICategoryDocument>('category', categorySchema);
+
+
+const Category = mongoose.model('category', categoryMongooseSchema);
 export default Category;

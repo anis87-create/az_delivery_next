@@ -1,32 +1,33 @@
-import * as mongoose from 'mongoose';
-import {Types, Schema, model} from 'mongoose';
-interface IItem {
-    categoryId: Types.ObjectId,
-    restaurantId: Types.ObjectId,
-    name: string,
-    ingredients: String [],
-    price: number,
-    imageUrl: string,
-    isAvailable: boolean,
-    isPopular: boolean
-}
+import mongoose, { Schema } from 'mongoose';
+import {z} from 'zod';
+import { objectIdSchema } from '../utils/zod.utils';
 
-interface ItemDocument extends IItem , Document{
-  createdAt: Date,
-  updatedAt: Date
-}
+export const ItemSchema = z.object({
+    categoryId: objectIdSchema,
+    restaurantId: objectIdSchema,
+    name: z.string().min(1).max(255),
+    ingredients: z.array(z.string()).optional().default([]),
+    price : z.number().positive().multipleOf(0.01),
+    imageUrl: z.string().min(1),
+    isAvailable: z.boolean().optional().default(true),
+    isPopular: z.boolean().optional().default(false)
+})
 
-const ItemSchema = new Schema<ItemDocument>({
-    categoryId: {type: Schema.Types.ObjectId, ref:'Category'},
-    restaurantId: {type: Schema.Types.ObjectId, ref:'Restaurant'},
+export type IItem = z.infer<typeof ItemSchema>;
+
+
+
+const ItemMongooseSchema = new Schema({
+    categoryId: {type: Schema.Types.ObjectId,  required: true, ref:'Category'},
+    restaurantId: {type: Schema.Types.ObjectId,required: true, ref:'Restaurant'},
     name: {type: String, required: true},
     ingredients: {type: [String]},
     price: {type: Number, required: true},
     imageUrl: {type: String, required: true},
     isAvailable: {type: Boolean},
     isPopular : {type: Boolean}
-})
+}, {timestamps: true})
 
 
-export default model<ItemDocument>('item', ItemSchema);
-export { ItemDocument, IItem };
+const Item = mongoose.model('item', ItemMongooseSchema);
+export default Item;

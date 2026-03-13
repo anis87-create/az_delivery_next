@@ -16,44 +16,49 @@ export const UserSchema = z.object({
 export type User = z.infer<typeof UserSchema>;
 
 // Login credentials (consolidated from LoginCredentials + FormState)
-export interface LoginCredentials {
-  email: string;
-  password: string;
-}
 
+
+export const LoginCredentialsSchema = z.object({
+  email: z.string(),
+  password: z.string()
+})
+export type LoginCredentials = z.infer<typeof LoginCredentialsSchema>;
 // User form state for registration
-export interface UserFormState {
-  fullName: string;
-  email: string;
-  password: string;
-  phoneNumber?: string;
-  address: string;
-  role: string;
-}
+export const UserFormStateSchema = z.object({
+  fullName: z.string(),
+  email: z.string(),
+  password: z.string(),
+  phoneNumber: z.string().optional(),
+  address: z.string(),
+  role: z.string(),
+});
+export type UserFormState = z.infer<typeof UserFormStateSchema>;
 
 // Complete registration data sent to backend
-export interface RegisterData {
-  fullName: string;
-  email: string;
-  password: string;
-  role: string;
+export const RegisterDataSchema = z.object({
+  fullName: z.string(),
+  email: z.string(),
+  password: z.string(),
+  role: z.string(),
   // Restaurant fields (optional, required if role is restaurant_owner)
-  name?: string;
-  category?: string;
-  type?: string;
-  street?: string;
-  city?: string;
-  zipCode?: string;
-  phone?: string;
-  deliveryZone?: string;
-  tags?: string[];
-}
+  name: z.string().optional(),
+  category: z.string().optional(),
+  type: z.string().optional(),
+  street: z.string().optional(),
+  city: z.string().optional(),
+  zipCode: z.string().optional(),
+  phone: z.string().optional(),
+  deliveryZone: z.string().optional(),
+  tags: z.array(z.string()).optional(),
+});
+export type RegisterData = z.infer<typeof RegisterDataSchema>;
 
 // Login response from backend
-export interface LoginResponse {
-  user: User;
-  token: string;
-}
+export const LoginResponseSchema = z.object({
+  user: UserSchema,
+  token: z.string(),
+});
+export type LoginResponse = z.infer<typeof LoginResponseSchema>;
 
 // Auth Redux state
 export interface AuthState {

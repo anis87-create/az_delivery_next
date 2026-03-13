@@ -4,13 +4,13 @@ export const OrderItemSchema = z.object({
     itemId: z.string(),
     restaurantId: z.string(),
     name: z.string(),
-    price: z.number(),
-    quantity: z.number(),
+    price: z.number().positive(),
+    quantity: z.number().positive(),
     imageUrl: z.string()
 });
 export type OrderItem = z.infer<typeof OrderItemSchema>;
 
-export const ORDER_Status = {
+export const ORDER_STATUS = {
     pending: 'pending',
     confirmed: 'confirmed',
     preparing: 'preparing',
@@ -19,7 +19,7 @@ export const ORDER_Status = {
     cancelled: 'cancelled'
 } as const;
 
-export type OrderStatus = typeof ORDER_Status[keyof typeof ORDER_Status];
+export type OrderStatus = typeof ORDER_STATUS[keyof typeof ORDER_STATUS];
 
 export const PAYMENT_METHOD = {
     card : 'card',
@@ -43,19 +43,7 @@ export const AddressSchema = z.object({
 
 export type Address = z.infer<typeof AddressSchema>;
 
-export interface OrderProps {
-    userId: string,
-    firstName: string,
-    lastName: string,
-    email: string,
-    phoneNumber: string,
-    items: OrderItem[],
-    subTotal: number,
-    total: number,
-    deliveryAddress: Address,
-    paymentMethod :  PaymentMethod,
-    paymentStatus :  PaymentStatus,
-}
+
 
 export const OrderSchema = z.object({
     _id: z.string(),
@@ -68,12 +56,20 @@ export const OrderSchema = z.object({
     subTotal: z.number(),
     total: z.number(),
     deliveryAddress: AddressSchema,
-    paymentMethod: z.enum(['card', 'cash']),
-    paymentStatus: z.enum(['pending', 'paid', 'failed']),
+    paymentMethod: z.enum(Object.values(PAYMENT_METHOD) as [string, ...string[]]),
+    paymentStatus: z.enum(Object.values(PAYMENT_STATUS) as [string, ...string[]]),
     createdAt: z.string(),
     updatedAt: z.string(),
+});
+export const OrderPropsSchema = OrderSchema.omit({
+    _id: true,
+    createdAt: true,
+    updatedAt: true
 })
+export type OrderProps = z.infer<typeof OrderPropsSchema>;
+
 export type Order = z.infer<typeof OrderSchema>;
+
 export interface OrderState {
    orders: Order[],
    order: Order | null,
@@ -82,16 +78,19 @@ export interface OrderState {
    message: string
 }
 
-export interface OrderForm {
-    firstName: string,
-    lastName: string,
-    email: string,
-    phoneNumber: string,
-    street: string,
-    city: string,
-    zipCode: string,
-    paymentMethod: string,
-    paymentStatus: string
-}
+export const OrderFormSchema = z.object({
+    firstName: z.string(),
+    lastName: z.string(),
+    email: z.string(),
+    phoneNumber: z.string(),
+    street: z.string(),
+    city: z.string(),
+    zipCode:z.string(),
+    paymentMethod: z.enum(Object.values(PAYMENT_METHOD) as [string, ...string[]]),
+    paymentStatus: z.enum(Object.values(PAYMENT_STATUS) as [string, ...string[]])
+});
+
+export type OrderForm = z.infer<typeof OrderFormSchema>
+
 
 
