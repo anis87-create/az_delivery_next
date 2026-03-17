@@ -55,6 +55,7 @@ export const OrderSchema = z.object({
     items: z.array(OrderItemSchema),
     subTotal: z.number(),
     total: z.number(),
+    status: z.enum(Object.values(ORDER_STATUS) as [string, ...string[]]),
     deliveryAddress: AddressSchema,
     paymentMethod: z.enum(Object.values(PAYMENT_METHOD) as [string, ...string[]]),
     paymentStatus: z.enum(Object.values(PAYMENT_STATUS) as [string, ...string[]]),

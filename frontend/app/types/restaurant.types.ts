@@ -20,7 +20,7 @@ export const RestaurantSchema = z.object({
   phone: z.string(),
   description: z.string(),
   city: z.string(),
-  baseFee: z.string(),
+  baseFee: z.number(),
   estimatedDeliveryTime: z.string(),
   owner: z.string(),
 });

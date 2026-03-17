@@ -1,11 +1,11 @@
 import mongoose, { Schema } from 'mongoose';
 import {z} from 'zod';
-import { objectIdSchema } from '../utils/zod.utils';
+import { inputTextSchema, objectIdSchema } from '../utils/zod.utils';
 
 
 
 export const categorySchema = z.object({
-    name: z.string().trim().min(1),
+    name: inputTextSchema,
     restaurantId: objectIdSchema,
 })
 

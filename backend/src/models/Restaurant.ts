@@ -1,49 +1,64 @@
-import mongoose, { Schema, Document, Model, Types } from 'mongoose';
-import { scheduleDefinition, ISchedule } from './Schedule';
+import mongoose, { Schema } from 'mongoose';
+import { scheduleDefinition } from './Schedule';
+import { z } from 'zod';
+import { emailSchema, inputTextSchema, objectIdSchema, phoneSchema } from '../utils/zod.utils';
 
-interface IRestaurant {
-    name: string,
-    category: string,
-    img?: string,
-    coverImg?: string,
-    type: string,
-    street: string,
-    city: string,
-    zipCode: string,
-    phone: string,
-    description?: string,
-    owner: Types.ObjectId,
-    email: string,
-    tags?: string[],
-    openingHours: ISchedule,
-    baseFee?: number,
-    estimatedDeliveryTime?: string
-}
+const hoursZodSchema = z.object({
+    open: z.string(),
+    close: z.string(),
+    closed: z.boolean().optional().default(false)
+});
 
-interface IRestaurantDocument extends IRestaurant, Document {
-  createdAt: Date,
-  updatedAt: Date
-}
-const restaurantSchema = new Schema<IRestaurantDocument>({
+const scheduleZodSchema = z.object({
+    monday: hoursZodSchema,
+    tuesday: hoursZodSchema,
+    wednesday: hoursZodSchema,
+    thursday: hoursZodSchema,
+    friday: hoursZodSchema,
+    saturday: hoursZodSchema,
+    sunday: hoursZodSchema
+});
+
+export const RestaurantSchema = z.object({
+    owner: objectIdSchema,
+    name: inputTextSchema,
+    category: inputTextSchema,
+    img: z.string().optional(),
+    coverImg: z.string().optional(),
+    street: inputTextSchema,
+    city: inputTextSchema,
+    zipCode: z.string().min(4).max(10),
+    phone: phoneSchema,
+    description: z.string().optional(),
+    email: emailSchema,
+    tags: z.array(z.string()).optional(),
+    baseFee: z.number().positive(),
+    openingHours: scheduleZodSchema.optional(),
+    estimatedDeliveryTime: z.string().optional(),
+    createdAt: z.date().optional(),
+    updatedAt: z.date().optional()
+});
+
+export type IRestaurant = z.infer<typeof RestaurantSchema>;
+
+const restaurantMongooseSchema = new Schema<IRestaurant>({
+    owner: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     name: { type: String, required: true },
     category: { type: String, required: true },
     img: { type: String },
     coverImg: { type: String },
-    type: { type: String, required: true },
     street :{ type: String, required: true },
     city: { type: String, required: true },
     zipCode: { type: String, required: true },
     phone: { type: String, required: true },
     description: { type: String },
-    owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     email: { type: String, required: true },
     tags: { type: [String] },
-    baseFee: { type: Number },
+    baseFee: { type: Number, required: true },
     openingHours: scheduleDefinition,
     estimatedDeliveryTime: { type: String }
 }, {
     timestamps: true
 });
-const Restaurant: Model<IRestaurantDocument> = mongoose.model<IRestaurantDocument>('restaurant', restaurantSchema);
+const Restaurant = mongoose.model<IRestaurant>('restaurant', restaurantMongooseSchema);
 export default Restaurant;
-export { IRestaurant, IRestaurantDocument };

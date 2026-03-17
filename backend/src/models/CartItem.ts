@@ -1,28 +1,23 @@
-import mongoose, { Schema, Types, Model } from 'mongoose';
+import mongoose, { Schema, Model } from 'mongoose';
 import {z} from 'zod';
+import { inputTextSchema, objectIdSchema } from '../utils/zod.utils';
+import { ItemSchema } from './Items';
 
-export const CartEntrySchema = z.object({
-    _id: z.instanceof(Types.ObjectId),
-    name: z.string(),
-    price: z.number(),
-    imageUrl: z.string(),
-    ingredients: z.array(z.string()),
-    restaurantName: z.string(),
-    restaurantId: z.instanceof(Types.ObjectId),
-    baseFee: z.number(),
-    isAvailable: z.boolean(),
-    isPopular: z.boolean(),
-    quantity: z.number()
+export const CartEntrySchema = ItemSchema.omit({ categoryId: true }).extend({
+    _id: objectIdSchema,
+    restaurantName: inputTextSchema,
+    baseFee: z.number().positive(),
+    quantity: z.number().int().min(1)
 });
 
 
 
 
 export const CartSchema = z.object({
-    userId: z.instanceof(Types.ObjectId),
+    userId: objectIdSchema,
     items: z.array(CartEntrySchema),
-    createdAt: z.date(),
-    updatedAt: z.date()
+    createdAt: z.date().optional(),
+    updatedAt: z.date().optional()
 });
 export type CartEntry = z.infer<typeof CartEntrySchema>;
 export type Cart = z.infer<typeof CartSchema>;
@@ -37,7 +32,7 @@ const CartEntryMongooseSchema = new Schema<CartEntry>({
     baseFee: { type: Number },
     isAvailable: { type: Boolean },
     isPopular: { type: Boolean },
-    quantity: { type: Number, default: 1 }
+    quantity: { type: Number, default: 1, required: true }
 }, { _id: false });
 
 const CartMongooseSchema = new Schema<Cart>({
