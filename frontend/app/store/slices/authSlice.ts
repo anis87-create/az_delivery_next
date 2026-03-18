@@ -50,14 +50,7 @@ export const authMe = createAsyncThunk<User, void, { rejectValue: string }>(
   'auth/authme',
   async(_, thunkAPI) => {
     try {
-        const minDelay = new Promise(resolve => setTimeout(resolve, 3000));
-
-        const [userData] = await Promise.all([
-            authService.getAuthenticatedUser(),
-            minDelay
-        ]);
-
-        return userData;
+        return await authService.getAuthenticatedUser();
     } catch (error) {
       const message =
         (error as { response?: { data?: { msg?: string } } }).response?.data?.msg ||
@@ -120,6 +113,7 @@ export const authSlice = createSlice({
         })
         .addCase(authMe.rejected, (state, {payload}) => {
             state.isError = true;
+            state.isLoading = false;
             state.message = payload ?? 'Une erreur est survenue';
             state.user = null;
             state.isAuthenticated = false;

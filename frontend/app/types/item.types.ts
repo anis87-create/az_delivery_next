@@ -7,13 +7,13 @@ export const ItemSchema = z.object({
   categoryId: z.string(),
   restaurantId: z.string(),
   name: z.string(),
-  ingredients: z.array(z.string()),
+  ingredients: z.array(z.string()).catch([]),
   price: z.number(),
-  imageUrl: z.string(),
-  isAvailable: z.boolean(),
-  isPopular: z.boolean(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
+  imageUrl: z.string().catch(''),
+  isAvailable: z.boolean().catch(true),
+  isPopular: z.boolean().catch(false),
+  createdAt: z.string().catch(''),
+  updatedAt: z.string().catch(''),
 });
 
 // ─── Inferred Types ───────────────────────────────────────────────────────────

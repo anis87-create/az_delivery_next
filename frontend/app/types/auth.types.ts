@@ -36,11 +36,16 @@ export type UserFormState = z.infer<typeof UserFormStateSchema>;
 
 // Complete registration data sent to backend
 export const RegisterDataSchema = z.object({
+  id: z.string().optional(),
   fullName: z.string(),
   email: z.string(),
   password: z.string(),
+  phoneNumber: z.string().optional(),
+  address: z.string().optional(),
   role: z.string(),
   // Restaurant fields (optional, required if role is restaurant_owner)
+  img: z.string().nullable().optional(),
+  coverImg: z.string().nullable().optional(),
   name: z.string().optional(),
   category: z.string().optional(),
   type: z.string().optional(),
@@ -48,6 +53,8 @@ export const RegisterDataSchema = z.object({
   city: z.string().optional(),
   zipCode: z.string().optional(),
   phone: z.string().optional(),
+  restaurantEmail: z.string().optional(),
+  description: z.string().optional(),
   deliveryZone: z.string().optional(),
   tags: z.array(z.string()).optional(),
 });

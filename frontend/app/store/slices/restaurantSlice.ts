@@ -1,4 +1,4 @@
-import { BaseRestaurantInfo, Restaurant, RestaurantState } from "@/app/types/restaurant.types";
+import { Restaurant, RestaurantDetail, RestaurantState } from "@/app/types/restaurant.types";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { restaurantService } from "../services/restaurant";
 
@@ -46,17 +46,11 @@ export const getAllRestaurants = createAsyncThunk<Restaurant[], void, { rejectVa
     }
 );
 
-export const getOneRestaurant = createAsyncThunk<Restaurant, string, { rejectValue: string }>(
+export const getOneRestaurant = createAsyncThunk<RestaurantDetail, string, { rejectValue: string }>(
     'restaurant/getOne',
     async (id, thunkAPI) => {
         try {
-            const minDelay = new Promise(resolve => setTimeout(resolve, 3000));
-            const [restaurantData] = await Promise.all([
-                restaurantService.getOne(id),
-                minDelay
-            ]);
-
-            return restaurantData;
+            return await restaurantService.getOne(id);
         } catch (error) {
             const message =
                 (error as { response?: { data?: { msg?: string } } }).response?.data?.msg ||

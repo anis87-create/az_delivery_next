@@ -1,4 +1,4 @@
-import { RestaurantSchema } from '@/app/types/restaurant.types';
+import { RestaurantDetailSchema, RestaurantSchema } from '@/app/types/restaurant.types';
 import { privateApi, publicApi } from './api';
 import {z} from 'zod';
 const API_URL = '/restaurants';
@@ -14,6 +14,6 @@ export const restaurantService = {
     },
     async getOne(id: string) {
         const response = await publicApi.get(`${API_URL}/${id}`);
-        return RestaurantSchema.parse(response.data);
+        return RestaurantDetailSchema.parse(response.data);
     }
 }

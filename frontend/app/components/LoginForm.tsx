@@ -3,6 +3,17 @@ import Link from 'next/link';
 import { useAppDispatch, useAppSelector, RootState } from '../hooks/hooks';
 import {login} from '../store/slices/authSlice';
 import type { LoginCredentials } from '@/app/types';
+import { z } from 'zod';
+
+const LoginFormSchema = z.object({
+  email: z.email('Invalid email address'),
+  password: z.string().min(1, 'Password is required').min(8, 'Minimum 8 characters').regex(
+    /^(?=(?:.*\d){6,})(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).*$/,
+    'Password must have 6 digits, one lowercase, one uppercase, and one special character'
+  ),
+});
+
+type FieldErrors = Partial<Record<keyof LoginCredentials, string>>;
 
 
 
@@ -13,11 +24,23 @@ const LoginForm: React.FC = () => {
     password: '',
   });
 
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const dispatch = useAppDispatch();
   const { message, isError } = useAppSelector((state: RootState) => state.auth);
 
   const onSubmit = (e: FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
+    const result = LoginFormSchema.safeParse(form);
+    if (!result.success) {
+      const errors: FieldErrors = {};
+      result.error.issues.forEach((err) => {
+        const field = err.path[0] as keyof LoginCredentials;
+        errors[field] = err.message;
+      });
+      setFieldErrors(errors);
+      return;
+    }
+    setFieldErrors({});
     dispatch(login(form));
   };
 
@@ -47,11 +70,12 @@ const LoginForm: React.FC = () => {
               id="email"
               name="email"
               type="email"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${fieldErrors.email ? 'border-red-400' : 'border-gray-300'}`}
               placeholder="Enter your email"
               onChange={handleChange}
               value={form.email}
             />
+            {fieldErrors.email && <p className="mt-1 text-sm text-red-500">{fieldErrors.email}</p>}
           </div>
 
           <div>
@@ -62,11 +86,12 @@ const LoginForm: React.FC = () => {
               id="password"
               name="password"
               type="password"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${fieldErrors.password ? 'border-red-400' : 'border-gray-300'}`}
               placeholder="Enter your password"
               onChange={handleChange}
               value={form.password}
             />
+            {fieldErrors.password && <p className="mt-1 text-sm text-red-500">{fieldErrors.password}</p>}
           </div>
 
           <div className="flex items-center justify-between">

@@ -1,34 +1,38 @@
 import { z } from 'zod';
+import { ItemSchema } from './item.types';
 
 // ─── Zod Schemas ─────────────────────────────────────────────────────────────
-
-export const ImageSchema = z.object({ name: z.string() });
 
 export const RestaurantSchema = z.object({
   _id: z.string().optional(),
   name: z.string(),
   category: z.string(),
-  type: z.string(),
+  type: z.string().optional(),
   street: z.string(),
   zipCode: z.string(),
-  deliveryZone: z.string(),
-  img: ImageSchema.optional(),
-  coverImg: ImageSchema.optional(),
+  deliveryZone: z.string().optional(),
+  img: z.string().optional(),
+  coverImg: z.string().optional(),
   tags: z.array(z.string()).optional(),
   email: z.string(),
-  openingHours: z.any(),
+  openingHours: z.any().optional(),
   phone: z.string(),
-  description: z.string(),
+  description: z.string().optional(),
   city: z.string(),
   baseFee: z.number(),
-  estimatedDeliveryTime: z.string(),
+  estimatedDeliveryTime: z.string().optional(),
   owner: z.string(),
+});
+
+export const RestaurantDetailSchema = z.object({
+  restaurant: RestaurantSchema,
+  items: z.array(ItemSchema),
 });
 
 // ─── Inferred Types ───────────────────────────────────────────────────────────
 
-export type Image = z.infer<typeof ImageSchema>;
 export type Restaurant = z.infer<typeof RestaurantSchema>;
+export type RestaurantDetail = z.infer<typeof RestaurantDetailSchema>;
 
 // ─── Form / UI Types (not API responses) ─────────────────────────────────────
 
@@ -54,7 +58,7 @@ export interface RegisterFormProps {
 }
 
 export interface RestaurantState {
-  restaurant: Restaurant | null;
+  restaurant: RestaurantDetail | null;
   isError: boolean;
   isLoading: boolean;
   message: string;

@@ -5,7 +5,34 @@ import { v4 as uuidv4 } from 'uuid';
 import { register } from '../store/slices/authSlice';
 import { useSelector } from 'react-redux';
 import {RootState, useAppDispatch} from '../hooks/hooks';
-import type { UserFormState, RestaurantFormState, RegisterFormProps } from '@/app/types';
+import type { UserFormState, RestaurantFormState, RegisterFormProps, RegisterData } from '@/app/types';
+import { z } from 'zod';
+
+const CustomerSchema = z.object({
+  fullName: z.string().min(1, 'Full name is required'),
+  email: z.email('Invalid email address'),
+  password: z.string().min(8, 'Minimum 8 characters').regex(
+    /^(?=(?:.*\d){6,})(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).*$/,
+    'Password must have 6 digits, one lowercase, one uppercase, and one special character'
+  ),
+  phoneNumber: z.string().min(1, 'Phone number is required').regex(/^\d{8}$/, 'Phone number must be exactly 8 digits'),
+  address: z.string().min(1, 'Address is required'),
+  role: z.string().min(1, 'Please select an account type'),
+});
+
+const RestaurantOwnerSchema = CustomerSchema.extend({
+  name: z.string().min(1, 'Restaurant name is required'),
+  type: z.string().min(1, 'Type is required'),
+  category: z.string().min(1, 'Category is required'),
+  street: z.string().min(1, 'Street is required'),
+  city: z.string().min(1, 'City is required'),
+  zipCode: z.string().min(4, 'Invalid zip code'),
+  phone: z.string().min(1, 'Phone number is required').regex(/^\d{8}$/, 'Phone number must be exactly 8 digits'),
+  restaurantEmail: z.string().min(1, 'Restaurant email is required').pipe(z.email('Invalid email address')),
+  deliveryZone: z.string().min(1, 'Delivery zone is required'),
+});
+
+type FieldErrors = Partial<Record<keyof RegisterData, string>>;
 
 const RegisterForm= ({ onRoleChange}: RegisterFormProps) => {
   
@@ -35,6 +62,7 @@ const RegisterForm= ({ onRoleChange}: RegisterFormProps) => {
   });
 
   const [tagInput, setTagInput] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const dispatch = useAppDispatch();
   const {  message, isError } = useSelector((state:RootState) => state.auth);
 
@@ -92,57 +120,65 @@ const RegisterForm= ({ onRoleChange}: RegisterFormProps) => {
   const onSubmit = (e:FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    try {
-      //const userFound = users?.find(user => user.email === form.email);
-      if(!isError){
-        if(form.role === 'restaurant_owner'){
-          // Envoyer toutes les données (utilisateur + restaurant) en une seule requête
-          const registrationData = {
-            fullName: form.fullName,
-            email: form.email,
-            password: form.password,
-            phone: form.phoneNumber,
-            address: form.address,
-            role: 'restaurant_owner',
-            // Données du restaurant
-            name: restaurantForm.name,
-            img: restaurantForm.img ? restaurantForm.img.name : null,
-            coverImg: restaurantForm.coverImg ? restaurantForm.coverImg.name : null,
-            type: restaurantForm.type,
-            category: restaurantForm.category,
-            tags: restaurantForm.tags,
-            deliveryZone: restaurantForm.deliveryZone,
-            street: restaurantForm.street,
-            city: restaurantForm.city,
-            zipCode: restaurantForm.zipCode,
-            restaurantEmail: restaurantForm.email,
-            description: restaurantForm.description
-          };
-          // Envoyer en une seule fois au backend
-          dispatch(register(registrationData));
-        } else {
-          const userData = {
-            id: uuidv4(),
-            fullName: form.fullName,
-            email: form.email,
-            password: form.password,
-            phoneNumber: form.phoneNumber,
-            address: form.address,
-            role: form.role
-          };
-          dispatch(register(userData)); 
-        }
-      }
-    } catch (error) {
-      console.error('Registration error:', error);
-      alert('Registration failed. Please try again.');
+    const isOwner = form.role === 'restaurant_owner';
+
+    const dataToValidate = isOwner
+      ? { ...form, name: restaurantForm.name, type: restaurantForm.type, category: restaurantForm.category, street: restaurantForm.street, city: restaurantForm.city, zipCode: restaurantForm.zipCode, phone: restaurantForm.phone, restaurantEmail: restaurantForm.email, deliveryZone: restaurantForm.deliveryZone }
+      : form;
+
+    const schema = isOwner ? RestaurantOwnerSchema : CustomerSchema;
+    const result = schema.safeParse(dataToValidate);
+
+    if (!result.success) {
+      const errors: FieldErrors = {};
+      result.error.issues.forEach((err) => {
+        const field = err.path[0] as string;
+        errors[field] = err.message;
+      });
+      setFieldErrors(errors);
+      return;
+    }
+
+    setFieldErrors({});
+
+    if (isOwner) {
+      dispatch(register({
+        fullName: form.fullName,
+        email: form.email,
+        password: form.password,
+        phone: form.phoneNumber,
+        address: form.address,
+        role: 'restaurant_owner',
+        name: restaurantForm.name,
+        img: restaurantForm.img ? restaurantForm.img.name : null,
+        coverImg: restaurantForm.coverImg ? restaurantForm.coverImg.name : null,
+        type: restaurantForm.type,
+        category: restaurantForm.category,
+        tags: restaurantForm.tags,
+        deliveryZone: restaurantForm.deliveryZone,
+        street: restaurantForm.street,
+        city: restaurantForm.city,
+        zipCode: restaurantForm.zipCode,
+        restaurantEmail: restaurantForm.email,
+        description: restaurantForm.description
+      }));
+    } else {
+      dispatch(register({
+        id: uuidv4(),
+        fullName: form.fullName,
+        email: form.email,
+        password: form.password,
+        phoneNumber: form.phoneNumber,
+        address: form.address,
+        role: form.role
+      }));
     }
   }
 
   return (
     <div className="w-1/2 p-8 lg:p-12 flex items-center justify-center overflow-y-auto">
           <div className="max-w-md w-full my-8">
-              {isError &&  <div className='bg-red-100 p-2 font-weight mb-4'>{message}</div>}
+              {isError && <div className='bg-red-100 border border-red-300 p-3 rounded-lg mb-4 text-red-700 text-sm'>{message}</div>}
               <div className="text-center mb-8">
                 <h2 className="text-3xl font-bold text-gray-900">Create Account</h2>
                 <p className="mt-2 text-gray-600">
@@ -162,10 +198,11 @@ const RegisterForm= ({ onRoleChange}: RegisterFormProps) => {
                     id="fullName"
                     name="fullName"
                     type="text"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${fieldErrors.fullName ? 'border-red-400' : 'border-gray-300'}`}
                     placeholder="Enter your full name"
                     onChange={handleChange}
                   />
+                  {fieldErrors.fullName && <p className="mt-1 text-sm text-red-500">{fieldErrors.fullName}</p>}
                 </div>
 
                 <div>
@@ -176,10 +213,11 @@ const RegisterForm= ({ onRoleChange}: RegisterFormProps) => {
                     id="email"
                     name="email"
                     type="email"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${fieldErrors.email ? 'border-red-400' : 'border-gray-300'}`}
                     placeholder="Enter your email"
                     onChange={handleChange}
                   />
+                  {fieldErrors.email && <p className="mt-1 text-sm text-red-500">{fieldErrors.email}</p>}
                 </div>
 
                 <div>
@@ -190,10 +228,11 @@ const RegisterForm= ({ onRoleChange}: RegisterFormProps) => {
                     id="password"
                     name="password"
                     type="password"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${fieldErrors.password ? 'border-red-400' : 'border-gray-300'}`}
                     placeholder="Create a password"
                     onChange={handleChange}
                   />
+                  {fieldErrors.password && <p className="mt-1 text-sm text-red-500">{fieldErrors.password}</p>}
                 </div>
 
                 <div>
@@ -204,10 +243,11 @@ const RegisterForm= ({ onRoleChange}: RegisterFormProps) => {
                     id="phone"
                     name="phoneNumber"
                     type="tel"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${fieldErrors.phoneNumber ? 'border-red-400' : 'border-gray-300'}`}
                     placeholder="Enter your phone number"
                     onChange={handleChange}
                   />
+                  {fieldErrors.phoneNumber && <p className="mt-1 text-sm text-red-500">{fieldErrors.phoneNumber}</p>}
                 </div>
 
                 <div>
@@ -218,10 +258,11 @@ const RegisterForm= ({ onRoleChange}: RegisterFormProps) => {
                       id="address"
                       name="address"
                       type="text"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${fieldErrors.address ? 'border-red-400' : 'border-gray-300'}`}
                       placeholder="Enter your address"
                       onChange={handleChange}
                     />
+                    {fieldErrors.address && <p className="mt-1 text-sm text-red-500">{fieldErrors.address}</p>}
                   </div>
 
                 <div>
@@ -231,13 +272,14 @@ const RegisterForm= ({ onRoleChange}: RegisterFormProps) => {
                   <select
                     id="userType"
                     name="role"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${fieldErrors.role ? 'border-red-400' : 'border-gray-300'}`}
                     onChange={handleChange}
                   >
                     <option value="">Select user type</option>
                     <option value="customer">Customer</option>
                     <option value="restaurant_owner">Restaurant Owner</option>
                   </select>
+                  {fieldErrors.role && <p className="mt-1 text-sm text-red-500">{fieldErrors.role}</p>}
                 </div>
 
                 {/* Restaurant Information Section - Only visible for restaurant owners */}
@@ -257,11 +299,11 @@ const RegisterForm= ({ onRoleChange}: RegisterFormProps) => {
                             id="name"
                             name="name"
                             type="text"
-                            //required
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                            className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${fieldErrors.name ? 'border-red-400' : 'border-gray-300'}`}
                             placeholder="Ex: Le Petit Bistrot"
                             onChange={handleRestaurantChange}
                           />
+                          {fieldErrors.name && <p className="mt-1 text-sm text-red-500">{fieldErrors.name}</p>}
                         </div>
 
 
@@ -272,13 +314,14 @@ const RegisterForm= ({ onRoleChange}: RegisterFormProps) => {
                           <select
                             id="type"
                             name="type"
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                            className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${fieldErrors.type ? 'border-red-400' : 'border-gray-300'}`}
                             onChange={handleRestaurantChange}
                           >
                             <option value="">Select type</option>
                             <option value="restaurant">Restaurant</option>
                             <option value="quick_bite">Quick Bite</option>
                           </select>
+                          {fieldErrors.type && <p className="mt-1 text-sm text-red-500">{fieldErrors.type}</p>}
                         </div>
 
                         <div>
@@ -288,7 +331,7 @@ const RegisterForm= ({ onRoleChange}: RegisterFormProps) => {
                           <select
                             id="category"
                             name="category"
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                            className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${fieldErrors.category ? 'border-red-400' : 'border-gray-300'}`}
                             onChange={handleRestaurantChange}
                           >
                             <option value="">Select category</option>
@@ -301,6 +344,7 @@ const RegisterForm= ({ onRoleChange}: RegisterFormProps) => {
                             <option value="cafe">Cafe</option>
                             <option value="bar">Bar</option>
                           </select>
+                          {fieldErrors.category && <p className="mt-1 text-sm text-red-500">{fieldErrors.category}</p>}
                         </div>
 
                         <div>
@@ -392,10 +436,11 @@ const RegisterForm= ({ onRoleChange}: RegisterFormProps) => {
                             id="street"
                             name="street"
                             type="text"
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                            className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${fieldErrors.street ? 'border-red-400' : 'border-gray-300'}`}
                             placeholder="Ex: 123 Rue de la Paix"
                             onChange={handleRestaurantChange}
                           />
+                          {fieldErrors.street && <p className="mt-1 text-sm text-red-500">{fieldErrors.street}</p>}
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
@@ -407,10 +452,11 @@ const RegisterForm= ({ onRoleChange}: RegisterFormProps) => {
                               id="city"
                               name="city"
                               type="text"
-                              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${fieldErrors.city ? 'border-red-400' : 'border-gray-300'}`}
                               placeholder="Ex: Paris"
                               onChange={handleRestaurantChange}
                             />
+                            {fieldErrors.city && <p className="mt-1 text-sm text-red-500">{fieldErrors.city}</p>}
                           </div>
                           <div>
                             <label htmlFor="restaurantZipCode" className="block text-sm font-medium text-gray-700 mb-2">
@@ -420,10 +466,11 @@ const RegisterForm= ({ onRoleChange}: RegisterFormProps) => {
                               id="zipCode"
                               name="zipCode"
                               type="text"
-                              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${fieldErrors.zipCode ? 'border-red-400' : 'border-gray-300'}`}
                               placeholder="Ex: 75001"
                               onChange={handleRestaurantChange}
                             />
+                            {fieldErrors.zipCode && <p className="mt-1 text-sm text-red-500">{fieldErrors.zipCode}</p>}
                           </div>
                         </div>
 
@@ -435,10 +482,11 @@ const RegisterForm= ({ onRoleChange}: RegisterFormProps) => {
                             id="phone"
                             name="phone"
                             type="tel"
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                            className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${fieldErrors.phone ? 'border-red-400' : 'border-gray-300'}`}
                             placeholder="Ex: +33 1 23 45 67 89"
                             onChange={handleRestaurantChange}
                           />
+                          {fieldErrors.phone && <p className="mt-1 text-sm text-red-500">{fieldErrors.phone}</p>}
                         </div>
 
                         <div>
@@ -449,10 +497,11 @@ const RegisterForm= ({ onRoleChange}: RegisterFormProps) => {
                             id="restaurantEmail"
                             name="email"
                             type="email"
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                            className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${fieldErrors.email_restaurant ? 'border-red-400' : 'border-gray-300'}`}
                             placeholder="Ex: contact@restaurant.com"
                             onChange={handleRestaurantChange}
                           />
+                          {fieldErrors.restaurantEmail && <p className="mt-1 text-sm text-red-500">{fieldErrors.restaurantEmail}</p>}
                         </div>
 
                         <div>
@@ -487,10 +536,11 @@ const RegisterForm= ({ onRoleChange}: RegisterFormProps) => {
                             id="deliveryZone"
                             name="deliveryZone"
                             type="text"
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                            className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${fieldErrors.deliveryZone ? 'border-red-400' : 'border-gray-300'}`}
                             placeholder="Ex: 5 km ou quartiers spécifiques"
                             onChange={handleRestaurantChange}
                           />
+                          {fieldErrors.deliveryZone && <p className="mt-1 text-sm text-red-500">{fieldErrors.deliveryZone}</p>}
                         </div>
                       </div>
                     </div>

@@ -9,7 +9,7 @@ export const validate = (schema: ZodType) => {
                 field: e.path.join('.'),
                 message: e.message
             }));
-            return res.status(400).json({success: false, errors})
+            return res.status(400).json({ success: false, msg: errors[0]?.message, errors })
         }
         req.body = result.data;
         next();

@@ -70,7 +70,14 @@ export const clearItems = createAsyncThunk<CartItem, string, {rejectValue: strin
 const cartItemSlice = createSlice({
     name: 'cartItems',
     initialState,
-    reducers: {},
+    reducers: {
+        resetCart: (state) => {
+            state.cartItem = null;
+            state.isLoading = false;
+            state.isError = false;
+            state.message = '';
+        }
+    },
     extraReducers: (builder) => {
         builder
             .addCase(getCartItem.pending, (state) => {
@@ -128,6 +135,8 @@ const cartItemSlice = createSlice({
             });
     }
 });
+
+export const { resetCart } = cartItemSlice.actions;
 
 export const selectCartItems = (state: {cartItem: CartItemState}) =>  state.cartItem.cartItem?.items ??  [];
 

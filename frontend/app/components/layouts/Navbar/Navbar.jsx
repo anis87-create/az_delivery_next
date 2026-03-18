@@ -7,7 +7,7 @@ import Avatar from '../../common/Avatar';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../../store/slices/authSlice';
 import { useRouter } from 'next/navigation';
-import { selectTotalQuantityOfCartItems } from '@/app/store/slices/cartItemSlice';
+import { resetCart, selectTotalQuantityOfCartItems } from '@/app/store/slices/cartItemSlice';
 
 
 const Navbar = () => {
@@ -48,7 +48,7 @@ const Navbar = () => {
             {/* Header Logo */}
             <div className='flex items-center'>
                 <h1 className='font-bold text-xl leading-7 bg-linear-to-r from-orange-500 via-red-500 to-pink-500 bg-clip-text text-transparent hover:from-orange-600 hover:via-red-600 hover:to-pink-600 transition-all duration-300 cursor-pointer'>
-                  AzFoodDelivery
+                  AZ Delivery
                 </h1>
             </div>
 
@@ -158,6 +158,7 @@ const Navbar = () => {
                       <Link href="/login" className="w-full flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors"
                       onClick={() => {
                         dispatch(logout());
+                        dispatch(resetCart());
                         router.push('/login');
                       }}
                       >
