@@ -16,8 +16,8 @@ export const cartItemService = {
         const res = await privateApi.patch(`${API_URL}/${itemId}/decrement`);
         return CartItemSchema.parse(res.data);
     },
-    async clearItems(userId: string):Promise<CartItem>{
-       const res = await privateApi.patch(`${API_URL}/${userId}/clearItems`);
+    async clearItems():Promise<CartItem>{
+       const res = await privateApi.patch(`${API_URL}/clearItems`);
        return CartItemSchema.parse(res.data);
     }
 }

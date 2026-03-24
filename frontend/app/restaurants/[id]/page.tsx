@@ -13,6 +13,7 @@ import moment from 'moment';
 import { getAllCategories } from '@/app/store/slices/categorySlice';
 import { RootState, AppDispatch } from '../../store/store';
 import { Item } from '@/app/types/item.types';
+import { getCartItem } from '@/app/store/slices/cartItemSlice';
 
 type DayHours = { open: string; close: string; closed: boolean };
 type OpeningHours = Record<string, DayHours>;
@@ -64,6 +65,7 @@ const RestaurantPage = () => {
     setIsMounted(true);
     dispatch(getOneRestaurant(id));
     dispatch(getAllCategories(id));
+    dispatch(getCartItem());
   }, [dispatch, id]);
 
 
@@ -296,7 +298,7 @@ const RestaurantPage = () => {
                           <button
                             key={star}
                             type="button"
-                            className="text-2xl hover:scale-110 transition-transform"
+                            className="text-2xl hover:scale-110 transition-transform cursor-pointer"
                             onClick={() => {
                               // Augmente le compteur d'étoiles lors du clic
                               if (star === index + 1) {
@@ -313,7 +315,7 @@ const RestaurantPage = () => {
                           <button
                             key={star}
                             type="button"
-                            className="text-2xl hover:scale-110 transition-transform"
+                            className="text-2xl hover:scale-110 transition-transform cursor-pointer"
                             onClick={() => {
                               // Diminue le compteur d'étoiles lors du clic sur une étoile déjà sélectionnée
                               if (star === index + 1) {
@@ -350,7 +352,7 @@ const RestaurantPage = () => {
                 <div className="flex justify-end">
                   <button
                     type="submit"
-                    className="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2"
+                    className="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2 cursor-pointer"
                     onClick={(e) => {
                       e.preventDefault();
                       // Appelle la fonction reply pour soumettre le nouveau commentaire

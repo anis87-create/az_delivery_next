@@ -17,7 +17,6 @@ const Navbar = () => {
   const { user, isAuthenticated } = useSelector(state => state.auth);
   const { cartItem } = useSelector(state => state.cartItem);
   const totalQuantity = useSelector(selectTotalQuantityOfCartItems);
-  console.log(totalQuantity);
   
 
   const router = useRouter();
@@ -42,7 +41,7 @@ const Navbar = () => {
   };
 
   return (
-    <header className='fixed w-full top-0 shadow-lg bg-white z-50'>
+    <header className='fixed w-full top-0 shadow-sm bg-white z-50'>
       <div className='container mx-auto w-[90%]'>
         <div className="flex justify-between items-center py-[30px] px-0">
             {/* Header Logo */}

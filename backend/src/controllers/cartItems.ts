@@ -1,4 +1,4 @@
-import { isGeneratorFunction } from 'util/types';
+
 import CartItem from '../models/CartItem';
 import Item from '../models/Items';
 import Restaurant from '../models/Restaurant';
@@ -110,17 +110,14 @@ export const decrementCartItem = async (req: Request, res: Response) => {
 
 export const removeCartItem = async (req:Request, res:Response) => {
     try {
-        const { id } = req.params;
-        if (!id) {
-            return res.status(400).json({ msg: 'the item id is not found' });
-        }
         if (!req.user?._id) {
             return res.status(401).json({ msg: 'the user is undefined' });
         }
-       const cartItem =  await CartItem.findOneAndUpdate(
-                { userId: req.user._id },
-                { $set: { "items": [] } },
-                { new: true }
+
+        const cartItem = await CartItem.findOneAndUpdate(
+            { userId: req.user._id },
+            { $set: { items: [] } },
+            { new: true }
         );
         return res.status(200).json(cartItem);
     } catch (error) {

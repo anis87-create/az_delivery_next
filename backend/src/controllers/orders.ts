@@ -19,41 +19,36 @@ const addOrder = async (req: Request, res: Response) => {
         if(!req.user) {
             return res.status(400).json({ msg:'the user is undefined' });
         }
-        let order = await Order.findOne({  userId: req.user._id });
-        if(!order){
-            if(!req.body.firstName) {
-                return res.status(400).json({ msg: 'firstName is required' });
-            }
-            if(!req.body.lastName) {
-                return res.status(400).json({ msg: 'lastName is required' });
-            }
-            if(!req.body.email) {
-                return res.status(400).json({ msg: 'email is required' });
-            }
-            if(!req.body.phoneNumber) {
-                return res.status(400).json({ msg: 'phoneNumber is required' });
-            }
-            if(!req.body.deliveryAddress) {
-                return res.status(400).json({ msg: 'deliveryAddress is required' });
-           }
-            if(!req.body.deliveryAddress.street){
-                return res.status(400).json({msg:'the delivery Address is required'});
-            }
-            if(!req.body.deliveryAddress.city) {
-                return res.status(400).json({msg:'the city is required'});
-            }
-            if(!req.body.deliveryAddress.zipCode) {
-                return res.status(400).json({msg:'the zipCode is required'});
-            }
-            order = new Order({
-                userId: req.user._id,
-                ...req.body
-            });
-            await order.save();
-            return res.status(201).json(order);
-        }else {
-            return res.status(409).json({msg:'the order already exists!'})
+        if(!req.body.firstName) {
+            return res.status(400).json({ msg: 'firstName is required' });
         }
+        if(!req.body.lastName) {
+            return res.status(400).json({ msg: 'lastName is required' });
+        }
+        if(!req.body.email) {
+            return res.status(400).json({ msg: 'email is required' });
+        }
+        if(!req.body.phoneNumber) {
+            return res.status(400).json({ msg: 'phoneNumber is required' });
+        }
+        if(!req.body.deliveryAddress) {
+            return res.status(400).json({ msg: 'deliveryAddress is required' });
+        }
+        if(!req.body.deliveryAddress.street){
+            return res.status(400).json({msg:'the delivery Address is required'});
+        }
+        if(!req.body.deliveryAddress.city) {
+            return res.status(400).json({msg:'the city is required'});
+        }
+        if(!req.body.deliveryAddress.zipCode) {
+            return res.status(400).json({msg:'the zipCode is required'});
+        }
+        const order = new Order({
+            userId: req.user._id,
+            ...req.body
+        });
+        await order.save();
+        return res.status(201).json(order);
         
     } catch (error) {
         res.status(500).json({error});

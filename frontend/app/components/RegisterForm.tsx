@@ -42,6 +42,8 @@ const RegisterForm= ({ onRoleChange}: RegisterFormProps) => {
     password:'',
     phoneNumber:'',
     address:'',
+    city:'',
+    zipCode:'',
     role:''
   });
 
@@ -170,6 +172,8 @@ const RegisterForm= ({ onRoleChange}: RegisterFormProps) => {
         password: form.password,
         phoneNumber: form.phoneNumber,
         address: form.address,
+        city: form.city,
+        zipCode: form.zipCode,
         role: form.role
       }));
     }
@@ -264,6 +268,37 @@ const RegisterForm= ({ onRoleChange}: RegisterFormProps) => {
                     />
                     {fieldErrors.address && <p className="mt-1 text-sm text-red-500">{fieldErrors.address}</p>}
                   </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-2">
+                      City
+                    </label>
+                    <input
+                      id="city"
+                      name="city"
+                      type="text"
+                      className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${fieldErrors.city ? 'border-red-400' : 'border-gray-300'}`}
+                      placeholder="Ex: Tunis"
+                      onChange={handleChange}
+                    />
+                    {fieldErrors.city && <p className="mt-1 text-sm text-red-500">{fieldErrors.city}</p>}
+                  </div>
+                  <div>
+                    <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700 mb-2">
+                      ZIP Code
+                    </label>
+                    <input
+                      id="zipCode"
+                      name="zipCode"
+                      type="text"
+                      className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${fieldErrors.zipCode ? 'border-red-400' : 'border-gray-300'}`}
+                      placeholder="Ex: 1000"
+                      onChange={handleChange}
+                    />
+                    {fieldErrors.zipCode && <p className="mt-1 text-sm text-red-500">{fieldErrors.zipCode}</p>}
+                  </div>
+                </div>
 
                 <div>
                   <label htmlFor="userType" className="block text-sm font-medium text-gray-700 mb-2">

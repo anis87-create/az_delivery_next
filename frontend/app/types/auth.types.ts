@@ -8,7 +8,9 @@ export const UserSchema = z.object({
    phoneNumber: z.string(),
    email: z.string(),
    address: z.string(),
-   role: z.enum(['customer', 'restaurant_owner']), 
+   city: z.string().optional(),
+   zipCode: z.string().optional(),
+   role: z.enum(['customer', 'restaurant_owner']),
    restaurant: RestaurantSchema.optional(),
 })
 
@@ -30,6 +32,8 @@ export const UserFormStateSchema = z.object({
   password: z.string(),
   phoneNumber: z.string().optional(),
   address: z.string(),
+  city: z.string().optional(),
+  zipCode: z.string().optional(),
   role: z.string(),
 });
 export type UserFormState = z.infer<typeof UserFormStateSchema>;

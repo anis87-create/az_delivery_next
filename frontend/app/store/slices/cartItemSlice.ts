@@ -53,9 +53,9 @@ export const removeFromCartItem = createAsyncThunk<CartItem, string, {rejectValu
         }
     }
 );
-export const clearItems = createAsyncThunk<CartItem, string, {rejectValue: string}>('cartItems/clearItems', async(userId, thunkAPI) => {
+export const clearItems = createAsyncThunk<CartItem, void, {rejectValue: string}>('cartItems/clearItems', async(_, thunkAPI) => {
      try {
-     return await cartItemService.clearItems(userId);
+     return await cartItemService.clearItems();
     
      } catch (error: any) {
         const message =

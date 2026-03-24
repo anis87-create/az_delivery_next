@@ -17,6 +17,8 @@ export const UserSchema = z.object({
   password: passwordSchema,
   phoneNumber:  phoneSchema,
   address: inputTextSchema.optional(),
+  city: inputTextSchema.optional(),
+  zipCode: inputTextSchema.optional(),
   role: z.enum(USER_ROLE_ENUM),
   createdAt: z.date().optional(),
   updatedAt: z.date().optional()
@@ -41,6 +43,8 @@ const userMongooseSchema = new Schema<IUserDocument>({
     password: {type: String, required: true},
     phoneNumber: {type: String, required: true},
     address:{type: String},
+    city: {type: String},
+    zipCode: {type: String},
     role: {
         type: String,
         enum: Object.values(USER_ROLE_ENUM),

@@ -33,7 +33,7 @@ const Cart = () => {
                 <h1 className="text-3xl font-bold">Your Cart</h1>
                 <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors border h-10 px-4 py-2 text-red-600 border-red-600 hover:bg-red-50 bg-transparent"
                  onClick={() => {
-                  dispatch(clearItems(user._id));
+                  dispatch(clearItems());
                  }}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 mr-2">
@@ -76,7 +76,10 @@ const Cart = () => {
                             </button>
                             <span className="font-semibold min-w-8 text-center">{item.quantity}</span>
                             <button className="inline-flex items-center justify-center shadow-sm bg-background hover:bg-accent hover:text-accent-foreground h-8 w-8 rounded-md cursor-pointer"
-                             onClick={() => incrementCounter(item._id)}
+                             onClick={() => {         
+                              incrementCounter(item._id);
+                            }
+                            }
                             >
                               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
                                 <path d="M5 12h14" /><path d="M12 5v14" />
