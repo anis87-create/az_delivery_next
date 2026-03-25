@@ -24,6 +24,7 @@ export default function CheckoutPage() {
   const subTotal = useSelector(getSubTotalPrice);
   const firstName = user?.fullName.split(' ')[0] || '';
   const lastName  = user?.fullName.split(' ')[1] || '';
+  const restaurantId= [...new Set(cartItem.items?.map(item => item.restaurantId))];
 
   useEffect(() => {
      dispatch(getCartItem());
@@ -34,6 +35,7 @@ export default function CheckoutPage() {
     setIsSubmitting(true);
     const result = await dispatch(addOrder({
       userId: user?._id || '',
+      restaurantId: restaurantId[0] || '',
       firstName,
       lastName,
       email: user?.email || '',
@@ -59,7 +61,7 @@ export default function CheckoutPage() {
     }));
     if (addOrder.fulfilled.match(result)) {
       dispatch(clearItems());
-      router.push(`orders/confirmation/${orders[orders.length - 1]._id}`);
+      router.push(`orders/confirmation/${result.payload._id}`);
     } else {
       setIsSubmitting(false);
     }
@@ -233,7 +235,7 @@ export default function CheckoutPage() {
               {/* Total */}
               <div className="flex justify-between font-semibold">
                 <span>Total</span>
-                <span>{totalPrice} TND</span>
+                <span>{totalPrice.toFixed(2)} TND</span>
               </div>
             </div>
 
@@ -252,7 +254,7 @@ export default function CheckoutPage() {
                   Processing...
                 </span>
               ) : (
-                `Place Order • ${totalPrice} TND`
+                `Place Order • ${totalPrice.toFixed(2)} TND`
               )}
             </button>
           </div>

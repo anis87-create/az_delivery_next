@@ -51,6 +51,7 @@ export type PaymentStatus = typeof PAYMENT_STATUS_ENUM[keyof typeof PAYMENT_STAT
 
 export const OrderZodSchema = z.object({
     userId: objectIdSchema,
+    restaurantId: objectIdSchema,
     firstName: z.string(),
     lastName: z.string(),
     email: z.string(),
@@ -85,6 +86,7 @@ const AddressMongooseSchema = new Schema<Address>({
 
 const OrderMongooseSchema = new Schema({
     userId: { type: Schema.Types.ObjectId, required: true, ref: 'User' },
+    restaurantId: { type: Schema.Types.ObjectId, required: true, ref: 'Restaurant' },
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
     email: { type: String, required: true },

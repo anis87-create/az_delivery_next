@@ -48,6 +48,7 @@ export type Address = z.infer<typeof AddressSchema>;
 export const OrderSchema = z.object({
     _id: z.string(),
     userId: z.string(),
+    restaurantId: z.string(),
     firstName: z.string(),
     lastName: z.string(),
     email: z.string(),

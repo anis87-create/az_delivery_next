@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import { AppDispatch, useAppDispatch } from '../hooks/hooks';
 import { getAllOrders } from '../store/slices/orderSlice';
 import { getAllRestaurants } from '../store/slices/restaurantSlice';
+import moment from 'moment';
 
 const STATUS_STYLES: Record<string, string> = {
   preparing:  'bg-yellow-400 text-white',
@@ -59,9 +60,13 @@ export default function OrdersPage() {
     dispatch(getAllRestaurants());
   }, [dispatch]);
   const getRestaurantNameById = (id:string) => {
-   const restaurant = restaurants.find(restaurant => restaurant._id === id);
+   const restaurant = restaurants?.find(restaurant => restaurant._id === id);
    return restaurant.name;
   }
+ const getRestaurantImageById = (id: string) => {
+  const restaurant = restaurants?.find(restaurant => restaurant._id === id);
+   return restaurant.img;
+ }
 
   return (
     <div className="min-h-screen bg-gray-50 pt-35 px-14 pb-12">
@@ -69,24 +74,24 @@ export default function OrdersPage() {
         <h1 className="text-2xl font-bold text-gray-900 mb-6">My Orders</h1>
 
         <div className="space-y-3">
-          {STATIC_ORDERS.map((order) => (
+          {orders.orders.map((order) => (
             <div
-              key={order.id}
+              key={order._id}
               className="bg-white border border-gray-200 rounded-2xl px-5 py-4 shadow-sm"
             >
               {/* Top row */}
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-start gap-3">
                   {/* Image placeholder */}
-                  <div className="w-14 h-14 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
-                    <svg className="w-5 h-5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909" />
-                    </svg>
-                  </div>
+                  <img
+                   src={getRestaurantImageById(order.restaurantId)}
+                   alt='image'
+                   className="w-14 h-14 rounded-lg object-cover shrink-0"
+                   />
                   <div>
-                    <p className="font-bold text-gray-900 text-sm">{order.restaurant}</p>
-                    <p className="text-gray-400 text-sm mt-0.5">{order.items}</p>
-                    <p className="text-gray-400 text-sm mt-0.5">{order.date}</p>
+                    <p className="font-bold text-gray-900 text-sm">{getRestaurantNameById(order.restaurantId)}</p>
+                    <p className="text-gray-400 text-sm mt-0.5">{order.items.map(item => item.name).join(', ')}</p>
+                    <p className="text-gray-400 text-sm mt-0.5">{moment(order.createdAt).calendar()}</p>
                   </div>
                 </div>
 
@@ -100,7 +105,7 @@ export default function OrdersPage() {
               <div className="flex items-center justify-between">
                 <span className="font-bold text-gray-900">${order.total.toFixed(2)}</span>
                 <button
-                  onClick={() => router.push(`/orders/confirmation/${order.id}`)}
+                  onClick={() => router.push(`/orders/confirmation/${order._id}`)}
                   className="text-green-500 text-sm font-semibold flex items-center gap-1 cursor-pointer hover:text-green-600 transition-colors"
                 >
                   Track Order
