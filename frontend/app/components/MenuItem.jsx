@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { useDispatch, useSelector } from "react-redux";
 import { updateItem } from "../../store/features/itemsSlice";
 import { useState } from "react";
@@ -58,10 +59,13 @@ const MenuItem = ({
   return (
     <div className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors duration-200">
       {/* Item Image */}
-      <img
+      <Image
         src={item.imageUrl}
         alt={item.name}
-        className="w-16 h-16 object-cover rounded-lg mr-4 shadow-sm"
+        className="object-cover rounded-lg mr-4 shadow-sm"
+        width={64}
+        height={64}
+        unoptimized
       />
 
       {/* Item Info */}

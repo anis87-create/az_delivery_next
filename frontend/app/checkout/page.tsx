@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { AppDispatch, RootState } from '../hooks/hooks'
 import { clearItems, getCartItem,  getSubTotalPrice,  getTotalPrice } from '../store/slices/cartItemSlice'
 import { addOrder, getAllOrders } from '../store/slices/orderSlice'
@@ -210,10 +211,13 @@ export default function CheckoutPage() {
                 <div className="space-y-4 mb-6" key={item._id}>
                 <div className="flex items-start">
                   <div className="relative w-14 h-14 shrink-0 mr-4">
-                    <img
+                    <Image
                       alt="image"
                       className="w-full h-full object-cover rounded-md"
                       src={item.imageUrl}
+                      width={56}
+                      height={56}
+                      unoptimized
                     />
                     <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                       {item.quantity}

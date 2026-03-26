@@ -1,4 +1,5 @@
 'use client'
+import Image from 'next/image';
 import { deleteCategory, updateCategory } from '@/app/store/slices/categorySlice';
 import { updateItem, deleteItem } from '../../store/slices/itemSlice';
 import { useState } from 'react';
@@ -361,10 +362,13 @@ const handleMenuItemChange = (field: keyof Item, value: string | number | boolea
                     {category.items.map((item) => (
                       <div key={item._id} className="flex items-center p-4 hover:bg-gray-50 transition-colors">
                         {/* Image */}
-                        <img
+                        <Image
                           alt={item.name}
-                          className="w-16 h-16 object-cover rounded-md mr-4"
+                          className="object-cover rounded-md mr-4"
                           src={item.imageUrl || "/placeholder.svg"}
+                          width={64}
+                          height={64}
+                          unoptimized
                         />
 
                         {/* Infos de l'item */}

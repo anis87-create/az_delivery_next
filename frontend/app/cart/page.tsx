@@ -1,6 +1,7 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store/store';
 import { AppDispatch } from '../hooks/hooks';
@@ -55,10 +56,13 @@ const Cart = () => {
                          items.map(item => (
                         <div key={item._id} className="flex items-center gap-4 p-4 shadow-sm rounded-lg">
                           {/* imageUrl sera remplacé par la vraie donnée */}
-                            <img
+                            <Image
                               alt="image"
-                              className="w-16 h-16 object-cover rounded-lg"
+                              className="object-cover rounded-lg"
                               src={item.imageUrl}
+                              width={64}
+                              height={64}
+                              unoptimized
                             />
                           
                           <div className="flex-1">
@@ -143,10 +147,13 @@ const Cart = () => {
         <main className="container px-4 py-40">
           <div className="max-w-2xl mx-auto text-center py-12">
             <div className="text-gray-400 mb-6">
-              <img
+              <Image
                 alt="Empty Cart"
-                className="w-32 h-32 mx-auto mb-4 opacity-50"
+                className="mx-auto mb-4 opacity-50"
                 src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=400&fit=crop&crop=center"
+                width={128}
+                height={128}
+                unoptimized
               />
             </div>
             <h1 className="text-3xl font-bold text-gray-800 mb-4">Your cart is empty</h1>

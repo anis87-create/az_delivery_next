@@ -16,7 +16,7 @@ const RestaurantCard = React.memo(({ id, img, name, rate, time, tags, isActive =
         <div className="relative overflow-hidden">
           <div className="absolute w-full h-full top-0 left-0 bg-black/20 group-hover:bg-black/40 transition-all duration-300 z-10"></div>
           {img && (
-            <img src={img} alt={name} width={400} height={192} className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-110" />
+            <Image src={img} alt={name} width={400} height={192} unoptimized className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-110" />
           )}
 
           {/* Heart Icon - Top Left */}

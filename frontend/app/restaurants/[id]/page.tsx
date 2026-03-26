@@ -1,4 +1,5 @@
 'use client'
+import Image from 'next/image';
 import { FaPaperPlane, FaStar, FaArrowLeft } from 'react-icons/fa';
 import { MdAccessTime } from 'react-icons/md';
 import { useAppSelector } from '../../hooks/hooks';
@@ -143,12 +144,13 @@ const RestaurantPage = () => {
     <div className="min-h-screen bg-gray-50 mt-32.5">
       {/* Header avec image du restaurant */}
       <div className="relative h-64 md:h-80 lg:h-96 overflow-hidden">
-        <img
+        <Image
           src={restaurant?.restaurant.coverImg}
           alt={restaurant?.restaurant.name}
           className="w-full h-full object-cover"
-          width={80}
-          height={80}
+          width={1200}
+          height={400}
+          unoptimized
         />
         <div className="absolute inset-0 bg-black/40"></div>
 
@@ -238,12 +240,13 @@ const RestaurantPage = () => {
                     </div>
                     {item.imageUrl && (
                       <div className="ml-4">
-                        <img
+                        <Image
                           src={item.imageUrl}
                           alt={item.name}
-                          className="w-20 h-20 object-cover rounded-lg"
-                          width={20}
-                          height={20}
+                          className="object-cover rounded-lg"
+                          width={80}
+                          height={80}
+                          unoptimized
                         />
                       </div>
                     )}
