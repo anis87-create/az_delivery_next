@@ -1,10 +1,11 @@
 import { Request, Response } from "express";
 import Order from "../models/Order";
+import { IRestaurant } from "../models/Restaurant";
 
 const getAllOrders = async (req: Request,res: Response) => {
     try {
         if(!req.user) {
-            return res.status(401).json({ msg:'the user is undefined' });
+            return res.status(400).json({ msg:'the user is undefined' });
         }
         const orders = await Order.find({ userId: req.user._id });
         res.status(200).json(orders);
@@ -80,7 +81,7 @@ const getOneOrder = async (req: Request, res: Response) => {
         if(!id) {
             return res.status(400).json({msg:'the id is undefined'});
         }
-        let order = await Order.findById(id);
+        let order = await Order.findById(id).populate<{ restaurantId: IRestaurant }>('restaurantId');
         if(!order){
             return res.status(404).json({msg:'the order is not found'});
         }

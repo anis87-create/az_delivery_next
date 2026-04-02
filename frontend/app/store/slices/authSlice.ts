@@ -46,17 +46,18 @@ export const login = createAsyncThunk<LoginResponse, LoginCredentials, { rejectV
   }
 )
 
-export const authMe = createAsyncThunk<User, void, { rejectValue: string }>(
+export const authMe = createAsyncThunk<User, void, { rejectValue: { message: string; isAuthError: boolean } }>(
   'auth/authme',
   async(_, thunkAPI) => {
     try {
         return await authService.getAuthenticatedUser();
     } catch (error) {
+      const status = (error as { response?: { status?: number } }).response?.status;
       const message =
         (error as { response?: { data?: { msg?: string } } }).response?.data?.msg ||
         (error as Error).message ||
         String(error);
-      return thunkAPI.rejectWithValue(message)
+      return thunkAPI.rejectWithValue({ message, isAuthError: status === 401 })
     }
   }
 );
@@ -114,9 +115,11 @@ export const authSlice = createSlice({
         .addCase(authMe.rejected, (state, {payload}) => {
             state.isError = true;
             state.isLoading = false;
-            state.message = payload ?? 'Une erreur est survenue';
-            state.user = null;
-            state.isAuthenticated = false;
+            state.message = payload?.message ?? 'Une erreur est survenue';
+            if (payload?.isAuthError) {
+                state.user = null;
+                state.isAuthenticated = false;
+            }
         })
     }
 });

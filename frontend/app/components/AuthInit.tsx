@@ -15,9 +15,10 @@ const AuthInit: React.FC<AuthInitProps> = ({ children }) => {
 
     if (token) {
       dispatch(authMe()).unwrap()
-        .catch(() => {
-          // Token invalid or expired, remove it
-          localStorage.removeItem('token');
+        .catch((error) => {
+          if (error?.isAuthError) {
+            localStorage.removeItem('token');
+          }
         });
     }
   }, [dispatch])

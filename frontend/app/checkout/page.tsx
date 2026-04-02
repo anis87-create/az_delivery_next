@@ -18,14 +18,13 @@ export default function CheckoutPage() {
   const router = useRouter();
   const {cartItem} = useSelector((state:RootState)=> state.cartItem);
   const { user } = useSelector((state:RootState) => state.auth);
-  const { orders } = useSelector((state:RootState) => state.orders);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'cash'>('cash');
   const totalPrice = useSelector(getTotalPrice);
   const subTotal = useSelector(getSubTotalPrice);
   const firstName = user?.fullName.split(' ')[0] || '';
   const lastName  = user?.fullName.split(' ')[1] || '';
-  const restaurantId= [...new Set(cartItem.items?.map(item => item.restaurantId))];
+  const restaurantId= [...new Set(cartItem?.items?.map(item => item.restaurantId))];
 
   useEffect(() => {
      dispatch(getCartItem());

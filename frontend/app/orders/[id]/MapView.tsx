@@ -1,5 +1,5 @@
 'use client'
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -12,6 +12,15 @@ L.Icon.Default.mergeOptions({
 });
 
 export default function MapView() {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) return <div style={{ height: '300px', width: '100%', borderRadius: '12px', background: '#f3f4f6' }} />;
+
   return (
     <MapContainer
       center={[40.0, -77.0]}

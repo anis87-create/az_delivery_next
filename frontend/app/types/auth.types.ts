@@ -5,9 +5,9 @@ import {z} from 'zod';
 export const UserSchema = z.object({
    _id: z.string(),
    fullName: z.string(),
-   phoneNumber: z.string(),
+   phoneNumber: z.string().optional(),
    email: z.string(),
-   address: z.string(),
+   address: z.string().optional(),
    city: z.string().optional(),
    zipCode: z.string().optional(),
    role: z.enum(['customer', 'restaurant_owner']),

@@ -51,7 +51,7 @@ export type PaymentStatus = typeof PAYMENT_STATUS_ENUM[keyof typeof PAYMENT_STAT
 
 export const OrderZodSchema = z.object({
     userId: objectIdSchema,
-    restaurantId: objectIdSchema,
+    restaurantId: objectIdSchema || z.string(),
     firstName: z.string(),
     lastName: z.string(),
     email: z.string(),
