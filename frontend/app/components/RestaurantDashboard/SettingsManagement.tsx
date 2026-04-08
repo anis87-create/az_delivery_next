@@ -111,56 +111,6 @@ const SettingsManagement = () => {
 
   const dispatch = useDispatch<AppDispatch>();
 
-  // Nettoyer les URLs blob quand le composant est démonté ou que les URLs changent
-  useEffect(() => {
-    return () => {
-      // Libérer la mémoire des blob URLs
-      if (previewUrls.img && previewUrls.img.startsWith('blob:')) {
-        URL.revokeObjectURL(previewUrls.img);
-      }
-      if (previewUrls.coverImg && previewUrls.coverImg.startsWith('blob:')) {
-        URL.revokeObjectURL(previewUrls.coverImg);
-      }
-    };
-  }, [previewUrls]);
-
-  // Charger les données du restaurant depuis Redux quand l'utilisateur est disponible
-  useEffect(() => {
-    if (user?.restaurant) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setRestaurantData({
-        name: user.restaurant.name || 'Mon Restaurant',
-        email: user.restaurant.email || 'restaurant@example.com',
-        coverImg: user.restaurant.coverImg || null,
-        phone: user.restaurant.phone || '',
-        street: user.restaurant.street || '',
-        city: user.restaurant.city || '',
-        zipCode: user.restaurant.zipCode || '',
-        description: user.restaurant.description || '',
-        category: user.restaurant.category || '',
-        type: user.restaurant.type || '',
-        deliveryZone: user.restaurant.deliveryZone || '',
-        openingHours: user.restaurant.openingHours || {
-          monday: { open: '11:00', close: '22:00', closed: false },
-          tuesday: { open: '11:00', close: '22:00', closed: false },
-          wednesday: { open: '11:00', close: '22:00', closed: false },
-          thursday: { open: '11:00', close: '22:00,', closed: false },
-          friday: { open: '11:00', close: '23:00', closed: false },
-          saturday: { open: '11:00', close: '23:00', closed: false },
-          sunday: { open: '12:00', close: '21:00', closed: false }
-        },
-        baseFee: user?.restaurant?.baseFee,
-        estimatedDeliveryTime: user?.restaurant?.estimatedDeliveryTime || '',
-        img: user?.restaurant?.img
-      });
-    }
-  }, [user]); 
-  
-  
- 
-
-  
-
   const handleInputChange = (field, value) => {
     setRestaurantData(prev => ({
       ...prev,
@@ -232,6 +182,51 @@ const SettingsManagement = () => {
     { key: 'saturday', label: 'Samedi' },
     { key: 'sunday', label: 'Dimanche' }
   ];
+
+  // Nettoyer les URLs blob quand le composant est démonté ou que les URLs changent
+  useEffect(() => {
+    return () => {
+      // Libérer la mémoire des blob URLs
+      if (previewUrls.img && previewUrls.img.startsWith('blob:')) {
+        URL.revokeObjectURL(previewUrls.img);
+      }
+      if (previewUrls.coverImg && previewUrls.coverImg.startsWith('blob:')) {
+        URL.revokeObjectURL(previewUrls.coverImg);
+      }
+    };
+  }, [previewUrls]);
+
+  // Charger les données du restaurant depuis Redux quand l'utilisateur est disponible
+  useEffect(() => {
+    if (user?.restaurant) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setRestaurantData({
+        name: user.restaurant.name || 'Mon Restaurant',
+        email: user.restaurant.email || 'restaurant@example.com',
+        coverImg: user.restaurant.coverImg || null,
+        phone: user.restaurant.phone || '',
+        street: user.restaurant.street || '',
+        city: user.restaurant.city || '',
+        zipCode: user.restaurant.zipCode || '',
+        description: user.restaurant.description || '',
+        category: user.restaurant.category || '',
+        type: user.restaurant.type || '',
+        deliveryZone: user.restaurant.deliveryZone || '',
+        openingHours: user.restaurant.openingHours || {
+          monday: { open: '11:00', close: '22:00', closed: false },
+          tuesday: { open: '11:00', close: '22:00', closed: false },
+          wednesday: { open: '11:00', close: '22:00', closed: false },
+          thursday: { open: '11:00', close: '22:00,', closed: false },
+          friday: { open: '11:00', close: '23:00', closed: false },
+          saturday: { open: '11:00', close: '23:00', closed: false },
+          sunday: { open: '12:00', close: '21:00', closed: false }
+        },
+        baseFee: user?.restaurant?.baseFee,
+        estimatedDeliveryTime: user?.restaurant?.estimatedDeliveryTime || '',
+        img: user?.restaurant?.img
+      });
+    }
+  }, [user]);
 
   if(isLoading){
     return (

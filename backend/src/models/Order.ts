@@ -67,6 +67,11 @@ export const OrderZodSchema = z.object({
 
 export type IOrderInput = z.infer<typeof OrderZodSchema>;
 
+export const StatusZodSchema = OrderZodSchema.pick({
+    status: true
+});
+export type IStatusInput = z.infer<typeof StatusZodSchema>;
+
 // --- Mongoose Schemas ---
 
 const ItemMongooseSchema = new Schema({

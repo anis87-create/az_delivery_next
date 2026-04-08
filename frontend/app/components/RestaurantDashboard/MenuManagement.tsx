@@ -1,8 +1,8 @@
 'use client'
 import Image from 'next/image';
-import { deleteCategory, updateCategory } from '@/app/store/slices/categorySlice';
+import { deleteCategory, getAllCategories, updateCategory } from '@/app/store/slices/categorySlice';
 import { updateItem, deleteItem } from '../../store/slices/itemSlice';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { HiSearch } from 'react-icons/hi';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState, AppDispatch} from '../../store/store';
@@ -13,6 +13,8 @@ const MenuManagement = () => {
   // Static categories data
   const { categories } = useSelector((state:RootState) => state.categories);  
   const { items  } = useSelector((state:RootState) => state.items);
+  const { restaurant } = useSelector((state: RootState) => state.restaurant);
+  const { user } = useSelector((state:RootState) => state.auth);
 
   const [updateShowCategory, setUpdateShowCategory]= useState(false);
   const [categoryName, setCategoryName] = useState<string|null>('');
@@ -64,12 +66,11 @@ const handleMenuItemChange = (field: keyof Item, value: string | number | boolea
 // Filter items by category and search query
   const filteredItems = items?.filter(item => {
     // Filter by category
-    const matchesCategory = selectedCategory === 'all' || item.categoryId ===  selectedCategory;  
+    const matchesCategory = selectedCategory === 'all' || item.categoryId ===  selectedCategory;
     // Filter by search query (search in name and ingredients)
     const matchesSearch = searchQuery === '' ||
       item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.ingredients.some(ing => ing.toLowerCase().includes(searchQuery.toLowerCase()));
-
     return matchesCategory && matchesSearch;
   });
   const handleCancel = () => {
@@ -126,14 +127,14 @@ const handleMenuItemChange = (field: keyof Item, value: string | number | boolea
     }));                                                                                                    
   };    
   const getItemsByCategory = () => {                                                                        
-    // On filtre les catégories qui ont au moins 1 item dans filteredItems                                  
+    // On filtre les catégories qui ont au moins 1 item dans filteredItems      
     return categories.filter(category => {                                                                  
       return filteredItems.some(item => item.categoryId === category._id);                                  
     }).map(category => ({                                                                                   
       ...category,                                                                                          
       items: filteredItems.filter(item => item.categoryId === category._id)                                 
     }));                                                                                                    
-  };    
+  };      
 
   const handleRemoveItem = async (id: string) => {
     const result = await Swal.fire({
@@ -162,6 +163,12 @@ const handleMenuItemChange = (field: keyof Item, value: string | number | boolea
    }
   }
 
+  useEffect(() => {
+    //dispatch(getAllCategories(req))
+    //dispatch(getAllCategories(user.restaurant._id))
+    dispatch(getAllCategories(user.restaurant._id));
+  }, [dispatch, user.restaurant._id]);
+  
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
@@ -171,7 +178,7 @@ const handleMenuItemChange = (field: keyof Item, value: string | number | boolea
           onClick={() => setActiveView('categories')}
         >
           <div className="flex items-center">
-            <div className="p-2 bg-orange-100 rounded-lg flex-shrink-0">
+            <div className="p-2 bg-orange-100 rounded-lg shrink-0">
               <svg className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
               </svg>

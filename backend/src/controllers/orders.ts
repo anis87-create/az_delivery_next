@@ -1,13 +1,17 @@
 import { Request, Response } from "express";
 import Order from "../models/Order";
 import { IRestaurant } from "../models/Restaurant";
+import { IUser, USER_ROLE_ENUM } from "../models/User";
 
 const getAllOrders = async (req: Request,res: Response) => {
     try {
         if(!req.user) {
             return res.status(400).json({ msg:'the user is undefined' });
         }
-        const orders = await Order.find({ userId: req.user._id });
+        if(!req.user.restaurant){
+            return res.status(400).json({ msg:'the restaurant is undefined' });
+        }
+        const orders = req.user.role === USER_ROLE_ENUM.Customer ? await Order.find({ userId: req.user._id }): await Order.find({restaurantId: req.user.restaurant?._id}).populate<{userId: IUser}>('userId');
         res.status(200).json(orders);
 
     } catch (error) {
@@ -107,6 +111,8 @@ const updateStatus = async (req: Request, res: Response) => {
         };
         res.status(200).json(updatedOrder);
     } catch (error) {
+        console.log(error);
+        
         res.status(500).json({ error });
     }
 }

@@ -3,8 +3,8 @@ import { useState } from 'react';
 import { HiSearch, HiEye } from 'react-icons/hi';
 
 const OrdersManagement = () => {
-  // Static orders data
-  const [orders] = useState([
+  // Static orders data — commented out (to be replaced by dynamic data from API)
+  /* const [orders] = useState([
     {
       id: 1,
       userId: 1,
@@ -45,15 +45,17 @@ const OrdersManagement = () => {
       createdAt: '2024-12-26T16:20:00',
       items: ['Sandwich']
     }
-  ]);
+  ]); */
+  const [orders] = useState([]);
 
-  // Static users data
-  const users = [
+  // Static users data — commented out (to be replaced by dynamic data from API)
+  /* const users = [
     { id: 1, fullName: 'Jean Dupont' },
     { id: 2, fullName: 'Marie Martin' },
     { id: 3, fullName: 'Pierre Durand' },
     { id: 4, fullName: 'Sophie Bernard' }
-  ];
+  ]; */
+  const users = [];
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -268,12 +270,12 @@ const OrdersManagement = () => {
               {filteredOrders.map((order) => {
                 const statusDisplay = getStatusDisplay(order.status);
                 return (
-                  <tr key={order.id}>
+                  <tr key={order._id}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      ORDER#{order.id}
+                      ORDER#{order._id}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {findCustomerNameById(order.userId)}
+                      {order.userId?.fullName}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <select

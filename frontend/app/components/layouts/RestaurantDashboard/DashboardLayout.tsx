@@ -27,6 +27,19 @@ const DashboardLayout = ({
   const { user, isLoading } = useSelector((state:RootState) => state.auth);
   const restaurant = user?.restaurant;
 
+  const renderCurrentSection = () => {
+    switch(currentSection) {
+      case 'Dashboard':
+        return <Dashboard />;
+      case 'Menu Management':
+        return <MenuManagement />;
+      case 'Settings':
+        return <SettingsManagement />;
+      default:
+        return <Dashboard />;
+    }
+  };
+
   // Effet pour appeler authMe lors du changement de tab SEULEMENT
   useEffect(() => {
     // Skip au premier montage (rafraîchissement ou première visite)
@@ -69,19 +82,6 @@ const DashboardLayout = ({
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentSection]);
-
-  const renderCurrentSection = () => {
-    switch(currentSection) {
-      case 'Dashboard':
-        return <Dashboard />;
-      case 'Menu Management':
-        return <MenuManagement />;
-      case 'Settings':
-        return <SettingsManagement />;
-      default:
-        return <Dashboard />;
-    }
-  };
 
   // Loading plein écran SEULEMENT si pas encore de données user (chargement initial ou refresh)
   if(!user && isLoading){

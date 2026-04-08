@@ -16,7 +16,7 @@ export const OrderService = {
          return OrderSchema.parse(res.data);
     },
     async updateStatus(id:string, status: OrderStatus):Promise<Order>{
-          const res = await privateApi.patch(`${API_URL}/${id}`, status);
+          const res = await privateApi.patch(`${API_URL}/${id}`, {status});
           return OrderSchema.parse(res.data);  
     },
     async removeOrder(id: string):Promise<void>{

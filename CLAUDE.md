@@ -192,6 +192,8 @@ The `/api/auth/me` endpoint returns different data based on role:
 
 ## Bug Corrections
 
+toujours donne moi un indice et non la soution compléte
+
 
 
 

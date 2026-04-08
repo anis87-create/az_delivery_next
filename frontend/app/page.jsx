@@ -20,36 +20,6 @@ export default function Home() {
   const {isLoading , user} = useSelector(state => state.auth);
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setIsMounted(true);
-    dispatch(getAllRestaurants());
-    dispatch(getCartItem());
-  }, [dispatch]);
-
-  // Vérifier l'authentification et rediriger si nécessaire
-  useEffect(() => {
-    if (!isMounted) return;
-
-    // Si on est encore en train de charger les données, attendre
-    if (isLoading) return;
-
-    // Vérifier si on a un token
-    const token = localStorage.getItem('token');
-
-    // Si on a un token et les données user sont chargées
-    if (token && user) {
-      // Rediriger les restaurant_owner vers leur dashboard
-      if (user.role === 'restaurant_owner') {
-        router.replace('/restaurantDashboard');
-        return;
-      }
-      // Les customers restent sur Home
-    }
-
-    setHasCheckedAuth(true);
-  }, [isMounted, isLoading, user, router]);
-
   const categories = [
   {
       name:'Pizza',
@@ -181,6 +151,36 @@ export default function Home() {
       setCurrentSlide((prev) => (prev - 1 + sliderImages.length) % sliderImages.length);
     }
   };
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsMounted(true);
+    dispatch(getAllRestaurants());
+    dispatch(getCartItem());
+  }, [dispatch]);
+
+  // Vérifier l'authentification et rediriger si nécessaire
+  useEffect(() => {
+    if (!isMounted) return;
+
+    // Si on est encore en train de charger les données, attendre
+    if (isLoading) return;
+
+    // Vérifier si on a un token
+    const token = localStorage.getItem('token');
+
+    // Si on a un token et les données user sont chargées
+    if (token && user) {
+      // Rediriger les restaurant_owner vers leur dashboard
+      if (user.role === 'restaurant_owner') {
+        router.replace('/restaurantDashboard');
+        return;
+      }
+      // Les customers restent sur Home
+    }
+
+    setHasCheckedAuth(true);
+  }, [isMounted, isLoading, user, router]);
 
   // Afficher loading si :
   // 1. On est en train de charger les données (isLoading)

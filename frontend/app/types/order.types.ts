@@ -1,5 +1,6 @@
 import {z} from 'zod';
 import { RestaurantSchema } from './restaurant.types';
+import { UserSchema } from './auth.types';
 
 export const OrderItemSchema = z.object({
     itemId: z.string(),
@@ -48,7 +49,7 @@ export type Address = z.infer<typeof AddressSchema>;
 
 export const OrderSchema = z.object({
     _id: z.string(),
-    userId: z.string(),
+    userId: z.union([UserSchema, z.string()]),
     restaurantId: z.union([RestaurantSchema, z.string()]),
     firstName: z.string(),
     lastName: z.string(),

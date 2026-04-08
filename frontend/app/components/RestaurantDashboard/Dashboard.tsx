@@ -1,10 +1,14 @@
 'use client'
-import { useState } from 'react';
+import { useAppDispatch, useAppSelector } from '@/app/hooks/hooks';
+import { getAllOrders, updateOrder } from '@/app/store/slices/orderSlice';
+import { ORDER_STATUS, OrderStatus } from '@/app/types/order.types';
+import { useEffect, useState } from 'react';
 import { HiSearch, HiEye } from 'react-icons/hi';
+import { useSelector } from 'react-redux';
 
 const Dashboard = () => {
-  // Static orders data
-  const [orders] = useState([
+  // Static orders data — commented out (to be replaced by dynamic data from API)
+  /* const [orders] = useState([
     {
       id: '1',
       userId:'1',
@@ -45,25 +49,36 @@ const Dashboard = () => {
       createdAt: '2024-12-26T16:20:00',
       items: ['Sandwich']
     }
-  ]);
+  ]); */
+  const dispatch = useAppDispatch();
+  const { orders } = useAppSelector(state => state.orders);
 
-  // Static users data
-  const users = [
+  // Static users data — commented out (to be replaced by dynamic data from API)
+  /* const users = [
     { id: '1', fullName: 'Jean Dupont' },
     { id: '2', fullName: 'Marie Martin' },
     { id: '3', fullName: 'Pierre Durand' },
     { id: '4', fullName: 'Sophie Bernard' }
-  ];
+  ]; */
+  const users: {id: string; fullName: string}[] = [];
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-
+  /**
+   * pending: 'pending',
+    confirmed: 'confirmed',
+    preparing: 'preparing',
+    on_the_way: 'on_the_way',
+    delivered: 'delivered',
+    cancelled: 'cancelled'
+   */
   const statusOptions = [
-    { value: 'pending', label: 'Pending', bgColor: 'bg-yellow-100', textColor: 'text-yellow-800' },
-    { value: 'confirmed', label: 'Confirmed', bgColor: 'bg-blue-100', textColor: 'text-blue-800' },
-    { value: 'delivering', label: 'Delivering', bgColor: 'bg-purple-100', textColor: 'text-purple-800' },
-    { value: 'delivered', label: 'Delivered', bgColor: 'bg-green-100', textColor: 'text-green-800' },
-    { value: 'cancelled', label: 'Cancelled', bgColor: 'bg-red-100', textColor: 'text-red-800' }
+    { value: 'pending', label: 'pending', bgColor: 'bg-yellow-100', textColor: 'text-yellow-800' },
+    { value: 'confirmed', label: 'confirmed', bgColor: 'bg-blue-100', textColor: 'text-blue-800' },
+    { value: 'preparing', label: 'preparing', bgColor: 'bg-orange-100', textColor: 'text-orange-800' },
+    { value: 'on_the_way', label: 'on the way', bgColor: 'bg-purple-100', textColor: 'text-purple-800' },
+    { value: 'delivered', label: 'delivered', bgColor: 'bg-green-100', textColor: 'text-green-800' },
+    { value: 'cancelled', label: 'cancelled', bgColor: 'bg-red-100', textColor: 'text-red-800' }
   ];
 
   const getStatusDisplay = (status: string) => {
@@ -71,17 +86,19 @@ const Dashboard = () => {
     return statusConfig || { label: status, bgColor: 'bg-gray-100', textColor: 'text-gray-800' };
   };
 
-  const handleStatusChange = (orderId: string, newStatus: string) => {
-    console.log(`Order ${orderId} status changed to ${newStatus}`);
+
+
+  const updateStatus = async (orderId: string, newStatus: OrderStatus) => {
+    await dispatch(updateOrder({id: orderId, status: newStatus}))
   };
 
   const handleDeleteOrder = (orderId: string) => {
-    console.log(`Deleting order ${orderId}`);
     setShowDeleteConfirm(null);
   };
 
-  const findCustomerNameById = (userId: string) => {
+  const findCustomerNameById = (userId: string | { fullName: string; [key: string]: any }) => {
     if(!userId) return null;
+    if (typeof userId === 'object') return userId.fullName;
     return users.find(user => user.id === userId)?.fullName || 'Unknown';
   };
 
@@ -95,8 +112,8 @@ const Dashboard = () => {
   // Filter orders based on search query
   const filteredOrders = orders.filter(order => {
     if(!order.userId) return null;
-    const customerName = findCustomerNameById(order.userId)?.toLowerCase() || '';
-    const orderId = order.id.toString().toLowerCase();
+    const customerName = typeof order.userId === 'object' && order.userId.fullName || '';
+    const orderId = order._id.toString().toLowerCase();
     const status = order?.status?.toLowerCase();
     const query = searchQuery.toLowerCase();
 
@@ -104,6 +121,11 @@ const Dashboard = () => {
            orderId.includes(query) ||
            status.includes(query);
   });
+
+  useEffect(() => {
+   dispatch(getAllOrders())
+  }, [dispatch]);
+
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -117,7 +139,7 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <div className="bg-white rounded-lg shadow p-4 sm:p-6">
           <div className="flex items-center">
-            <div className="p-2 bg-blue-100 rounded-lg flex-shrink-0">
+            <div className="p-2 bg-blue-100 rounded-lg shrink-0">
               <svg className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
               </svg>
@@ -131,7 +153,7 @@ const Dashboard = () => {
 
         <div className="bg-white rounded-lg shadow p-4 sm:p-6">
           <div className="flex items-center">
-            <div className="p-2 bg-green-100 rounded-lg flex-shrink-0">
+            <div className="p-2 bg-green-100 rounded-lg shrink-0">
               <svg className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
               </svg>
@@ -147,7 +169,7 @@ const Dashboard = () => {
 
         <div className="bg-white rounded-lg shadow p-4 sm:p-6">
           <div className="flex items-center">
-            <div className="p-2 bg-yellow-100 rounded-lg flex-shrink-0">
+            <div className="p-2 bg-yellow-100 rounded-lg shrink-0">
               <svg className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -163,7 +185,7 @@ const Dashboard = () => {
 
         <div className="bg-white rounded-lg shadow p-4 sm:p-6">
           <div className="flex items-center">
-            <div className="p-2 bg-purple-100 rounded-lg flex-shrink-0">
+            <div className="p-2 bg-purple-100 rounded-lg shrink-0">
               <svg className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
               </svg>
@@ -199,13 +221,13 @@ const Dashboard = () => {
         {/* Mobile view - Cards */}
         <div className="md:hidden">
           <div className="divide-y divide-gray-200">
-            {filteredOrders.map((order) => {
+            {filteredOrders.map((order, index) => {
               const statusDisplay = getStatusDisplay(order.status);
               return (
-                <div key={order.id} className="p-4 space-y-3">
+                <div key={order._id} className="p-4 space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-900">ORDER#{order.id}</p>
+                      <p className="text-sm font-medium text-gray-900">ORDER#{order._id}</p>
                       <p className="text-xs text-gray-500">{findCustomerNameById(order.userId)}</p>
                     </div>
                     <div className="flex space-x-2">
@@ -216,7 +238,7 @@ const Dashboard = () => {
                         <HiEye className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => setShowDeleteConfirm(order.id)}
+                        onClick={() => setShowDeleteConfirm(order._id)}
                         className="text-red-600 hover:text-red-900 hover:bg-red-50 p-2 rounded"
                         title="Delete"
                       >
@@ -238,20 +260,7 @@ const Dashboard = () => {
                         <p className="text-sm text-gray-600">{getTime(order.createdAt)}</p>
                       </div>
                     </div>
-                    <div>
-                      <p className="text-xs text-gray-500 mb-1">Status</p>
-                      <select
-                        value={order.status}
-                        onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                        className={`px-2 py-1 text-xs font-semibold rounded-full border-0 ${statusDisplay.bgColor} ${statusDisplay.textColor} focus:ring-2 focus:ring-orange-500 focus:outline-none`}
-                      >
-                        {statusOptions.map((option) => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+
                   </div>
                 </div>
               );
@@ -285,12 +294,12 @@ const Dashboard = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredOrders.map((order) => {
+              {filteredOrders.map((order, index) => {
                 const statusDisplay = getStatusDisplay(order.status);
                 return (
-                  <tr key={order.id}>
+                  <tr key={order._id}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      ORDER#{order.id}
+                      ORDER-{index+1}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {findCustomerNameById(order.userId)}
@@ -298,7 +307,10 @@ const Dashboard = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <select
                         value={order.status}
-                        onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                        onChange={(e) => {
+                          updateStatus(order._id, e.target.value as OrderStatus)
+                        }
+                        }
                         className={`px-2 py-1 text-xs font-semibold rounded-full border-0 ${statusDisplay.bgColor} ${statusDisplay.textColor} focus:ring-2 focus:ring-orange-500 focus:outline-none`}
                       >
                         {statusOptions.map((option) => (
@@ -323,7 +335,7 @@ const Dashboard = () => {
                           <HiEye className="w-4 h-4" />
                         </button>
                         <button
-                          onClick={() => setShowDeleteConfirm(order.id)}
+                          onClick={() => setShowDeleteConfirm(order._id)}
                           className="text-red-600 hover:text-red-900 hover:bg-red-50 p-1 rounded"
                           title="Delete"
                         >

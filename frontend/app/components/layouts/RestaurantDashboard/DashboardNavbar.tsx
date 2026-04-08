@@ -146,10 +146,6 @@ const DashboardNavbar = ({ restaurantName, restaurantEmail, restaurantLogo, curr
     }));
 
   };
-  useEffect(() => {
-    dispatch(getAllItems());
-  }, [dispatch]);
-
   const getSectionTitle = () => {
     switch(currentSection) {
       case 'Menu Management':
@@ -209,7 +205,12 @@ const DashboardNavbar = ({ restaurantName, restaurantEmail, restaurantLogo, curr
     }
     
     return null;
-  };  
+  };
+
+  useEffect(() => {
+    dispatch(getAllItems());
+  }, [dispatch]);
+
   return (
     <div className="bg-white shadow-sm border-b border-gray-200 px-4 sm:px-6 py-4">
       <div className="flex items-center justify-between">

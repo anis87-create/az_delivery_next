@@ -69,7 +69,6 @@ const RestaurantPage = () => {
     dispatch(getCartItem());
   }, [dispatch, id]);
 
-
   // Show loading state while mounting to prevent hydration mismatch
   if (isLoading) {
     return (
