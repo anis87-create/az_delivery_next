@@ -11,11 +11,25 @@ const getAllOrders = async (req: Request,res: Response) => {
         if(!req.user.restaurant){
             return res.status(400).json({ msg:'the restaurant is undefined' });
         }
-        const orders = req.user.role === USER_ROLE_ENUM.Customer ? await Order.find({ userId: req.user._id }): await Order.find({restaurantId: req.user.restaurant?._id}).populate<{userId: IUser}>('userId');
+        const orders =  await Order.find({restaurantId: req.user.restaurant?._id}).populate<{userId: IUser}>('userId');
         res.status(200).json(orders);
 
     } catch (error) {
         res.status(500).json({error});
+    }
+}
+
+const getOrderByUserId = async (req: Request, res: Response) => {
+    try {
+        if(!req.user) {
+            return res.status(400).json({ msg:'the user is undefined' });
+        }
+       const order =   await Order.findOne({ userId: req.user._id });
+       res.status(200).json(order);
+    } catch (error) {
+        console.log(error);
+        
+       res.status(500).json({error}); 
     }
 }
 
@@ -117,4 +131,4 @@ const updateStatus = async (req: Request, res: Response) => {
     }
 }
 
-export { getAllOrders, getOneOrder, addOrder, removeOrder, updateStatus}
+export { getAllOrders, getOrderByUserId, getOneOrder, addOrder, removeOrder, updateStatus}

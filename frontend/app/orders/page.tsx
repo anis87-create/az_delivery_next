@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../store/store';
 import { useEffect } from 'react';
 import { useAppDispatch } from '../hooks/hooks';
-import { getAllOrders } from '../store/slices/orderSlice';
+import {  getOrderByUserId } from '../store/slices/orderSlice';
 import { getAllRestaurants } from '../store/slices/restaurantSlice';
 import moment from 'moment';
 import Link from 'next/link';
@@ -23,8 +23,10 @@ const STATUS_STYLES: Record<string, string> = {
 export default function OrdersPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { orders, isLoading, isError } = useSelector((state: RootState) => state.orders);
+  const { orders, isLoading, isError, order } = useSelector((state: RootState) => state.orders);
   const { restaurants } = useSelector((state: RootState) => state.restaurant);
+
+  
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -32,10 +34,11 @@ export default function OrdersPage() {
       router.push('/login');
       return;
     }
-    dispatch(getAllOrders());
+    dispatch(getOrderByUserId());
     dispatch(getAllRestaurants());
   }, [dispatch, router]);
 
+  
   const getRestaurant = (id: string) => restaurants?.find(r => r._id === id);
 
   if (isLoading) {
@@ -55,7 +58,8 @@ export default function OrdersPage() {
           <p className="text-gray-400 text-sm">You have no orders yet.</p>
         ) : (
         <div className="space-y-3">
-          {orders.map((order) => {
+          {order.items.map((item) => {
+
             const restaurant = getRestaurant(order.restaurantId);
             return (
             <div

@@ -22,6 +22,20 @@ export const getAllOrders =  createAsyncThunk<Order[],void, {rejectValue: string
     }
 });
 
+export const getOrderByUserId = createAsyncThunk<Order, void, {rejectValue: string}>('orders/getOneOrderByUserId', async(_, thunkAPI) => {
+  try {
+    return await OrderService.getOrderByUserId();
+  } catch (error) {
+    console.log(error);
+    
+    const message =
+          (error as { response?: { data?: { msg?: string } } }).response?.data?.msg ||
+          (error as Error).message ||
+          String(error);
+      return thunkAPI.rejectWithValue(message);
+  }
+});
+
 export const getOneOrder = createAsyncThunk<Order, string, {rejectValue: string} >('orders/getOne', async(id, thunkAPI) => {
     try {
         return await OrderService.getOneOrder(id);
@@ -90,6 +104,21 @@ const orderSlice = createSlice({
         state.isLoading = false;
         state.isError = true;
         state.message = payload ?? 'Une erreur est survenue';
+      })
+      .addCase(getOrderByUserId.pending, (state, {payload}) => {
+        state.order = payload;
+        state.isLoading = true;
+        state.isError  = false;
+      })
+      .addCase(getOrderByUserId.fulfilled, (state) => {
+        state.order = null;
+        state.isLoading = false;
+        state.isError = false;
+      })
+      .addCase(getOrderByUserId.rejected, (state) => {
+        state.order = null;
+        state.isLoading = false;
+        state.isError = false;
       })
       .addCase(getOneOrder.pending, (state) => {
         state.order = null;

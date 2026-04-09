@@ -371,7 +371,7 @@ const handleMenuItemChange = (field: keyof Item, value: string | number | boolea
                         {/* Image */}
                         <Image
                           alt={item.name}
-                          className="object-cover rounded-md mr-4"
+                          className="object-cover rounded-md mr-4 w-16 h-16"
                           src={item.imageUrl || "/placeholder.svg"}
                           width={64}
                           height={64}
@@ -656,7 +656,9 @@ const handleMenuItemChange = (field: keyof Item, value: string | number | boolea
               <button
                 onClick={async () =>{
                   try {
-                    await dispatch(updateItem({itemForm : selectedItem, id: selectedItem._id})).unwrap();
+                    const {categoryId, restaurantId, name, ingredients, price, imageUrl, isAvailable, isPopular} = selectedItem;
+                    
+                    await dispatch(updateItem({itemForm : { categoryId, restaurantId, name, ingredients, price, imageUrl, isAvailable, isPopular }, id: selectedItem._id})).unwrap();
                     Swal.fire({
                       toast: true,
                       position: 'top-end',
