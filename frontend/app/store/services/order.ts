@@ -11,9 +11,9 @@ export const OrderService = {
         const res = await privateApi.get(`${API_URL}/${id}`);
         return OrderSchema.parse(res.data);
     },
-    async getOrderByUserId():Promise<Order>{
+    async getOrderByUserId():Promise<Order[]>{
         const res = await privateApi.get(API_URL);
-        return OrderSchema.parse(res.data);
+        return z.array(OrderSchema).parse(res.data);
     },
     async submitOrder(orderData: OrderProps):Promise<Order>{
          const res = await privateApi.post(API_URL, orderData);

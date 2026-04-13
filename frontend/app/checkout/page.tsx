@@ -94,8 +94,8 @@ export default function CheckoutPage() {
                   <input className={inputClass} id="email" name="email" type="email" placeholder="john.doe@example.com" required value={user?.email || ''} readOnly />
                 </div>
                 <div>
-                  <label className={labelClass} htmlFor="phone">Phone Number*</label>
-                  <input className={inputClass} id="phone" name="phoneNumber" placeholder="+1 (555) 123-4567" required value={user?.phoneNumber || ''} readOnly />
+                  <label className={labelClass} htmlFor="phone">Phone Number</label>
+                  <input className={inputClass} id="phone" name="phoneNumber" placeholder="+1 (555) 123-4567"  value={user?.phoneNumber || ''} readOnly />
                 </div>
               </div>
 

@@ -22,12 +22,10 @@ export const getAllOrders =  createAsyncThunk<Order[],void, {rejectValue: string
     }
 });
 
-export const getOrderByUserId = createAsyncThunk<Order, void, {rejectValue: string}>('orders/getOneOrderByUserId', async(_, thunkAPI) => {
+export const getOrderByUserId = createAsyncThunk<Order[], void, {rejectValue: string}>('orders/getOneOrderByUserId', async(_, thunkAPI) => {
   try {
     return await OrderService.getOrderByUserId();
   } catch (error) {
-    console.log(error);
-    
     const message =
           (error as { response?: { data?: { msg?: string } } }).response?.data?.msg ||
           (error as Error).message ||
@@ -110,8 +108,8 @@ const orderSlice = createSlice({
         state.isLoading = true;
         state.isError  = false;
       })
-      .addCase(getOrderByUserId.fulfilled, (state) => {
-        state.order = null;
+      .addCase(getOrderByUserId.fulfilled, (state, {payload}) => {
+        state.orders  = payload;
         state.isLoading = false;
         state.isError = false;
       })

@@ -1,77 +1,23 @@
 'use client'
 import { useAppDispatch, useAppSelector } from '@/app/hooks/hooks';
-import { getAllOrders, updateOrder } from '@/app/store/slices/orderSlice';
-import { ORDER_STATUS, OrderStatus } from '@/app/types/order.types';
+import { deleteOrder, getAllOrders, updateOrder } from '@/app/store/slices/orderSlice';
+import {  OrderStatus } from '@/app/types/order.types';
 import { useEffect, useState } from 'react';
 import { HiSearch, HiEye } from 'react-icons/hi';
-import { useSelector } from 'react-redux';
+import { FiUser, FiClock } from 'react-icons/fi';
+import moment from 'moment';
+import { Order } from '@/app/types/order.types';
 
 const Dashboard = () => {
-  // Static orders data — commented out (to be replaced by dynamic data from API)
-  /* const [orders] = useState([
-    {
-      id: '1',
-      userId:'1',
-      status: 'delivered',
-      total: 45.50,
-      createdAt: '2024-12-26T14:30:00',
-      items: ['Pizza Margherita', 'Coca Cola']
-    },
-    {
-      id: '2',
-      userId: '2',
-      status: 'pending',
-      total: 32.00,
-      createdAt: '2024-12-26T15:15:00',
-      items: ['Burger', 'Frites']
-    },
-    {
-      id: '3',
-      userId: '3',
-      status: 'confirmed',
-      total: 28.75,
-      createdAt: '2024-12-26T15:45:00',
-      items: ['Salade César']
-    },
-    {
-      id: '4',
-      userId: '1',
-      status: 'delivering',
-      total: 56.20,
-      createdAt: '2024-12-26T16:00:00',
-      items: ['Pasta Carbonara', 'Tiramisu']
-    },
-    {
-      id: '5',
-      userId: '4',
-      status: 'cancelled',
-      total: 15.00,
-      createdAt: '2024-12-26T16:20:00',
-      items: ['Sandwich']
-    }
-  ]); */
   const dispatch = useAppDispatch();
   const { orders } = useAppSelector(state => state.orders);
 
-  // Static users data — commented out (to be replaced by dynamic data from API)
-  /* const users = [
-    { id: '1', fullName: 'Jean Dupont' },
-    { id: '2', fullName: 'Marie Martin' },
-    { id: '3', fullName: 'Pierre Durand' },
-    { id: '4', fullName: 'Sophie Bernard' }
-  ]; */
   const users: {id: string; fullName: string}[] = [];
 
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  /**
-   * pending: 'pending',
-    confirmed: 'confirmed',
-    preparing: 'preparing',
-    on_the_way: 'on_the_way',
-    delivered: 'delivered',
-    cancelled: 'cancelled'
-   */
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+
   const statusOptions = [
     { value: 'pending', label: 'pending', bgColor: 'bg-yellow-100', textColor: 'text-yellow-800' },
     { value: 'confirmed', label: 'confirmed', bgColor: 'bg-blue-100', textColor: 'text-blue-800' },
@@ -92,9 +38,7 @@ const Dashboard = () => {
     await dispatch(updateOrder({id: orderId, status: newStatus}))
   };
 
-  const handleDeleteOrder = (orderId: string) => {
-    setShowDeleteConfirm(null);
-  };
+
 
   const findCustomerNameById = (userId: string | { fullName: string; [key: string]: any }) => {
     if(!userId) return null;
@@ -222,7 +166,6 @@ const Dashboard = () => {
         <div className="md:hidden">
           <div className="divide-y divide-gray-200">
             {filteredOrders.map((order, index) => {
-              const statusDisplay = getStatusDisplay(order.status);
               return (
                 <div key={order._id} className="p-4 space-y-3">
                   <div className="flex items-center justify-between">
@@ -230,15 +173,16 @@ const Dashboard = () => {
                       <p className="text-sm font-medium text-gray-900">ORDER#{order._id}</p>
                       <p className="text-xs text-gray-500">{findCustomerNameById(order.userId)}</p>
                     </div>
-                    <div className="flex space-x-2">
+                    <div className="flex space-x-2 cursor-pointer">
                       <button
-                        className="text-blue-600 hover:text-blue-900 hover:bg-blue-50 p-2 rounded"
+                        onClick={() => setSelectedOrder(order)}
+                        className="text-blue-600 hover:text-blue-900 hover:bg-blue-50 p-2 rounded hover:cursor-pointer"
                         title="View Details"
                       >
                         <HiEye className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => setShowDeleteConfirm(order._id)}
+                        onClick={() => setShowDeleteConfirm(true)}
                         className="text-red-600 hover:text-red-900 hover:bg-red-50 p-2 rounded"
                         title="Delete"
                       >
@@ -329,13 +273,18 @@ const Dashboard = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       <div className="flex space-x-2">
                         <button
-                          className="text-blue-600 hover:text-blue-900 hover:bg-blue-50 p-1 rounded"
+                          onClick={() => setSelectedOrder(order)}
+                          className="text-blue-600 hover:text-blue-900 hover:bg-blue-50 p-1 rounded cursor-pointer"
                           title="View Details"
                         >
                           <HiEye className="w-4 h-4" />
                         </button>
                         <button
-                          onClick={() => setShowDeleteConfirm(order._id)}
+                          onClick={() => {
+                            setShowDeleteConfirm(true);
+                          }
+                            
+                          }
                           className="text-red-600 hover:text-red-900 hover:bg-red-50 p-1 rounded"
                           title="Delete"
                         >
@@ -352,6 +301,74 @@ const Dashboard = () => {
           </table>
         </div>
       </div>
+
+      {/* Order Detail Modal */}
+      {selectedOrder && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl">
+
+            {/* Header */}
+            <div className="flex items-start justify-between mb-1">
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">
+                  Order ORD-{filteredOrders.findIndex(o => o._id === selectedOrder._id) + 1}
+                </h2>
+                <p className="text-sm text-gray-400 mt-0.5">Order details and customer information</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className={`text-xs font-semibold px-3 py-1 rounded-full ${getStatusDisplay(selectedOrder.status).bgColor} ${getStatusDisplay(selectedOrder.status).textColor}`}>
+                  {selectedOrder.status}
+                </span>
+                <button onClick={() => setSelectedOrder(null)} className="text-gray-400 hover:text-gray-600 text-lg leading-none">✕</button>
+              </div>
+            </div>
+
+            {/* Customer & Time */}
+            <div className="border border-gray-200 rounded-xl p-4 mt-4 space-y-4">
+              <div className="flex items-center gap-3">
+                <FiUser className="w-5 h-5 text-gray-400 shrink-0" />
+                <div>
+                  <p className="text-xs text-gray-400">Customer</p>
+                  <p className="text-sm font-bold text-gray-900">{findCustomerNameById(selectedOrder.userId)}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <FiClock className="w-5 h-5 text-gray-400 shrink-0" />
+                <div>
+                  <p className="text-xs text-gray-400">Order Time</p>
+                  <p className="text-sm font-bold text-gray-900">{moment(selectedOrder.createdAt).fromNow()}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Items */}
+            <div className="border border-gray-200 rounded-xl p-4 mt-3">
+              <p className="text-sm font-bold text-gray-900 mb-2">Items ({selectedOrder.items.length})</p>
+              <div className="space-y-1">
+                {selectedOrder.items.map((item) => (
+                  <p key={item.itemId} className="text-sm text-gray-400">{item.quantity}x {item.name}</p>
+                ))}
+              </div>
+            </div>
+
+            {/* Total */}
+            <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
+              <span className="font-bold text-gray-900">Total</span>
+              <span className="font-bold text-green-500 text-lg">${selectedOrder.total.toFixed(2)}</span>
+            </div>
+
+            {/* Buttons */}
+            <div className="flex gap-3 mt-4">
+              <button
+                onClick={() => setSelectedOrder(null)}
+                className="flex-1 py-3 rounded-xl border border-gray-300 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
@@ -378,7 +395,9 @@ const Dashboard = () => {
                 Cancel
               </button>
               <button
-                onClick={() => handleDeleteOrder(showDeleteConfirm)}
+                onClick={() => {
+                  
+                }}
                 className="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
               >
                 Delete

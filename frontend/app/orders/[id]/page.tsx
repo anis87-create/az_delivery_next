@@ -4,7 +4,7 @@ import { FiMapPin, FiCreditCard } from 'react-icons/fi';
 import {  useSelector } from 'react-redux';
 import { RootState, useAppDispatch } from '@/app/hooks/hooks';
 import { useEffect } from 'react';
-import { getOneOrder } from '@/app/store/slices/orderSlice';
+import {  getOneOrder, getOrderByUserId, updateOrder } from '@/app/store/slices/orderSlice';
 import { useParams } from 'next/navigation';
 import moment from 'moment';
 import Image from 'next/image';
@@ -13,8 +13,17 @@ import { ORDER_STATUS } from '@/app/types/order.types';
 const MapView = dynamic(() => import('./MapView'), { ssr: false });
 const STATUS_STEPS = Object.values(ORDER_STATUS);
 
+const STATUS_STYLES: Record<string, string> = {
+  preparing:  'bg-yellow-400',
+  pending:    'bg-gray-400',
+  confirmed:  'bg-blue-500',
+  on_the_way: 'bg-orange-500',
+  delivered:  'bg-green-500',
+  cancelled:  'bg-red-500',
+};
+
 export default function OrderDetailPage() {
-  const { order } = useSelector((state:RootState)=> state.orders);
+  const { order, orders } = useSelector((state:RootState)=> state.orders);
 
   const CURRENT_STATUS = (order?.status || 'pending') as typeof STATUS_STEPS[number];
   const currentIndex = STATUS_STEPS.indexOf(CURRENT_STATUS);
@@ -29,12 +38,17 @@ export default function OrderDetailPage() {
     if (id) dispatch(getOneOrder(id));
   }, [dispatch, id]);
 
+  useEffect(() => {
+    dispatch(getOrderByUserId());
+  }, [dispatch]);
+
+  const orderNumber = orders.findIndex(order => order._id === id);
 
   
 
   return (
     <div className="min-h-screen bg-gray-50 pt-35 px-14 pb-12">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Order #{order?._id}</h1>
+      <h1 className="text-2xl font-bold text-gray-900 mb-6">Order-{orderNumber+1}</h1>
 
       <div className="flex gap-6 items-start">
         {/* LEFT COLUMN */}
@@ -44,7 +58,7 @@ export default function OrderDetailPage() {
           <div className="bg-white border border-gray-200 rounded-2xl px-6 py-5 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-bold text-gray-900 text-base">Order Status</h2>
-              <span className="bg-blue-500 text-white text-xs font-semibold px-4 py-1.5 rounded-full">
+              <span className={`${STATUS_STYLES[order?.status ?? 'pending'] ?? 'bg-gray-400'} text-white text-xs font-semibold px-4 py-1.5 rounded-full capitalize`}>
                 {order?.status}
               </span>
             </div>
@@ -108,7 +122,9 @@ export default function OrderDetailPage() {
 
           {/* Action buttons */}
           <div className="flex gap-4">
-            <button className="flex-1 py-4 rounded-2xl border border-red-500 bg-red-500 font-semibold text-white hover:bg-gray-50 hover:text-red-500 transition-colors duration-500 cursor-pointer">
+            <button className="flex-1 py-4 rounded-2xl border border-red-500 bg-red-500 font-semibold text-white hover:bg-gray-50 hover:text-red-500 transition-colors duration-500 cursor-pointer"
+            onClick={() => dispatch(updateOrder({id, status: 'cancelled'}))}
+            >
               Cancel Order
             </button>
           </div>

@@ -58,9 +58,8 @@ export default function OrdersPage() {
           <p className="text-gray-400 text-sm">You have no orders yet.</p>
         ) : (
         <div className="space-y-3">
-          {order.items.map((item) => {
-
-            const restaurant = getRestaurant(order.restaurantId);
+          {orders.map((order) => {
+            const restaurant = typeof order?.restaurantId === 'string' &&  getRestaurant(order?.restaurantId);
             return (
             <div
             onClick={() => {

@@ -24,8 +24,8 @@ const getOrderByUserId = async (req: Request, res: Response) => {
         if(!req.user) {
             return res.status(400).json({ msg:'the user is undefined' });
         }
-       const order =   await Order.findOne({ userId: req.user._id });
-       res.status(200).json(order);
+       const orders =   await Order.find({ userId: req.user._id });
+       res.status(200).json(orders);
     } catch (error) {
         console.log(error);
         
@@ -47,15 +47,15 @@ const addOrder = async (req: Request, res: Response) => {
         if(!req.body.email) {
             return res.status(400).json({ msg: 'email is required' });
         }
-        if(!req.body.phoneNumber) {
-            return res.status(400).json({ msg: 'phoneNumber is required' });
-        }
+
         if(!req.body.deliveryAddress) {
             return res.status(400).json({ msg: 'deliveryAddress is required' });
         }
         if(!req.body.deliveryAddress.street){
             return res.status(400).json({msg:'the delivery Address is required'});
         }
+        console.log(req.body);
+        
         if(!req.body.deliveryAddress.city) {
             return res.status(400).json({msg:'the city is required'});
         }
