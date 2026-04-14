@@ -66,13 +66,13 @@ const Navbar = () => {
             <nav className='hidden md:flex'>
               <ul className='flex items-center space-x-6'>
                 <li className='inline-block align-middle'>
-                  <Link href="/" className='flex items-center p-2.5 hover:text-green-500 transition-colors'>
+                  <Link href="/" className='flex items-center p-2.5 hover:text-orange-500 transition-colors'>
                     <HiOutlineHome className="w-5 h-5 sm:mr-1.5" />
                     <span className='hidden md:inline md:ml-1.5'>Home</span>
                   </Link>
                 </li>
                 <li className='inline-block align-middle'>
-                  <Link href='/search' className="nav-link search-link flex items-center p-2.5 hover:text-green-500 transition-colors">
+                  <Link href='/search' className="nav-link search-link flex items-center p-2.5 hover:text-orange-500 transition-colors">
                     <HiOutlineMagnifyingGlass className="w-5 h-5 sm:mr-1.5" />
                     <span className='hidden md:inline md:ml-1.5'>Search</span>
                   </Link>
@@ -80,10 +80,10 @@ const Navbar = () => {
                 {isAuthenticated  && (
                   <>
                     <li className='inline-block align-middle'>
-                      <Link href="/favorites" className="nav-link flex items-center p-2.5 hover:text-green-500 transition-colors relative">
+                      <Link href="/favorites" className="nav-link flex items-center p-2.5 hover:text-orange-500 transition-colors relative">
                         <HiOutlineHeart className="w-5 h-5 sm:mr-1.5" />
                         {/*totalFavorites > 0 && (
-                          <span className="absolute -top-1 -right-2 bg-red-500 text-white text-xs rounded-full min-w-[20px] h-5 flex items-center justify-center">
+                          <span className="absolute -top-1 -right-2 bg-red-500 text-white text-xs rounded-full min-w-5 h-5 flex items-center justify-center">
                             {totalFavorites}
                           </span>
                         )*/}
@@ -91,10 +91,10 @@ const Navbar = () => {
                       </Link>
                     </li>
                     <li className='inline-block align-middle'>
-                      <Link href="/cart" id="cart" className="nav-link cart-link flex items-center p-[10px] text-green-500 hover:text-green-600 transition-colors relative">
+                      <Link href="/cart" id="cart" className="nav-link cart-link flex items-center p-[10px] text-orange-500 hover:text-green-600 transition-colors relative">
                         <HiOutlineShoppingCart className="w-5 h-5 sm:mr-1.5" />
                         {cartItem?.items.length >0 && (
-                          <span className="absolute -top-1 -right-2 bg-green-500 text-white text-xs rounded-full min-w-[20px] h-5 flex items-center justify-center">
+                          <span className="absolute -top-1 -right-2 bg-orange-500 text-white text-xs rounded-full min-w-5 h-5 flex items-center justify-center">
                             {totalQuantity}
                           </span>
                         )}
@@ -102,10 +102,10 @@ const Navbar = () => {
                       </Link>
                     </li>
                     <li className='inline-block align-middle'>
-                      <Link href="/orders" className='flex items-center p-2.5 hover:text-green-500 transition-colors relative'>
+                      <Link href="/orders" className='flex items-center p-2.5 hover:text-orange-500 transition-colors relative'>
                         <HiOutlineDocumentText className="w-5 h-5 sm:mr-1.5" />
                         {/*numberOfOrders > 0 && (
-                          <span className="absolute -top-1 -right-2 bg-orange-500 text-white text-xs rounded-full min-w-[20px] h-5 flex items-center justify-center">
+                          <span className="absolute -top-1 -right-2 bg-orange-500 text-white text-xs rounded-full min-w-5 h-5 flex items-center justify-center">
                             {numberOfOrders}
                           </span>
                         )*/}
@@ -190,10 +190,10 @@ const Navbar = () => {
               {isMounted && isAuthenticated  && (
                 <>
                   <li>
-                    <Link href="/favorites" className='flex items-center p-3 hover:bg-gray-50 rounded-lg transition-colors hover:text-green-500 relative'>
+                    <Link href="/favorites" className='flex items-center p-3 hover:bg-gray-50 rounded-lg transition-colors hover:text-orange-500 relative'>
                       <HiOutlineHeart className="w-5 h-5 mr-3" />
                       {/*totalFavorites > 0 && (
-                        <span className="absolute top-0 -right-1 bg-red-500 text-white text-xs rounded-full min-w-[20px] h-5 flex items-center justify-center">
+                        <span className="absolute top-0 -right-1 bg-red-500 text-white text-xs rounded-full min-w-5 h-5 flex items-center justify-center">
                           {totalFavorites}
                         </span>
                       )*/}
@@ -201,10 +201,10 @@ const Navbar = () => {
                     </Link>
                   </li>
                   <li>
-                    <Link href="/cart" className='flex items-center p-3 text-green-500 hover:bg-gray-50 rounded-lg transition-colors relative'>
+                    <Link href="/cart" className='flex items-center p-3 text-orange-500 hover:bg-gray-50 rounded-lg transition-colors relative'>
                       <HiOutlineShoppingCart className="w-5 h-5 mr-3" />
                       {totalQuantity > 0 && (
-                        <span className="absolute top-0 -right-1 bg-green-500 text-white text-xs rounded-full min-w-[20px] h-5 flex items-center justify-center">
+                        <span className="absolute top-0 -right-1 bg-orange-500 text-white text-xs rounded-full min-w-5 h-5 flex items-center justify-center">
                           {totalQuantity}
                         </span>
                       )}
@@ -215,7 +215,7 @@ const Navbar = () => {
                     <Link href="/orders" className='flex items-center p-3 hover:bg-gray-50 rounded-lg transition-colors relative'>
                       <HiOutlineDocumentText className="w-5 h-5 mr-3" />
                       {/*numberOfOrders > 0 && (
-                        <span className="absolute top-0 -right-1 bg-orange-500 text-white text-xs rounded-full min-w-[20px] h-5 flex items-center justify-center">
+                        <span className="absolute top-0 -right-1 bg-orange-500 text-white text-xs rounded-full min-w-5 h-5 flex items-center justify-center">
                           {numberOfOrders}
                         </span>
                       )*/}
