@@ -80,10 +80,8 @@ const removeOrder = async (req: Request, res: Response) => {
         if(!id){
             return res.status(400).json({msg:'the id is undefined'});
         }
-        if(!req.user){
-            return res.status(400).json({msg:'the user is undefined'})
-        }
-        const result = await Order.deleteOne({ _id: id, userId: req.user._id });
+     
+        const result = await Order.deleteOne({ _id: id });
         if(result.deletedCount === 0){
             return res.status(404).json({msg:'order not found'});
         }

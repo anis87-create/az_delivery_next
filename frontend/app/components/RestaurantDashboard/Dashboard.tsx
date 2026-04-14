@@ -15,6 +15,7 @@ const Dashboard = () => {
   const users: {id: string; fullName: string}[] = [];
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [orderToDelete, setOrderToDelete] = useState<Order|null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
@@ -282,6 +283,7 @@ const Dashboard = () => {
                         <button
                           onClick={() => {
                             setShowDeleteConfirm(true);
+                            setOrderToDelete(order);                             
                           }
                             
                           }
@@ -396,7 +398,8 @@ const Dashboard = () => {
               </button>
               <button
                 onClick={() => {
-                  
+                  dispatch(deleteOrder(orderToDelete._id));
+                  setShowDeleteConfirm(false);
                 }}
                 className="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
               >

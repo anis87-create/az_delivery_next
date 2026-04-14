@@ -79,7 +79,7 @@ const OrdersManagement = () => {
   };
 
   const handleDeleteOrder = (orderId) => {
-    console.log(`Deleting order ${orderId}`);
+    
     setShowDeleteConfirm(null);
     // In a real app, this would dispatch an action to delete the order
   };
