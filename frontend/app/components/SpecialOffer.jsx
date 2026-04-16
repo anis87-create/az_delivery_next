@@ -29,8 +29,8 @@ const SpecialOffer = React.memo(({ offer }) => {
         </h3>
         <p className="text-xs text-gray-400 mt-0.5 truncate">{offer.restaurant}</p>
         <div className="flex items-center gap-2 mt-2">
-          <span className="text-sm font-bold text-orange-500">{offer.newPrice} €</span>
-          <span className="text-xs text-gray-400 line-through">{offer.oldPrice} €</span>
+          <span className="text-sm font-bold text-orange-500">{offer.newPrice} TND</span>
+          <span className="text-xs text-gray-400 line-through">{offer.oldPrice} TND</span>
         </div>
       </div>
     </div>

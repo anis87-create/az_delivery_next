@@ -35,7 +35,7 @@ const PopularDish = React.memo(({ dish }) => {
         </h3>
         <p className="text-xs text-gray-400 mt-0.5 truncate">{dish.restaurant}</p>
         <div className="flex items-center justify-between mt-2">
-          <span className="text-sm font-bold text-orange-500">{dish.price} €</span>
+          <span className="text-sm font-bold text-orange-500">{dish.price} TND</span>
           <span className="flex items-center gap-1 text-xs text-gray-500">
             <FaStar className="text-yellow-400 w-3 h-3" />
             {dish.rating}

@@ -238,11 +238,11 @@ const RestaurantPage = () => {
                       </p>
                     </div>
                     {item.imageUrl && (
-                      <div className="ml-4">
+                      <div className="ml-4 w-20 h-20 shrink-0 overflow-hidden rounded-lg">
                         <Image
                           src={item.imageUrl}
                           alt={item.name}
-                          className="object-cover rounded-lg"
+                          className="w-full h-full object-cover"
                           width={80}
                           height={80}
                           unoptimized

@@ -9,6 +9,7 @@ import { useParams } from 'next/navigation';
 import moment from 'moment';
 import Image from 'next/image';
 import { ORDER_STATUS } from '@/app/types/order.types';
+import Swal from 'sweetalert2';
 
 const MapView = dynamic(() => import('./MapView'), { ssr: false });
 const STATUS_STEPS = Object.values(ORDER_STATUS);
@@ -123,7 +124,22 @@ export default function OrderDetailPage() {
           {/* Action buttons */}
           <div className="flex gap-4">
             <button className="flex-1 py-4 rounded-2xl border border-red-500 bg-red-500 font-semibold text-white hover:bg-gray-50 hover:text-red-500 transition-colors duration-500 cursor-pointer"
-            onClick={() => dispatch(updateOrder({id, status: 'cancelled'}))}
+            onClick={async () => {
+              const result = await Swal.fire({
+                title: 'Cancel this order?',
+                text: 'This action cannot be undone.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Yes, cancel it',
+                cancelButtonText: 'No, keep it',
+                reverseButtons: true,
+              });
+              if (result.isConfirmed) {
+                dispatch(updateOrder({ id, status: 'cancelled' }));
+              }
+            }}
             >
               Cancel Order
             </button>
@@ -154,7 +170,7 @@ export default function OrderDetailPage() {
                     <span className="text-gray-400 text-sm">{item.quantity}x</span>
                     <span className="text-gray-900 text-sm font-medium">{item.name}</span>
                   </div>
-                  <span className="text-gray-900 text-sm font-medium">${item.price.toFixed(2)}</span>
+                  <span className="text-gray-900 text-sm font-medium">{item.price.toFixed(2)} TND</span>
                 </div>
               ))}
             </div>
@@ -163,12 +179,12 @@ export default function OrderDetailPage() {
             <div className="flex flex-col gap-2 mb-4 pb-4 border-b border-gray-100">
               <div className="flex justify-between">
                 <span className="text-gray-400 text-sm">Subtotal</span>
-                <span className="text-gray-900 text-sm">${order?.subTotal.toFixed(2)}</span>
+                <span className="text-gray-900 text-sm">{order?.subTotal.toFixed(2)} TND</span>
               </div>
                {restaurant?.baseFee && (
                 <div className="flex justify-between">
                   <span className="text-gray-400 text-sm">Delivery Fee</span>
-                  <span className="text-gray-900 text-sm">${restaurant.baseFee}</span>
+                  <span className="text-gray-900 text-sm">{restaurant.baseFee} TND</span>
                 </div>
                )}
             </div>
@@ -176,7 +192,7 @@ export default function OrderDetailPage() {
             {/* Total */}
             <div className="flex justify-between">
               <span className="font-bold text-gray-900">Total</span>
-              <span className="font-bold text-gray-900">${order?.total.toFixed(2)}</span>
+              <span className="font-bold text-gray-900">{order?.total.toFixed(2)} TND</span>
             </div>
           </div>
         </div>

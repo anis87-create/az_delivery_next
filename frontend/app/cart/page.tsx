@@ -56,14 +56,16 @@ const Cart = () => {
                          items.map(item => (
                         <div key={item._id} className="flex items-center gap-4 p-4 shadow-sm rounded-lg">
                           {/* imageUrl sera remplacé par la vraie donnée */}
+                          <div className="w-16 h-16 shrink-0 overflow-hidden rounded-lg">
                             <Image
                               alt="image"
-                              className="object-cover rounded-lg"
+                              className="w-full h-full object-cover"
                               src={item.imageUrl}
                               width={64}
                               height={64}
                               unoptimized
                             />
+                          </div>
                           
                           <div className="flex-1">
                             <h3 className="font-semibold">{item.name}</h3>

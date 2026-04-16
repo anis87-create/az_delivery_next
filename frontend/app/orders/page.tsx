@@ -94,7 +94,7 @@ export default function OrdersPage() {
 
               {/* Bottom row */}
               <div className="flex items-center justify-between">
-                <span className="font-bold text-gray-900">${order.total.toFixed(2)}</span>
+                <span className="font-bold text-gray-900">{order.total.toFixed(2)} TND</span>
                 <Link
                   href={`/orders/confirmation/${order._id}`}
                   className="text-green-500 text-sm font-semibold flex items-center gap-1 cursor-pointer hover:text-green-600 transition-colors"

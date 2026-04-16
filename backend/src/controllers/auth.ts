@@ -163,3 +163,18 @@ export const authMe = async (req:Request, res:Response) => {
     res.status(500).json({error})
  }
 }
+
+export const updaterUser = async (req:Request, res: Response) => {
+  const updateData = {...req.body};
+  try {
+    if (!req.user?._id) {
+      return res.status(401).json({msg: 'User not authorized'});
+    }
+    await User.updateOne({_id: req.user._id}, {
+      fullName: req.body.fullName,
+      phonenumber : req.body.phoneNumber
+    });
+  } catch (error) {
+    res.status(500).json({error});
+  }
+}

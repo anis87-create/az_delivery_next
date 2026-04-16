@@ -20,6 +20,7 @@ export const UserSchema = z.object({
   city: inputTextSchema.optional(),
   zipCode: inputTextSchema.optional(),
   role: z.enum(USER_ROLE_ENUM),
+  birthDate : z.string().optional(),
   createdAt: z.date().optional(),
   updatedAt: z.date().optional()
 });
@@ -49,6 +50,9 @@ const userMongooseSchema = new Schema<IUserDocument>({
         type: String,
         enum: Object.values(USER_ROLE_ENUM),
         default: USER_ROLE_ENUM.Customer,
+    },
+    birthDate: {
+      type: String 
     }
 }, {
     timestamps: true

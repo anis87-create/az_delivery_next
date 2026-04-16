@@ -65,7 +65,7 @@ export default function OrderConfirmationPage() {
       {/* Buttons */}
       <div className="w-full max-w-lg grid grid-cols-2 gap-3">
         <button
-          onClick={() => router.push('/orders')}
+          onClick={() => router.push(`/orders/${id}`)}
           className="py-4 rounded-2xl border border-gray-300 bg-white text-gray-900 font-semibold text-sm hover:bg-gray-50 transition-colors cursor-pointer"
         >
           Track Order

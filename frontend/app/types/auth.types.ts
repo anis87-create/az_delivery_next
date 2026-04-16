@@ -12,6 +12,7 @@ export const UserSchema = z.object({
    zipCode: z.string().optional(),
    role: z.enum(['customer', 'restaurant_owner']),
    restaurant: RestaurantSchema.optional(),
+   birthDate: z.string().optional()
 })
 
 
@@ -61,6 +62,7 @@ export const RegisterDataSchema = z.object({
   description: z.string().optional(),
   deliveryZone: z.string().optional(),
   tags: z.array(z.string()).optional(),
+  birthDate: z.string().optional()
 });
 export type RegisterData = z.infer<typeof RegisterDataSchema>;
 

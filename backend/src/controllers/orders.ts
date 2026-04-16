@@ -24,7 +24,7 @@ const getOrderByUserId = async (req: Request, res: Response) => {
         if(!req.user) {
             return res.status(400).json({ msg:'the user is undefined' });
         }
-       const orders =   await Order.find({ userId: req.user._id });
+       const orders =   await Order.find({ userId: req.user._id }).populate<{restaurantId: IRestaurant}>('restaurantId');
        res.status(200).json(orders);
     } catch (error) {
         console.log(error);
