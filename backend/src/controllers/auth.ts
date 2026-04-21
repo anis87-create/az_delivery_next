@@ -164,17 +164,36 @@ export const authMe = async (req:Request, res:Response) => {
  }
 }
 
-export const updaterUser = async (req:Request, res: Response) => {
-  const updateData = {...req.body};
+export const updateUser = async (req:Request, res: Response) => {
+  const updateData = {
+    fullName: req.body.fullName,
+    phoneNumber : req.body.phoneNumber,
+    birthDate:  req.body.birthDate,
+    email: req.body.email
+  };
   try {
     if (!req.user?._id) {
       return res.status(401).json({msg: 'User not authorized'});
     }
-    await User.updateOne({_id: req.user._id}, {
-      fullName: req.body.fullName,
-      phonenumber : req.body.phoneNumber
-    });
+    if (req.body.email) {                                       
+      const existingUser = await User.findOne({ email: req.body.email });                            
+      if (existingUser) {
+         await User.updateOne({_id: req.user._id}, {
+        _id: req.params.id,
+        ...req.body
+        });
+       
+        
+
+         return res.status(200).json({msg:'Profile updated', user: existingUser})                               
+      }else {
+         res.status(400).json({msg:'the email not existed'})
+      }                                                                                        
+     }    
+    
   } catch (error) {
+    console.log(error);
+    
     res.status(500).json({error});
   }
 }

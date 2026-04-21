@@ -39,6 +39,14 @@ export const UserFormStateSchema = z.object({
 });
 export type UserFormState = z.infer<typeof UserFormStateSchema>;
 
+export const UserProfileCredentials = z.object({
+  fullName: z.string().optional(),
+  email: z.string().optional(),
+  phoneNumber: z.string().optional(),
+  birthDate : z.string().optional()
+});
+
+export type UserProfile = z.infer<typeof UserProfileCredentials>;
 // Complete registration data sent to backend
 export const RegisterDataSchema = z.object({
   id: z.string().optional(),
@@ -81,3 +89,4 @@ export interface AuthState {
   isLoading: boolean;
   message: string;
 }
+

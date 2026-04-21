@@ -1,6 +1,7 @@
 import { createSlice , createAsyncThunk} from "@reduxjs/toolkit";
 import { authService } from "../services/auth";
 import type { User, LoginCredentials, RegisterData, LoginResponse, AuthState } from '@/app/types';
+import { UserProfile } from "@/app/types/auth.types";
 
 const initialState: AuthState = {
     user: null,
@@ -62,6 +63,25 @@ export const authMe = createAsyncThunk<User, void, { rejectValue: { message: str
   }
 );
 
+export const updateProfile= createAsyncThunk<User, UserProfile , { rejectValue: string }>(
+  'auth/updateProfile', 
+  async (user, thunkAPI) => {
+  try {
+    const minDelay = new Promise(resolve => setTimeout(resolve, 1000));
+        const [userUpdatedData] = await Promise.all([
+            authService.updateProfile(user),
+            minDelay
+        ]);
+        return userUpdatedData as User;
+  } catch (error) {
+    const message =
+        (error as { response?: { data?: { msg?: string } } }).response?.data?.msg ||
+        (error as Error).message ||
+        String(error);
+      return thunkAPI.rejectWithValue(message)
+  }
+})
+
 export const authSlice = createSlice({
     name: 'auth',
     initialState,
@@ -120,6 +140,20 @@ export const authSlice = createSlice({
                 state.user = null;
                 state.isAuthenticated = false;
             }
+        })
+         .addCase(updateProfile.pending, (state) => {
+            state.isLoading = true;
+            state.isError = false;
+        })
+        .addCase(updateProfile.fulfilled , (state, {payload}) => {
+            state.user = payload;
+            state.isAuthenticated = true;
+            state.isLoading = false;
+        })
+        .addCase(updateProfile.rejected, (state, {payload}) => {
+            state.isError = true;
+            state.isLoading = false;
+            state.message = payload ?? 'Une erreur est survenue';
         })
     }
 });

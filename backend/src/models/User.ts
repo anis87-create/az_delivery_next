@@ -26,6 +26,16 @@ export const UserSchema = z.object({
 });
 
 export type IUser = z.infer<typeof UserSchema>;
+export const UserProfileSchema = UserSchema.omit({
+  password: true,
+  city: true,
+  address: true,
+  zipCode: true,
+  role: true,
+  createdAt: true,
+  updatedAt: true
+});
+export type IUserProfile = z.infer<typeof UserProfileSchema>;
 
 export const LoginSchema = z.object({
   email: emailSchema,

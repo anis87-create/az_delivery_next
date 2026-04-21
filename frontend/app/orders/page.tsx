@@ -9,6 +9,7 @@ import moment from 'moment';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { Restaurant } from '../types';
 
 const STATUS_STYLES: Record<string, string> = {
   preparing:  'bg-yellow-400 text-white',
@@ -39,7 +40,10 @@ export default function OrdersPage() {
   }, [dispatch, router]);
 
   
-  const getRestaurant = (id: string) => restaurants?.find(r => r._id === id);
+  const getRestaurant = (id: string | Restaurant): Restaurant => {
+      if (typeof id !== 'string') return id;
+      return restaurants?.find(r => r._id === id) || ({} as Restaurant);
+    };
 
   if (isLoading) {
     return <div className="min-h-screen bg-gray-50 pt-35 px-14 flex items-center justify-center text-gray-500">Loading orders...</div>;
@@ -59,7 +63,7 @@ export default function OrdersPage() {
         ) : (
         <div className="space-y-3">
           {orders.map((order) => {
-            const restaurant = typeof order?.restaurantId === 'string' &&  getRestaurant(order?.restaurantId);
+            const restaurant =   getRestaurant(order?.restaurantId);
             return (
             <div
             onClick={() => {

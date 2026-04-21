@@ -1,4 +1,4 @@
-import { UserSchema } from '@/app/types/auth.types';
+import { UserProfile, UserProfileCredentials, UserSchema } from '@/app/types/auth.types';
 import { LoginResponse } from '@/app/types';
 import { privateApi, publicApi } from './api';
 import { z } from 'zod';
@@ -22,11 +22,16 @@ export const authService = {
 
   async register(data: any) {
     const response = await publicApi.post(`${API_URL}/register`, data);
-    return response.data;
+    return UserSchema.parse(response.data);
   },
 
   async getAuthenticatedUser() {
     const response = await privateApi.get(`${API_URL}/me`);
     return UserSchema.parse(response.data);
   },
+
+  async updateProfile(form: UserProfile) {
+   const response = await privateApi.put(`${API_URL}/profile`, form);   
+   return UserProfileCredentials.parse(response.data.user);
+  }
 };

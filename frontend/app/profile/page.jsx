@@ -10,6 +10,7 @@ import Avatar from '@/app/components/common/Avatar.jsx';
 import { useAppDispatch, useAppSelector } from '../hooks/hooks';
 import { useEffect } from 'react';
 import { getOrderByUserId } from '../store/slices/orderSlice';
+import { authMe, updateProfile } from '../store/slices/authSlice';
 
 const MOCK_USER = {
   fullName:    'Anis Zarrouk',
@@ -67,12 +68,15 @@ function PersonalInfo({ user }) {
     phoneNumber: user?.phoneNumber ?? '',
     birthDate:    '',
   });
-
-
-
+  const dispatch = useAppDispatch();
+  const { isLoading } = useAppSelector(state => state.auth);
+  
+  
   
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  
+
 
   return (
     <div className="flex flex-col gap-6">
@@ -94,11 +98,14 @@ function PersonalInfo({ user }) {
               <FiX className="w-4 h-4" /> Cancel
             </button>
             <button
-              onClick={() => setEditing(false)}
+              onClick={() => {
+                dispatch(updateProfile(form)).then(() => setEditing(false));
+              }}
               className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-orange-500 rounded-xl hover:bg-orange-600 transition-colors cursor-pointer"
             >
               <FiCheck className="w-4 h-4" /> Save
             </button>
+            
           </div>
         )}
       </div>
@@ -123,7 +130,7 @@ function PersonalInfo({ user }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {[
           { label: 'Full Name',    name: 'fullName',    type: 'text',  editable: true },
-          { label: 'Email',        name: 'email',       type: 'email', editable: false },
+          { label: 'Email',        name: 'email',       type: 'email', editable: true },
           { label: 'Phone',        name: 'phoneNumber', type: 'tel',   editable: true },
           { label: 'Date of birth',name: 'birthDate',   type: 'date',  editable: true },
         ].map(({ label, name, type, editable }) => (
@@ -311,7 +318,6 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState('info');
   const dispatch = useAppDispatch();
   
- console.log(orders);
  
   const renderContent = () => {
     switch (activeTab) {
