@@ -192,7 +192,7 @@ The `/api/auth/me` endpoint returns different data based on role:
 
 ## Bug Corrections
 
-toujours donne moi un indice et non la soution compléte
+toujours donne moi un indice et non la solution compléte, soit comme un mentor qui forme un débutant  et dis moi aprés la correction où je ne doit pas trompre la prochaine fois pour ne pas comettre les meme erreurs 
 
 
 

@@ -11,6 +11,8 @@ import { useAppDispatch, useAppSelector } from '../hooks/hooks';
 import { useEffect } from 'react';
 import { getOrderByUserId } from '../store/slices/orderSlice';
 import { authMe, updateProfile } from '../store/slices/authSlice';
+import { useRef } from 'react';
+
 
 const MOCK_USER = {
   fullName:    'Anis Zarrouk',
@@ -60,21 +62,24 @@ const MOCK_ORDERS = [
 
 
 // ── Section: Personal Info ────────────────────────────────────────────────────
-function PersonalInfo({ user }) {
+function PersonalInfo({ userProfile }) {
   const [editing, setEditing] = useState(false);
+   const { isLoading, user } = useAppSelector(state => state.auth);
   const [form, setForm] = useState({
-    fullName:    user?.fullName    ?? '',
-    email:       user?.email       ?? '',
-    phoneNumber: user?.phoneNumber ?? '',
-    birthDate:    '',
+    fullName:    userProfile?.fullName    ?? '' ,
+    email:       userProfile?.email       ?? '',
+    phoneNumber: userProfile?.phoneNumber ?? '',
+    birthDate:   userProfile?.birthDate ?? '',
   });
+
   const dispatch = useAppDispatch();
-  const { isLoading } = useAppSelector(state => state.auth);
-  
-  
-  
+  const inputRef = useRef(null);
+
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleFileChange = (e) => {
+
+  }
   
 
 
@@ -115,9 +120,12 @@ function PersonalInfo({ user }) {
         <div className="relative">
           <Avatar name={user?.fullName} size="w-20 h-20" fontSize="text-2xl" borderClass="border-2 border-orange-400" />
           {editing && (
-            <button className="absolute -bottom-1 -right-1 w-7 h-7 bg-orange-500 rounded-full flex items-center justify-center shadow cursor-pointer hover:bg-orange-600 transition-colors">
-              <FiEdit2 className="w-3.5 h-3.5 text-white" />
-            </button>
+            <>
+              <button className="absolute -bottom-1 -right-1 w-7 h-7 bg-orange-500 rounded-full flex items-center justify-center shadow cursor-pointer hover:bg-orange-600 transition-colors" onClick={() => {}}>
+                <FiEdit2 className="w-3.5 h-3.5 text-white" />
+              </button>
+              <input type='file' ref={inputRef} hidden />
+            </>
           )}
         </div>
         <div>
@@ -321,7 +329,7 @@ export default function ProfilePage() {
  
   const renderContent = () => {
     switch (activeTab) {
-      case 'info':      return <PersonalInfo user={user} />;
+      case 'info':      return <PersonalInfo key={user?._id} userProfile={user} />;
       case 'addresse': return <DeliveryAddresses address={user.address} city={user.city} zipCode={user.zipCode} />;
       case 'password':  return <ChangePassword />;
       case 'orders':    return <OrderHistory orders={orders} />;

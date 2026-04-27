@@ -32,6 +32,7 @@ export const authService = {
 
   async updateProfile(form: UserProfile) {
    const response = await privateApi.put(`${API_URL}/profile`, form);   
+   console.log('form ===>', form);
    return UserProfileCredentials.parse(response.data.user);
   }
 };

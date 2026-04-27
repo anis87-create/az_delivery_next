@@ -12,7 +12,8 @@ export const UserSchema = z.object({
    zipCode: z.string().optional(),
    role: z.enum(['customer', 'restaurant_owner']),
    restaurant: RestaurantSchema.optional(),
-   birthDate: z.string().optional()
+   birthDate: z.string().optional(),
+   avatar: z.string().optional()
 })
 
 
@@ -43,7 +44,8 @@ export const UserProfileCredentials = z.object({
   fullName: z.string().optional(),
   email: z.string().optional(),
   phoneNumber: z.string().optional(),
-  birthDate : z.string().optional()
+  birthDate : z.string().optional(),
+  avatar : z.string().optional()
 });
 
 export type UserProfile = z.infer<typeof UserProfileCredentials>;

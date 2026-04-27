@@ -150,46 +150,50 @@ export const authMe = async (req:Request, res:Response) => {
     if(!user){
        return res.status(404).json({ msg: "User not found" });
     }
-    const { _id, fullName, email, phoneNumber, address, city, zipCode, role } = user as any;
+    const { _id, fullName, email, phoneNumber, address, city, zipCode, role, birthDate, avatar } = user as any;
     if(req.user.role === 'customer'){
-      res.status(200).json({_id, fullName, email, phoneNumber, address, city, zipCode, role});
+      res.status(200).json({_id, fullName, email, phoneNumber, address, city, zipCode, role, birthDate, avatar});
     }else {
       const restaurant = await Restaurant.findOne({owner: req.user._id});
       res.status(200).json({_id, fullName, email, role, phoneNumber, restaurant});
     }
-
-
  } catch (error) {
     res.status(500).json({error})
  }
 }
 
 export const updateUser = async (req:Request, res: Response) => {
-  const updateData = {
-    fullName: req.body.fullName,
-    phoneNumber : req.body.phoneNumber,
-    birthDate:  req.body.birthDate,
-    email: req.body.email
-  };
+
   try {
     if (!req.user?._id) {
       return res.status(401).json({msg: 'User not authorized'});
     }
-    if (req.body.email) {                                       
-      const existingUser = await User.findOne({ email: req.body.email });                            
-      if (existingUser) {
-         await User.updateOne({_id: req.user._id}, {
-        _id: req.params.id,
-        ...req.body
-        });
-       
-        
+    const existingUser = await User.findOne({ email: req.body.email });     
+    if (!existingUser || existingUser._id.toString() === String(req.user._id)) {                                       
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] };      
+      const imgFile = files?.avatar?.[0];  
+      let updateData = null;
+      if(imgFile){
+         updateData = {
+          ...req.body,
+          birthDate: req.body.birthDate,
+          avatar: `${req.protocol}://${req.get('host')}/images/${imgFile.filename}`
+         }
+      }else {      
+          updateData = {
+          ...req.body,
+          birthDate: req.body.birthDate
+         }
+      }
 
-         return res.status(200).json({msg:'Profile updated', user: existingUser})                               
+      
+         await User.updateOne({_id: req.user._id}, updateData);
+         return res.status(200).json({msg:'Profile updated'})                               
       }else {
-         res.status(400).json({msg:'the email not existed'})
-      }                                                                                        
-     }    
+         res.status(400).json({msg:'the user not existed'})
+      }  
+
+         
     
   } catch (error) {
     console.log(error);

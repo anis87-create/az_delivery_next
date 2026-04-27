@@ -1,6 +1,6 @@
 import 'dotenv/config';
-import * as express from 'express';
-import * as cors from 'cors';
+import express from 'express';
+import cors from 'cors';
 import authRouter from './src/routes/auth';
 import restaurantRouter from './src/routes/restaurant';
 import itemRouter from './src/routes/items';
