@@ -30,9 +30,8 @@ export const authService = {
     return UserSchema.parse(response.data);
   },
 
-  async updateProfile(form: UserProfile) {
-   const response = await privateApi.put(`${API_URL}/profile`, form);   
-   console.log('form ===>', form);
+  async updateProfile(form: FormData) {
+   const response = await privateApi.put(`${API_URL}/profile`, form);
    return UserProfileCredentials.parse(response.data.user);
   }
 };

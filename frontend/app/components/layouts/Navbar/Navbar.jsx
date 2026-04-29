@@ -127,9 +127,13 @@ const Navbar = () => {
                         onClick={toggleProfileMenu}
                         className='flex items-center p-2.5 hover:opacity-80 transition-opacity'
                       >
-                        <Avatar name={`${user.fullName}`} size="w-[32px] h-[32px]"
+                        {user?.avatar ? <Avatar src={user?.avatar } size="w-10 h-10" fontSize="text-sm" borderClass="border-2 border-orange-400" />
+                        :
+                         <Avatar name={`${user.fullName}`} size="w-[32px] h-[32px]"
                          fontSize='text-xs'
                         />
+                        }
+                       
                       </button>
                     </>
                   ) : (

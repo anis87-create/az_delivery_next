@@ -1,7 +1,7 @@
 import { createSlice , createAsyncThunk} from "@reduxjs/toolkit";
 import { authService } from "../services/auth";
 import type { User, LoginCredentials, RegisterData, LoginResponse, AuthState } from '@/app/types';
-import { UserProfile } from "@/app/types/auth.types";
+import type { UserProfile } from "@/app/types/auth.types";
 
 const initialState: AuthState = {
     user: null,
@@ -63,7 +63,7 @@ export const authMe = createAsyncThunk<User, void, { rejectValue: { message: str
   }
 );
 
-export const updateProfile= createAsyncThunk<User, UserProfile , { rejectValue: string }>(
+export const updateProfile= createAsyncThunk<UserProfile, FormData , { rejectValue: string }>(
   'auth/updateProfile', 
   async (user, thunkAPI) => {
   try {
@@ -146,7 +146,7 @@ export const authSlice = createSlice({
             state.isError = false;
         })
         .addCase(updateProfile.fulfilled , (state, {payload}) => {
-            state.user = payload;
+            state.user = state.user ? { ...state.user, ...payload } : null;
             state.isAuthenticated = true;
             state.isLoading = false;
         })

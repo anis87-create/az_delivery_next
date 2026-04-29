@@ -47,6 +47,7 @@ export type ILogin = z.infer<typeof LoginSchema>;
 
 export interface IUserDocument extends IUser, Document {
   comparePassword(candidatePassword: string): Promise<boolean>;
+  updatePassword(password: string): Promise<boolean>;
 }
 
 const userMongooseSchema = new Schema<IUserDocument>({
@@ -78,7 +79,14 @@ userMongooseSchema.methods.comparePassword = async function(
   ): Promise<boolean> {
       comparePasswordSchema.parse(candidatePassword);
       return bcrypt.compare(candidatePassword, this.password);
-  };
+};
+userMongooseSchema.methods.updatePassword = async function(newPassword: string): Promise<void> {
+  comparePasswordSchema.parse(newPassword); 
+  const saltRound = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(newPassword, saltRound);
+  this.password = hashedPassword; 
+  await this.save();
+};
 
 const User = mongoose.model<IUserDocument>('User', userMongooseSchema);
 

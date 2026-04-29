@@ -64,23 +64,47 @@ const MOCK_ORDERS = [
 // ── Section: Personal Info ────────────────────────────────────────────────────
 function PersonalInfo({ userProfile }) {
   const [editing, setEditing] = useState(false);
-   const { isLoading, user } = useAppSelector(state => state.auth);
+  const { isLoading, user } = useAppSelector(state => state.auth);
   const [form, setForm] = useState({
-    fullName:    userProfile?.fullName    ?? '' ,
+    fullName:    userProfile?.fullName    ?? '',
     email:       userProfile?.email       ?? '',
     phoneNumber: userProfile?.phoneNumber ?? '',
-    birthDate:   userProfile?.birthDate ?? '',
+    birthDate:   userProfile?.birthDate   ?? '',
   });
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [avatarFile, setAvatarFile] = useState(null);
 
   const dispatch = useAppDispatch();
   const inputRef = useRef(null);
 
-
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
-  const handleFileChange = (e) => {
 
-  }
-  
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setAvatarFile(file);
+    setPreviewUrl(URL.createObjectURL(file));
+  };
+
+  const handleSave = () => {
+    const formData = new FormData();
+    formData.append('fullName', form.fullName);
+    formData.append('email', form.email);
+    if (form.phoneNumber) formData.append('phoneNumber', form.phoneNumber);
+    if (form.birthDate) formData.append('birthDate', form.birthDate);
+    if (avatarFile) formData.append('avatar', avatarFile);
+    dispatch(updateProfile(formData)).then(() => {
+      setEditing(false);
+      setPreviewUrl(null);
+      setAvatarFile(null);
+    });
+  };
+
+  const handleCancel = () => {
+    setEditing(false);
+    setPreviewUrl(null);
+    setAvatarFile(null);
+  };
 
 
   return (
@@ -97,20 +121,18 @@ function PersonalInfo({ userProfile }) {
         ) : (
           <div className="flex gap-2">
             <button
-              onClick={() => setEditing(false)}
+              onClick={handleCancel}
               className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-gray-500 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer"
             >
               <FiX className="w-4 h-4" /> Cancel
             </button>
             <button
-              onClick={() => {
-                dispatch(updateProfile(form)).then(() => setEditing(false));
-              }}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-orange-500 rounded-xl hover:bg-orange-600 transition-colors cursor-pointer"
+              onClick={handleSave}
+              disabled={isLoading}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-orange-500 rounded-xl hover:bg-orange-600 transition-colors cursor-pointer disabled:opacity-60"
             >
-              <FiCheck className="w-4 h-4" /> Save
+              <FiCheck className="w-4 h-4" /> {isLoading ? 'Saving…' : 'Save'}
             </button>
-            
           </div>
         )}
       </div>
@@ -118,19 +140,29 @@ function PersonalInfo({ userProfile }) {
       {/* Avatar */}
       <div className="flex items-center gap-5">
         <div className="relative">
-          <Avatar name={user?.fullName} size="w-20 h-20" fontSize="text-2xl" borderClass="border-2 border-orange-400" />
+          <Avatar src={previewUrl || user?.avatar} name={user?.fullName} size="w-20 h-20" fontSize="text-2xl" borderClass="border-2 border-orange-400" />
           {editing && (
             <>
-              <button className="absolute -bottom-1 -right-1 w-7 h-7 bg-orange-500 rounded-full flex items-center justify-center shadow cursor-pointer hover:bg-orange-600 transition-colors" onClick={() => {}}>
+              <button
+                className="absolute -bottom-1 -right-1 w-7 h-7 bg-orange-500 rounded-full flex items-center justify-center shadow cursor-pointer hover:bg-orange-600 transition-colors"
+                onClick={() => inputRef.current?.click()}
+              >
                 <FiEdit2 className="w-3.5 h-3.5 text-white" />
               </button>
-              <input type='file' ref={inputRef} hidden />
+              <input
+                type="file"
+                ref={inputRef}
+                onChange={handleFileChange}
+                accept="image/jpeg,image/png,image/jpg"
+                hidden
+              />
             </>
           )}
         </div>
         <div>
           <p className="font-bold text-gray-900 text-lg">{user?.fullName ?? '—'}</p>
           <p className="text-gray-400 text-sm capitalize">{user?.role?.replace('_', ' ') ?? 'Customer'}</p>
+          {previewUrl && <p className="text-orange-500 text-xs mt-1">New photo selected — save to confirm</p>}
         </div>
       </div>
 
@@ -341,7 +373,8 @@ export default function ProfilePage() {
     dispatch(getOrderByUserId());
   }, [dispatch]);
 
-
+  console.log(user?.avatar);
+  
   return (
     <div className="min-h-screen bg-gray-50 pt-35 px-14 pb-12">
       <h1 className="text-2xl font-bold text-gray-900 mb-6">My Profile</h1>
@@ -351,7 +384,11 @@ export default function ProfilePage() {
         <aside className="w-64 shrink-0 bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
           {/* User preview */}
           <div className="px-5 py-5 border-b border-gray-100 flex items-center gap-3">
-            <Avatar name={user?.fullName} size="w-10 h-10" fontSize="text-sm" borderClass="border-2 border-orange-400" />
+            {user?.avatar ? <Avatar src={user?.avatar } size="w-10 h-10" fontSize="text-sm" borderClass="border-2 border-orange-400" />
+            :  
+            <Avatar name={user?.fullName } size="w-10 h-10" fontSize="text-sm" borderClass="border-2 border-orange-400" />
+            }
+            
             <div className="min-w-0">
               <p className="font-bold text-gray-900 text-sm truncate">{user?.fullName ?? 'Guest'}</p>
               <p className="text-gray-400 text-xs truncate">{user?.email ?? ''}</p>

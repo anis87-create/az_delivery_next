@@ -177,7 +177,7 @@ export const updateUser = async (req:Request, res: Response) => {
          updateData = {
           ...req.body,
           birthDate: req.body.birthDate,
-          avatar: `${req.protocol}://${req.get('host')}/images/${imgFile.filename}`
+          avatar: imgFile.path
          }
       }else {      
           updateData = {
@@ -185,10 +185,11 @@ export const updateUser = async (req:Request, res: Response) => {
           birthDate: req.body.birthDate
          }
       }
-
-      
-         await User.updateOne({_id: req.user._id}, updateData);
-         return res.status(200).json({msg:'Profile updated'})                               
+      await User.updateOne({_id: req.user._id}, updateData);
+      const updatedUser = await User.findById(req.user._id).select('-password');
+      if (!updatedUser) return res.status(404).json({ msg: 'User not found' });
+      const { fullName, email, phoneNumber, birthDate, avatar } = updatedUser as any;
+      return res.status(200).json({ msg: 'Profile updated', user: { fullName, email, phoneNumber, birthDate, avatar } });                               
       }else {
          res.status(400).json({msg:'the user not existed'})
       }  
@@ -199,5 +200,27 @@ export const updateUser = async (req:Request, res: Response) => {
     console.log(error);
     
     res.status(500).json({error});
+  }
+}
+
+export const updatePassword = async (req:Request, res:Response) => {
+  try {
+    const { oldPassword, newPassword, confirmPassword } = req.body;
+    const user = await User.findById(req.user?._id);
+    if(!user){
+      return res.status(400).json({msg:'the user does not exist!'})
+    }
+    const isMatch = await user?.comparePassword(oldPassword);
+    if(!isMatch){
+      return res.status(400).json({msg:'the passwords is not matching'})
+    }
+    if(newPassword === confirmPassword){
+      await user.updatePassword(newPassword);
+    }else {
+      return res.status(400).json({msg:'there are two differents passwords'})
+    }
+    res.status(200).json({msg:'password updated with success!'})
+  } catch (error) {
+    res.status(500).json({error})
   }
 }

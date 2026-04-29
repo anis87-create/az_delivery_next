@@ -9,5 +9,6 @@ router.post('/login', validate(LoginSchema), authCtrl.login);
 router.post('/register', validate(UserSchema), authCtrl.register);
 router.get('/me',protect, authCtrl.authMe);
 router.put('/profile',protect, multer, validate(UserProfileSchema), authCtrl.updateUser);
+router.put('/updatePassword', protect, authCtrl.updatePassword);
 
 export default router;
