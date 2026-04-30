@@ -1,6 +1,6 @@
 import { createSlice , createAsyncThunk} from "@reduxjs/toolkit";
 import { authService } from "../services/auth";
-import type { User, LoginCredentials, RegisterData, LoginResponse, AuthState } from '@/app/types';
+import type { User, LoginCredentials, RegisterData, LoginResponse, AuthState, IComparePasswordsCredentials } from '@/app/types';
 import type { UserProfile } from "@/app/types/auth.types";
 
 const initialState: AuthState = {
@@ -80,7 +80,22 @@ export const updateProfile= createAsyncThunk<UserProfile, FormData , { rejectVal
         String(error);
       return thunkAPI.rejectWithValue(message)
   }
-})
+});
+
+export const updatePassword = createAsyncThunk<void, IComparePasswordsCredentials,{ rejectValue: string } >(
+    'auth/updatePassword',
+    async (comparePasswordsFormData, thunkAPI) => {
+        try {
+            await authService.updatePassword(comparePasswordsFormData);
+        } catch (error) {
+            const message =
+        (error as { response?: { data?: { msg?: string } } }).response?.data?.msg ||
+        (error as Error).message ||
+        String(error);
+         return thunkAPI.rejectWithValue(message)
+        }
+    }
+)
 
 export const authSlice = createSlice({
     name: 'auth',
@@ -141,7 +156,7 @@ export const authSlice = createSlice({
                 state.isAuthenticated = false;
             }
         })
-         .addCase(updateProfile.pending, (state) => {
+        .addCase(updateProfile.pending, (state) => {
             state.isLoading = true;
             state.isError = false;
         })
@@ -153,6 +168,19 @@ export const authSlice = createSlice({
         .addCase(updateProfile.rejected, (state, {payload}) => {
             state.isError = true;
             state.isLoading = false;
+            state.message = payload ?? 'Une erreur est survenue';
+        })
+        .addCase(updatePassword.pending, (state) => {
+            state.isLoading = true;
+            state.isError = false;
+        })
+        .addCase(updatePassword.fulfilled, (state) =>{
+            state.isLoading = false;
+            state.isError = false;
+        })
+        .addCase(updatePassword.rejected, (state, {payload}) =>{
+            state.isLoading = false;
+            state.isError = true;
             state.message = payload ?? 'Une erreur est survenue';
         })
     }

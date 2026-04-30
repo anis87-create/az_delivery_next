@@ -1,6 +1,7 @@
 'use client';
 import Link from 'next/link'
 import React, { ChangeEvent, FormEvent, useState } from 'react'
+import { FiEye, FiEyeOff } from 'react-icons/fi';
 import { v4 as uuidv4 } from 'uuid';
 import { register } from '../store/slices/authSlice';
 import { useSelector } from 'react-redux';
@@ -64,6 +65,7 @@ const RegisterForm= ({ onRoleChange}: RegisterFormProps) => {
   });
 
   const [tagInput, setTagInput] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const dispatch = useAppDispatch();
   const {  message, isError } = useSelector((state:RootState) => state.auth);
@@ -228,14 +230,23 @@ const RegisterForm= ({ onRoleChange}: RegisterFormProps) => {
                   <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
                     Password
                   </label>
-                  <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${fieldErrors.password ? 'border-red-400' : 'border-gray-300'}`}
-                    placeholder="Create a password"
-                    onChange={handleChange}
-                  />
+                  <div className="relative">
+                    <input
+                      id="password"
+                      name="password"
+                      type={showPassword ? 'text' : 'password'}
+                      className={`w-full px-4 py-3 pr-11 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${fieldErrors.password ? 'border-red-400' : 'border-gray-300'}`}
+                      placeholder="Create a password"
+                      onChange={handleChange}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(prev => !prev)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+                    >
+                      {showPassword ? <FiEyeOff className="w-5 h-5" /> : <FiEye className="w-5 h-5" />}
+                    </button>
+                  </div>
                   {fieldErrors.password && <p className="mt-1 text-sm text-red-500">{fieldErrors.password}</p>}
                 </div>
 

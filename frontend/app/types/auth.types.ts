@@ -1,5 +1,5 @@
 import { Restaurant, RestaurantSchema } from './restaurant.types';
-import {z} from 'zod';
+import {string, z} from 'zod';
 
 // Base User interface
 export const UserSchema = z.object({
@@ -83,6 +83,13 @@ export const LoginResponseSchema = z.object({
 });
 export type LoginResponse = z.infer<typeof LoginResponseSchema>;
 
+export const comparePasswordsCredentials = z.object({
+  oldPassword: string,
+  newPassword: string,
+  confirmPassword: string
+})
+
+export type IComparePasswordsCredentials = z.infer<typeof comparePasswordsCredentials>;
 // Auth Redux state
 export interface AuthState {
   user: User | null;

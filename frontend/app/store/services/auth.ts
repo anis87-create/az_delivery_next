@@ -1,4 +1,4 @@
-import { UserProfile, UserProfileCredentials, UserSchema } from '@/app/types/auth.types';
+import { IComparePasswordsCredentials, UserProfile, UserProfileCredentials, UserSchema } from '@/app/types/auth.types';
 import { LoginResponse } from '@/app/types';
 import { privateApi, publicApi } from './api';
 import { z } from 'zod';
@@ -33,5 +33,8 @@ export const authService = {
   async updateProfile(form: FormData) {
    const response = await privateApi.put(`${API_URL}/profile`, form);
    return UserProfileCredentials.parse(response.data.user);
+  },
+  async updatePassword(passwordsCredentials: IComparePasswordsCredentials) {
+    await privateApi.put(`${API_URL}/updatePassword`, passwordsCredentials);
   }
 };

@@ -1,5 +1,6 @@
 import React, { useState, ChangeEvent, FormEvent } from 'react';
 import Link from 'next/link';
+import { FiEye, FiEyeOff } from 'react-icons/fi';
 import { useAppDispatch, useAppSelector, RootState } from '../hooks/hooks';
 import {login} from '../store/slices/authSlice';
 import type { LoginCredentials } from '@/app/types';
@@ -25,6 +26,7 @@ const LoginForm: React.FC = () => {
   });
 
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+  const [showPassword, setShowPassword] = useState(false);
   const dispatch = useAppDispatch();
   const { message, isError } = useAppSelector((state: RootState) => state.auth);
 
@@ -82,15 +84,24 @@ const LoginForm: React.FC = () => {
             <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
               Password
             </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${fieldErrors.password ? 'border-red-400' : 'border-gray-300'}`}
-              placeholder="Enter your password"
-              onChange={handleChange}
-              value={form.password}
-            />
+            <div className="relative">
+              <input
+                id="password"
+                name="password"
+                type={showPassword ? 'text' : 'password'}
+                className={`w-full px-4 py-3 pr-11 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${fieldErrors.password ? 'border-red-400' : 'border-gray-300'}`}
+                placeholder="Enter your password"
+                onChange={handleChange}
+                value={form.password}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(prev => !prev)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+              >
+                {showPassword ? <FiEyeOff className="w-5 h-5" /> : <FiEye className="w-5 h-5" />}
+              </button>
+            </div>
             {fieldErrors.password && <p className="mt-1 text-sm text-red-500">{fieldErrors.password}</p>}
           </div>
 

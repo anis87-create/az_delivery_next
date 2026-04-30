@@ -5,12 +5,12 @@ export type {
   UserFormState,
   RegisterData,
   LoginResponse,
-  AuthState
+  AuthState,
+  IComparePasswordsCredentials
 } from './auth.types';
 
 // Restaurant types
 export type {
-  Image,
   RestaurantFormState,
   Restaurant,
   RegisterFormProps

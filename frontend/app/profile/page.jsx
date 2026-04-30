@@ -5,12 +5,13 @@ import moment from 'moment';
 import {
   FiUser, FiMapPin, FiLock, FiShoppingBag,
   FiEdit2, FiCheck, FiX, FiPlus, FiTrash2, FiChevronRight,
+  FiEye, FiEyeOff,
 } from 'react-icons/fi';
 import Avatar from '@/app/components/common/Avatar.jsx';
 import { useAppDispatch, useAppSelector } from '../hooks/hooks';
 import { useEffect } from 'react';
 import { getOrderByUserId } from '../store/slices/orderSlice';
-import { authMe, updateProfile } from '../store/slices/authSlice';
+import { authMe, updatePassword, updateProfile } from '../store/slices/authSlice';
 import { useRef } from 'react';
 
 
@@ -42,23 +43,6 @@ const STATUS_STYLES = {
 // ── Static mock data ──────────────────────────────────────────────────────────
 
 
-const MOCK_ORDERS = [
-  {
-    _id: 'ord1', restaurantName: 'Pizza Palace', restaurantImg: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=100&h=100&fit=crop',
-    items: [{ name: 'Margherita' }, { name: 'Calzone' }],
-    total: 34.50, status: 'delivered', createdAt: new Date(Date.now() - 86400000 * 2),
-  },
-  {
-    _id: 'ord2', restaurantName: 'Burger House', restaurantImg: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=100&h=100&fit=crop',
-    items: [{ name: 'Classic Burger' }, { name: 'Fries' }],
-    total: 22.00, status: 'on_the_way', createdAt: new Date(Date.now() - 3600000),
-  },
-  {
-    _id: 'ord3', restaurantName: 'Sushi Master', restaurantImg: 'https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=100&h=100&fit=crop',
-    items: [{ name: 'Salmon Roll' }],
-    total: 18.99, status: 'cancelled', createdAt: new Date(Date.now() - 86400000 * 5),
-  },
-];
 
 
 // ── Section: Personal Info ────────────────────────────────────────────────────
@@ -259,14 +243,19 @@ function DeliveryAddresses({ address, city, zipCode }) {
 
 // ── Section: Change Password ──────────────────────────────────────────────────
 function ChangePassword() {
-  const [form, setForm] = useState({ current: '', next: '', confirm: '' });
+  const [form, setForm] = useState({ oldPassword: '', newPassword: '', confirmPassword: '' });
   const [saved, setSaved] = useState(false);
+  const [visible, setVisible] = useState({ oldPassword: false, newPassword: false, confirmPassword: false });
+  const dispatch = useAppDispatch();
+
+  const toggleVisible = (name) => setVisible(prev => ({ ...prev, [name]: !prev[name] }));
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
-    setForm({ current: '', next: '', confirm: '' });
+    setForm({ oldPassword: '', newPassword: '', confirmPassword: '' });
+    dispatch(updatePassword(form));
   };
 
   return (
@@ -274,19 +263,28 @@ function ChangePassword() {
       <h2 className="text-xl font-bold text-gray-900">Change Password</h2>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4 max-w-md">
         {[
-          { name: 'current', label: 'Current password' },
-          { name: 'next',    label: 'New password' },
-          { name: 'confirm', label: 'Confirm new password' },
-        ].map(({ name, label }) => (
+          { name: 'oldPassword', label: 'Current password', placeholder:'enter your old password' },
+          { name: 'newPassword',    label: 'New password', placeholder:'enter your new password' },
+          { name: 'confirmPassword', label: 'Confirm new password', placeholder:'confirm your new Password'},
+        ].map(({ name, label, placeholder }) => (
           <div key={name}>
             <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">{label}</label>
-            <input
-              type="password"
-              value={form[name]}
-              onChange={e => setForm({ ...form, [name]: e.target.value })}
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition"
-              placeholder="••••••••"
-            />
+            <div className="relative">
+              <input
+                type={visible[name] ? 'text' : 'password'}
+                value={form[name]}
+                onChange={e => setForm({ ...form, [name]: e.target.value })}
+                className="w-full px-4 py-2.5 pr-11 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition"
+                placeholder={placeholder}
+              />
+              <button
+                type="button"
+                onClick={() => toggleVisible(name)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+              >
+                {visible[name] ? <FiEyeOff className="w-4 h-4" /> : <FiEye className="w-4 h-4" />}
+              </button>
+            </div>
           </div>
         ))}
 
@@ -296,7 +294,7 @@ function ChangePassword() {
 
         <button
           type="submit"
-          disabled={!form.current || !form.next || form.next !== form.confirm}
+          disabled={!form.oldPassword || !form.newPassword || form.newPassword !== form.confirmPassword}
           className="flex items-center justify-center gap-2 px-6 py-2.5 text-sm font-semibold text-white bg-orange-500 rounded-xl hover:bg-orange-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer mt-2"
         >
           {saved ? <><FiCheck className="w-4 h-4" /> Saved!</> : 'Update password'}
@@ -373,7 +371,6 @@ export default function ProfilePage() {
     dispatch(getOrderByUserId());
   }, [dispatch]);
 
-  console.log(user?.avatar);
   
   return (
     <div className="min-h-screen bg-gray-50 pt-35 px-14 pb-12">
