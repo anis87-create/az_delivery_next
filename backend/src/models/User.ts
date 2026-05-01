@@ -22,6 +22,7 @@ export const UserSchema = z.object({
   role: z.enum(USER_ROLE_ENUM),
   birthDate : z.string().optional(),
   avatar: z.string().optional(),
+  googleId: z.string().optional(),
   createdAt: z.date().optional(),
   updatedAt: z.date().optional()
 });
@@ -68,6 +69,10 @@ const userMongooseSchema = new Schema<IUserDocument>({
     },
     avatar: {
       type: String,
+    },
+    googleId: {
+      type: String,
+      required: false
     }
 }, {
     timestamps: true

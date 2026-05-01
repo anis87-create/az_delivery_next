@@ -52,9 +52,9 @@ export const login = async (req: Request, res: Response) => {
           restaurant
         },
         token: generateToken(user._id!.toString())
-      }); 
+      });
       }
-      
+
     } else {
       return res.status(400).json({ msg: 'Invalid credentials' });
     }
@@ -82,15 +82,15 @@ export const register = async (req:Request, res:Response) => {
         }
 
         if(!fullName){
-          return res.status(400).json({msg:'fullName is required'}) 
+          return res.status(400).json({msg:'fullName is required'})
         }
 
         let user = new User({
           ...req.body,
           password: hashedPassword
         });
-          
-        
+
+
         if(req.body.role === 'customer'){
           await user.save();
           res.status(201).json({msg:'customer saved!',user})
@@ -130,17 +130,15 @@ export const register = async (req:Request, res:Response) => {
           });
           await restaurant.save();
           res.status(201).json({msg:'restaurant saved!', restaurant})
-          } 
+          }
         }
     } catch (error) {
       res.status(500).json({error});
     }
-  
+
 }
 
 export const authMe = async (req:Request, res:Response) => {
-
-
  try {
     if (!req.user?._id) {
       return res.status(401).json({msg: 'User not authorized'});
@@ -163,15 +161,14 @@ export const authMe = async (req:Request, res:Response) => {
 }
 
 export const updateUser = async (req:Request, res: Response) => {
-
   try {
     if (!req.user?._id) {
-      return res.status(401).json({msg: 'User not authorized'});
+      return res.status(401).json({ msg: 'User not authorized' });
     }
-    const existingUser = await User.findOne({ email: req.body.email });     
-    if (!existingUser || existingUser._id.toString() === String(req.user._id)) {                                       
-      const files = req.files as { [fieldname: string]: Express.Multer.File[] };      
-      const imgFile = files?.avatar?.[0];  
+    const existingUser = await User.findOne({ email: req.body.email });
+    if (!existingUser || existingUser._id.toString() === String(req.user._id)) {
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+      const imgFile = files?.avatar?.[0];
       let updateData = null;
       if(imgFile){
          updateData = {
@@ -179,34 +176,33 @@ export const updateUser = async (req:Request, res: Response) => {
           birthDate: req.body.birthDate,
           avatar: imgFile.path
          }
-      }else {      
+      }else {
           updateData = {
           ...req.body,
           birthDate: req.body.birthDate
          }
       }
-      await User.updateOne({_id: req.user._id}, updateData);
+      await User.updateOne({ _id: req.user._id }, updateData);
       const updatedUser = await User.findById(req.user._id).select('-password');
       if (!updatedUser) return res.status(404).json({ msg: 'User not found' });
       const { fullName, email, phoneNumber, birthDate, avatar } = updatedUser as any;
-      return res.status(200).json({ msg: 'Profile updated', user: { fullName, email, phoneNumber, birthDate, avatar } });                               
+      return res.status(200).json({ msg: 'Profile updated', user: { fullName, email, phoneNumber, birthDate, avatar } });
       }else {
          res.status(400).json({msg:'the user not existed'})
-      }  
-
-         
-    
+      }
   } catch (error) {
     console.log(error);
-    
     res.status(500).json({error});
   }
 }
 
 export const updatePassword = async (req:Request, res:Response) => {
   try {
+    if (!req.user?._id) {
+      return res.status(401).json({ msg: 'User not authorized' });
+    }
     const { oldPassword, newPassword, confirmPassword } = req.body;
-    const user = await User.findById(req.user?._id);
+    const user = await User.findById(req.user._id);
     if(!user){
       return res.status(400).json({msg:'the user does not exist!'})
     }

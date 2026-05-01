@@ -22,10 +22,10 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
         role: user.role
       }
       if(user.role === 'restaurant_owner'){
-        const restaurant = await Restaurant.findOne({ owner: user._id });                                       
-        if (restaurant) {                                                                                       
-          req.user.restaurant = { _id: restaurant._id.toString() };                                             
-        }   
+        const restaurant = await Restaurant.findOne({ owner: user._id });
+        if (restaurant) {
+          req.user.restaurant = { _id: restaurant._id.toString() };
+        }
       }
 
       return next();
@@ -58,10 +58,10 @@ export const optionalProtect = async (req: Request, res: Response, next: NextFun
         role: user.role
       }
       if(user.role === 'restaurant_owner'){
-        const restaurant = await Restaurant.findOne({ owner: user._id });                                       
-        if (restaurant) {                                                                                       
-          req.user.restaurant = { _id: restaurant._id.toString() };                                             
-        }   
+        const restaurant = await Restaurant.findOne({ owner: user._id });
+        if (restaurant) {
+          req.user.restaurant = { _id: restaurant._id.toString() };
+        }
       }
       return next();
     } catch (error) {

@@ -1,6 +1,7 @@
 import React, { useState, ChangeEvent, FormEvent } from 'react';
 import Link from 'next/link';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
+import { FaGoogle, FaFacebook } from 'react-icons/fa';
 import { useAppDispatch, useAppSelector, RootState } from '../hooks/hooks';
 import {login} from '../store/slices/authSlice';
 import type { LoginCredentials } from '@/app/types';
@@ -131,6 +132,29 @@ const LoginForm: React.FC = () => {
           >
             Sign In
           </button>
+
+          <div className="relative flex items-center gap-3">
+            <div className="flex-1 h-px bg-gray-200" />
+            <span className="text-sm text-gray-400 shrink-0">Or continue with</span>
+            <div className="flex-1 h-px bg-gray-200" />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              className="flex items-center justify-center gap-2 px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors cursor-pointer"
+            >
+              <FaGoogle className="w-4 h-4 text-red-500" />
+              Google
+            </button>
+            <button
+              type="button"
+              className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-white bg-[#1877F2] hover:bg-[#166fe5] transition-colors cursor-pointer"
+            >
+              <FaFacebook className="w-4 h-4" />
+              Facebook
+            </button>
+          </div>
 
           <div className="text-center">
             <p className="text-sm text-gray-600">
