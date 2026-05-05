@@ -15,10 +15,10 @@ const LoginFormSchema = z.object({
   ),
 });
 
+const handleGoogle = () => window.location.href = `http://localhost:5000/api/auth/google`;
+const handleFacebook = () => window.location.href = `http://localhost:5000/api/auth/facebook`;
+
 type FieldErrors = Partial<Record<keyof LoginCredentials, string>>;
-
-
-
 
 const LoginForm: React.FC = () => {
   const [form, setForm] = useState<LoginCredentials>({
@@ -143,12 +143,14 @@ const LoginForm: React.FC = () => {
             <button
               type="button"
               className="flex items-center justify-center gap-2 px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors cursor-pointer"
+              onClick={() => handleGoogle()}
             >
               <FaGoogle className="w-4 h-4 text-red-500" />
               Google
             </button>
             <button
               type="button"
+              onClick={() => handleFacebook()}
               className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-white bg-[#1877F2] hover:bg-[#166fe5] transition-colors cursor-pointer"
             >
               <FaFacebook className="w-4 h-4" />

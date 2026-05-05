@@ -23,6 +23,7 @@ export const UserSchema = z.object({
   birthDate : z.string().optional(),
   avatar: z.string().optional(),
   googleId: z.string().optional(),
+  facebookId: z.string().optional(),
   createdAt: z.date().optional(),
   updatedAt: z.date().optional()
 });
@@ -53,9 +54,9 @@ export interface IUserDocument extends IUser, Document {
 
 const userMongooseSchema = new Schema<IUserDocument>({
     fullName: {type: String, required: true},
-    email: {type: String, unique:true, required: true,lowercase: true,trim: true},
+    email: {type: String, unique: true, sparse: true, required: false, lowercase: true, trim: true},
     password: {type: String, required: true},
-    phoneNumber: {type: String, required: true},
+    phoneNumber: {type: String},
     address:{type: String},
     city: {type: String},
     zipCode: {type: String},
@@ -71,6 +72,10 @@ const userMongooseSchema = new Schema<IUserDocument>({
       type: String,
     },
     googleId: {
+      type: String,
+      required: false
+    },
+    facebookId: {
       type: String,
       required: false
     }

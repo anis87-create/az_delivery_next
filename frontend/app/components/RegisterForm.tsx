@@ -6,7 +6,7 @@ import { FaGoogle, FaFacebook } from 'react-icons/fa';
 import { v4 as uuidv4 } from 'uuid';
 import { register } from '../store/slices/authSlice';
 import { useSelector } from 'react-redux';
-import {RootState, useAppDispatch} from '../hooks/hooks';
+import { RootState, useAppDispatch } from '../hooks/hooks';
 import type { UserFormState, RestaurantFormState, RegisterFormProps, RegisterData } from '@/app/types';
 import { z } from 'zod';
 
@@ -36,17 +36,16 @@ const RestaurantOwnerSchema = CustomerSchema.extend({
 
 type FieldErrors = Partial<Record<keyof RegisterData, string>>;
 
-const RegisterForm= ({ onRoleChange}: RegisterFormProps) => {
-  
+const RegisterForm = ({ onRoleChange }: RegisterFormProps) => {
   const [form, setForm] = useState<UserFormState>({
-    fullName:'',
-    email:'',
-    password:'',
-    phoneNumber:'',
-    address:'',
-    city:'',
-    zipCode:'',
-    role:''
+    fullName: '',
+    email: '',
+    password: '',
+    phoneNumber: '',
+    address: '',
+    city: '',
+    zipCode: '',
+    role: ''
   });
 
   const [restaurantForm, setRestaurantForm] = useState<RestaurantFormState>({
@@ -69,11 +68,11 @@ const RegisterForm= ({ onRoleChange}: RegisterFormProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const dispatch = useAppDispatch();
-  const {  message, isError } = useSelector((state:RootState) => state.auth);
+  const { message, isError } = useSelector((state: RootState) => state.auth);
 
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement| HTMLSelectElement>) => {
-    const {name, value} = e.target;
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
     setForm({
       ...form,
       [name]: value
@@ -85,16 +84,13 @@ const RegisterForm= ({ onRoleChange}: RegisterFormProps) => {
     }
   }
 
-  const handleRestaurantChange = (e: ChangeEvent<HTMLInputElement|HTMLSelectElement|HTMLTextAreaElement>) => {
-    const {name, value} = e.target;
+  const handleRestaurantChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
     setRestaurantForm({
       ...restaurantForm,
       [name]: value
     })
   }
-
-
-
 
 
   const handleAddTag = () => {
@@ -108,7 +104,7 @@ const RegisterForm= ({ onRoleChange}: RegisterFormProps) => {
     }
   }
 
-  const handleRemoveTag = (tagToRemove:string) => {
+  const handleRemoveTag = (tagToRemove: string) => {
     setRestaurantForm({
       ...restaurantForm,
       tags: restaurantForm.tags.filter(tag => tag !== tagToRemove)
@@ -122,7 +118,7 @@ const RegisterForm= ({ onRoleChange}: RegisterFormProps) => {
     }
   }
 
-  const onSubmit = (e:FormEvent<HTMLFormElement>) => {
+  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const isOwner = form.role === 'restaurant_owner';
@@ -267,19 +263,19 @@ const RegisterForm= ({ onRoleChange}: RegisterFormProps) => {
                 </div>
 
                 <div>
-                    <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-2">
-                      Address
-                    </label>
-                    <input
-                      id="address"
-                      name="address"
-                      type="text"
-                      className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${fieldErrors.address ? 'border-red-400' : 'border-gray-300'}`}
-                      placeholder="Enter your address"
-                      onChange={handleChange}
-                    />
-                    {fieldErrors.address && <p className="mt-1 text-sm text-red-500">{fieldErrors.address}</p>}
-                  </div>
+                  <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-2">
+                    Address
+                  </label>
+                  <input
+                    id="address"
+                    name="address"
+                    type="text"
+                    className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${fieldErrors.address ? 'border-red-400' : 'border-gray-300'}`}
+                    placeholder="Enter your address"
+                    onChange={handleChange}
+                  />
+                  {fieldErrors.address && <p className="mt-1 text-sm text-red-500">{fieldErrors.address}</p>}
+                </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -352,7 +348,6 @@ const RegisterForm= ({ onRoleChange}: RegisterFormProps) => {
                           />
                           {fieldErrors.name && <p className="mt-1 text-sm text-red-500">{fieldErrors.name}</p>}
                         </div>
-
 
                         <div>
                           <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-2">
@@ -574,7 +569,6 @@ const RegisterForm= ({ onRoleChange}: RegisterFormProps) => {
                       </h3>
 
                       <div className="space-y-4">
-
                         <div>
                           <label htmlFor="deliveryZone" className="block text-sm font-medium text-gray-700 mb-2">
                             Zone de Livraison *
@@ -631,6 +625,7 @@ const RegisterForm= ({ onRoleChange}: RegisterFormProps) => {
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     type="button"
+                    onClick={() => window.location.href = 'http://localhost:5000/api/auth/google'}
                     className="flex items-center justify-center gap-2 px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors cursor-pointer"
                   >
                     <FaGoogle className="w-4 h-4 text-red-500" />
@@ -638,6 +633,7 @@ const RegisterForm= ({ onRoleChange}: RegisterFormProps) => {
                   </button>
                   <button
                     type="button"
+                    onClick={() => window.location.href = 'http://localhost:5000/api/auth/facebook'}
                     className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-white bg-[#1877F2] hover:bg-[#166fe5] transition-colors cursor-pointer"
                   >
                     <FaFacebook className="w-4 h-4" />
@@ -653,7 +649,7 @@ const RegisterForm= ({ onRoleChange}: RegisterFormProps) => {
                     </Link>
                   </p>
                 </div>
-            </form>
+              </form>
           </div>
     </div>
   )

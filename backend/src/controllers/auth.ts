@@ -148,9 +148,10 @@ export const authMe = async (req:Request, res:Response) => {
     if(!user){
        return res.status(404).json({ msg: "User not found" });
     }
-    const { _id, fullName, email, phoneNumber, address, city, zipCode, role, birthDate, avatar } = user as any;
+    const { _id, fullName, email, phoneNumber, address, city, zipCode, role, birthDate, avatar, facebookId, googleId } = user as any;
+    const resolvedEmail = email ?? (facebookId ? `facebook_${facebookId}@noemail.local` : googleId ? `google_${googleId}@noemail.local` : '');
     if(req.user.role === 'customer'){
-      res.status(200).json({_id, fullName, email, phoneNumber, address, city, zipCode, role, birthDate, avatar});
+      res.status(200).json({_id, fullName, email: resolvedEmail, phoneNumber, address, city, zipCode, role, birthDate, avatar});
     }else {
       const restaurant = await Restaurant.findOne({owner: req.user._id});
       res.status(200).json({_id, fullName, email, role, phoneNumber, restaurant});
