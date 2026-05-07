@@ -1,40 +1,88 @@
-import { IComparePasswordsCredentials, UserProfile, UserProfileCredentials, UserSchema } from '@/app/types/auth.types';
-import { LoginResponse } from '@/app/types';
-import { privateApi, publicApi } from './api';
-import { z } from 'zod';
+import { createApi } from '@reduxjs/toolkit/query/react';
+import type { IComparePasswordsCredentials, UserProfile } from '@/app/types/auth.types';
+import type { LoginResponse, RegisterData, LoginCredentials, User } from '@/app/types';
+import baseQuery from './api';
+import { setUser, logout } from '../slices/authSlice';
 
-const API_URL = '/auth';
+export const authAPI = createApi({
+  reducerPath: 'authApi',
+  baseQuery,
+  tagTypes: ['AuthUser'],
+  endpoints: (builder) => ({
 
-const LoginResponseSchema = z.object({
-  user: UserSchema,
-  token: z.string(),
-  msg: z.string().optional(),
+    login: builder.mutation<LoginResponse, LoginCredentials>({
+      query: (data) => ({
+        url: '/auth/login',
+        method: 'POST',
+        body: data,
+      }),
+      transformResponse: (response: LoginResponse) => {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('token', response.token);
+        }
+        return response;
+      },
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          dispatch(setUser(data.user));
+        } catch {}
+      },
+      invalidatesTags: ['AuthUser'],
+    }),
+
+    register: builder.mutation<User, RegisterData>({
+      query: (data) => ({
+        url: '/auth/register',
+        method: 'POST',
+        body: data,
+      }),
+    }),
+
+    getAuthenticatedUser: builder.query<User, void>({
+      query: () => '/auth/me',
+      providesTags: ['AuthUser'],
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          dispatch(setUser(data));
+        } catch {}
+      },
+    }),
+
+    updateProfile: builder.mutation<UserProfile, FormData>({
+      query: (form) => ({
+        url: '/auth/profile',
+        method: 'PUT',
+        body: form,
+      }),
+      invalidatesTags: ['AuthUser'],
+    }),
+
+    updatePassword: builder.mutation<void, IComparePasswordsCredentials>({
+      query: (passwordsCredentials) => ({
+        url: '/auth/updatePassword',
+        method: 'PUT',
+        body: passwordsCredentials,
+      }),
+    }),
+
+    logoutUser: builder.mutation<void, void>({
+      queryFn: (_, { dispatch }) => {
+        dispatch(logout());
+        return { data: undefined };
+      },
+      invalidatesTags: ['AuthUser'],
+    }),
+
+  }),
 });
 
-export const authService = {
-  async login(data: any): Promise<LoginResponse> {
-    const response = await publicApi.post(`${API_URL}/login`, data);
-    if (response.data && typeof window !== 'undefined') {
-      localStorage.setItem('token', response.data.token);
-    }
-    return LoginResponseSchema.parse(response.data);
-  },
-
-  async register(data: any) {
-    const response = await publicApi.post(`${API_URL}/register`, data);
-    return UserSchema.parse(response.data);
-  },
-
-  async getAuthenticatedUser() {
-    const response = await privateApi.get(`${API_URL}/me`);
-    return UserSchema.parse(response.data);
-  },
-
-  async updateProfile(form: FormData) {
-   const response = await privateApi.put(`${API_URL}/profile`, form);
-   return UserProfileCredentials.parse(response.data.user);
-  },
-  async updatePassword(passwordsCredentials: IComparePasswordsCredentials) {
-    await privateApi.put(`${API_URL}/updatePassword`, passwordsCredentials);
-  }
-};
+export const {
+  useLoginMutation,
+  useRegisterMutation,
+  useGetAuthenticatedUserQuery,
+  useUpdateProfileMutation,
+  useUpdatePasswordMutation,
+  useLogoutUserMutation,
+} = authAPI;

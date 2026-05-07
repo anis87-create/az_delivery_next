@@ -1,18 +1,20 @@
 'use client'
-import { useEffect, useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import Sidebar from './Sidebar';
 import DashboardNavbar from './DashboardNavbar';
 import Dashboard from '../../RestaurantDashboard/Dashboard';
 import MenuManagement from '../../RestaurantDashboard/MenuManagement';
 import SettingsManagement from '../../RestaurantDashboard/SettingsManagement';
-import { useDispatch, useSelector } from 'react-redux';
-import { authMe } from '../../../store/slices/authSlice';
-import { RootState, AppDispatch } from '@/app/store/store';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/app/store/store';
+import { useGetAuthenticatedUserQuery } from '@/app/store/services/auth';
+
 interface DashboardLayoutProps {
-  restaurantName?: string,
-  restaurantEmail?: string,
-  restaurantLogo?: string | null
+  restaurantName?: string;
+  restaurantEmail?: string;
+  restaurantLogo?: string | null;
 }
+
 const DashboardLayout = ({
   restaurantName = "Mon Restaurant",
   restaurantEmail = "restaurant@example.com",
@@ -20,15 +22,17 @@ const DashboardLayout = ({
 }: DashboardLayoutProps) => {
   const [currentSection, setCurrentSection] = useState('Dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [isChangingTab, setIsChangingTab] = useState(false);
-  const isFirstMount = useRef(true);
-  const previousSection = useRef('Dashboard'); // Track la section précédente
-  const dispatch = useDispatch<AppDispatch>();
-  const { user, isLoading } = useSelector((state:RootState) => state.auth);
+  const { user } = useSelector((state: RootState) => state.auth);
   const restaurant = user?.restaurant;
 
+  // RTK Query maintient les données du user à jour automatiquement
+  // isLoading ici est utilisé uniquement pour le spinner initial
+  const { isLoading } = useGetAuthenticatedUserQuery(undefined, {
+    skip: typeof window !== 'undefined' && !localStorage.getItem('token'),
+  });
+
   const renderCurrentSection = () => {
-    switch(currentSection) {
+    switch (currentSection) {
       case 'Dashboard':
         return <Dashboard />;
       case 'Menu Management':
@@ -40,51 +44,8 @@ const DashboardLayout = ({
     }
   };
 
-  // Effet pour appeler authMe lors du changement de tab SEULEMENT
-  useEffect(() => {
-    // Skip au premier montage (rafraîchissement ou première visite)
-    if (isFirstMount.current) {
-      isFirstMount.current = false;
-      previousSection.current = currentSection; // Sauvegarder la section initiale
-      return;
-    }
-
-    // Vérifier si la section a VRAIMENT changé
-    if (previousSection.current === currentSection) {
-      return; // Pas de changement, ne rien faire
-    }
-
-    // Sauvegarder la nouvelle section
-    previousSection.current = currentSection;
-
-    // Ne charger que si on a déjà un user (évite le chargement au refresh)
-    if (!user) {
-      return;
-    }
-
-    // Ne pas charger si Redux est encore en train de charger les données initiales
-    if (isLoading) {
-      return;
-    }
-
-    // Fonction async pour gérer le chargement
-    const loadData = async () => {
-      setIsChangingTab(true);
-      try {
-        await dispatch(authMe()).unwrap();
-      } catch (error) {
-        console.error('Erreur lors du chargement des données:', error);
-      } finally {
-        setIsChangingTab(false);
-      }
-    };
-
-    loadData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentSection]);
-
-  // Loading plein écran SEULEMENT si pas encore de données user (chargement initial ou refresh)
-  if(!user && isLoading){
+  // Spinner uniquement si on n'a pas encore de user (chargement initial)
+  if (!user && isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
         <div className="text-center">
@@ -92,20 +53,21 @@ const DashboardLayout = ({
           <p className="text-xl font-semibold text-gray-700">Loading...</p>
         </div>
       </div>
-    )
+    );
   }
+
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar */}
-      <Sidebar 
+      <Sidebar
         restaurantName={restaurant?.name || restaurantName}
         restaurantLogo={restaurantLogo}
         currentSection={currentSection}
@@ -128,16 +90,7 @@ const DashboardLayout = ({
 
         {/* Content */}
         <main className="flex-1 overflow-y-auto p-4 sm:p-6">
-          {isChangingTab ? (
-            <div className="flex items-center justify-center min-h-[400px]">
-              <div className="text-center">
-                <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-4 border-orange-500 mb-4"></div>
-                <p className="text-lg font-medium text-gray-600">Loading...</p>
-              </div>
-            </div>
-          ) : (
-            renderCurrentSection()
-          )}
+          {renderCurrentSection()}
         </main>
       </div>
     </div>

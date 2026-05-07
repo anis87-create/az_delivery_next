@@ -1,29 +1,51 @@
-import { Category, CategorySchema } from '@/app/types/category.types';
-import { privateApi, publicApi } from './api';
-import { z } from 'zod';
+import { createApi } from '@reduxjs/toolkit/query/react';
+import type { Category, CategoryForm } from '@/app/types/category.types';
+import baseQuery from './api';
 
-const API_URL = '/categories';
+export const categoryAPI = createApi({
+  reducerPath: 'categoryApi',
+  baseQuery,
+  tagTypes: ['Categories'],
+  endpoints: (builder) => ({
 
-interface CategoryForm {
-  name: string;
-}
+    getAllCategories: builder.query<Category[], string | undefined>({
+      query: (restaurantId) =>
+        restaurantId ? `/categories?restaurantId=${restaurantId}` : '/categories',
+      providesTags: ['Categories'],
+    }),
 
-export const categoryService = {
-  async create(form: CategoryForm): Promise<Category> {
-    const res = await privateApi.post(API_URL, form);
-    return CategorySchema.parse(res.data);
-  },
-  async getAll(id?: string): Promise<Category[]> {
-    const res = id
-      ? await publicApi.get(`${API_URL}?restaurantId=${id}`)
-      : await privateApi.get(API_URL);
-    return z.array(CategorySchema).parse(res.data);
-  },
-  async update(id: string, form: CategoryForm): Promise<Category> {
-    const res = await privateApi.put(`${API_URL}/${id}`, form);
-    return CategorySchema.parse(res.data);
-  },
-  async delete(id: string): Promise<void> {
-    await privateApi.delete(`${API_URL}/${id}`);
-  },
-};
+    createCategory: builder.mutation<Category, CategoryForm>({
+      query: (form) => ({
+        url: '/categories',
+        method: 'POST',
+        body: form,
+      }),
+      invalidatesTags: ['Categories'],
+    }),
+
+    updateCategory: builder.mutation<Category, { id: string; formData: CategoryForm }>({
+      query: ({ id, formData }) => ({
+        url: `/categories/${id}`,
+        method: 'PUT',
+        body: formData,
+      }),
+      invalidatesTags: ['Categories'],
+    }),
+
+    deleteCategory: builder.mutation<void, string>({
+      query: (id) => ({
+        url: `/categories/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Categories'],
+    }),
+
+  }),
+});
+
+export const {
+  useGetAllCategoriesQuery,
+  useCreateCategoryMutation,
+  useUpdateCategoryMutation,
+  useDeleteCategoryMutation,
+} = categoryAPI;

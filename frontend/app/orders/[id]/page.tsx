@@ -1,15 +1,12 @@
 'use client'
 import dynamic from 'next/dynamic';
 import { FiMapPin, FiCreditCard } from 'react-icons/fi';
-import {  useSelector } from 'react-redux';
-import { RootState, useAppDispatch } from '@/app/hooks/hooks';
-import { useEffect } from 'react';
-import {  getOneOrder, getOrderByUserId, updateOrder } from '@/app/store/slices/orderSlice';
 import { useParams } from 'next/navigation';
 import moment from 'moment';
 import Image from 'next/image';
 import { ORDER_STATUS } from '@/app/types/order.types';
 import Swal from 'sweetalert2';
+import { useGetOneOrderQuery, useGetOrderByUserIdQuery, useUpdateOrderMutation } from '@/app/store/services/order';
 
 const MapView = dynamic(() => import('./MapView'), { ssr: false });
 const STATUS_STEPS = Object.values(ORDER_STATUS);
@@ -24,32 +21,24 @@ const STATUS_STYLES: Record<string, string> = {
 };
 
 export default function OrderDetailPage() {
-  const { order, orders } = useSelector((state:RootState)=> state.orders);
+  const params = useParams();
+  const id = Array.isArray(params.id) ? params.id[0] : params.id as string;
+
+  // RTK Query: récupère la commande courante et la liste pour le numéro d'ordre
+  const { data: order } = useGetOneOrderQuery(id, { skip: !id });
+  const { data: orders = [] } = useGetOrderByUserIdQuery();
+  const [updateOrder] = useUpdateOrderMutation();
 
   const CURRENT_STATUS = (order?.status || 'pending') as typeof STATUS_STEPS[number];
   const currentIndex = STATUS_STEPS.indexOf(CURRENT_STATUS);
   const progressPercent = (currentIndex / (STATUS_STEPS.length - 1)) * 100;
 
-
-  const dispatch = useAppDispatch();
-  const params = useParams();
   const restaurant = typeof order?.restaurantId === 'object' ? order.restaurantId : null;
-  const id = Array.isArray(params.id) ? params.id[0] : params.id as string;
-  useEffect(() => {
-    if (id) dispatch(getOneOrder(id));
-  }, [dispatch, id]);
-
-  useEffect(() => {
-    dispatch(getOrderByUserId());
-  }, [dispatch]);
-
-  const orderNumber = orders.findIndex(order => order._id === id);
-
-  
+  const orderNumber = orders.findIndex(o => o._id === id);
 
   return (
     <div className="min-h-screen bg-gray-50 pt-35 px-14 pb-12">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Order-{orderNumber+1}</h1>
+      <h1 className="text-2xl font-bold text-gray-900 mb-6">Order-{orderNumber + 1}</h1>
 
       <div className="flex gap-6 items-start">
         {/* LEFT COLUMN */}
@@ -64,7 +53,6 @@ export default function OrderDetailPage() {
               </span>
             </div>
 
-            {/* Progress bar */}
             <div className="relative mb-2">
               <div className="h-2 bg-gray-200 rounded-full">
                 <div
@@ -74,7 +62,6 @@ export default function OrderDetailPage() {
               </div>
             </div>
 
-            {/* Step labels */}
             <div className="flex justify-between">
               {STATUS_STEPS.map((step, i) => (
                 <span
@@ -86,7 +73,6 @@ export default function OrderDetailPage() {
               ))}
             </div>
 
-            {/* Estimated delivery */}
             <div className="text-center mt-5">
               <p className="text-gray-400 text-sm">Estimated Delivery</p>
               <p className="text-2xl font-bold text-gray-900 mt-1">{restaurant?.estimatedDeliveryTime}</p>
@@ -98,7 +84,6 @@ export default function OrderDetailPage() {
             <h2 className="font-bold text-gray-900 text-base mb-4">Delivery Tracking</h2>
             <MapView />
           </div>
-
 
           {/* Delivery Information */}
           <div className="bg-white border border-gray-200 rounded-2xl px-6 py-5 shadow-sm">
@@ -123,23 +108,24 @@ export default function OrderDetailPage() {
 
           {/* Action buttons */}
           <div className="flex gap-4">
-            <button className="flex-1 py-4 rounded-2xl border border-red-500 bg-red-500 font-semibold text-white hover:bg-gray-50 hover:text-red-500 transition-colors duration-500 cursor-pointer"
-            onClick={async () => {
-              const result = await Swal.fire({
-                title: 'Cancel this order?',
-                text: 'This action cannot be undone.',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#ef4444',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Yes, cancel it',
-                cancelButtonText: 'No, keep it',
-                reverseButtons: true,
-              });
-              if (result.isConfirmed) {
-                dispatch(updateOrder({ id, status: 'cancelled' }));
-              }
-            }}
+            <button
+              className="flex-1 py-4 rounded-2xl border border-red-500 bg-red-500 font-semibold text-white hover:bg-gray-50 hover:text-red-500 transition-colors duration-500 cursor-pointer"
+              onClick={async () => {
+                const result = await Swal.fire({
+                  title: 'Cancel this order?',
+                  text: 'This action cannot be undone.',
+                  icon: 'warning',
+                  showCancelButton: true,
+                  confirmButtonColor: '#ef4444',
+                  cancelButtonColor: '#6b7280',
+                  confirmButtonText: 'Yes, cancel it',
+                  cancelButtonText: 'No, keep it',
+                  reverseButtons: true,
+                });
+                if (result.isConfirmed) {
+                  updateOrder({ id, status: 'cancelled' });
+                }
+              }}
             >
               Cancel Order
             </button>
@@ -181,12 +167,12 @@ export default function OrderDetailPage() {
                 <span className="text-gray-400 text-sm">Subtotal</span>
                 <span className="text-gray-900 text-sm">{order?.subTotal.toFixed(2)} TND</span>
               </div>
-               {restaurant?.baseFee && (
+              {restaurant?.baseFee && (
                 <div className="flex justify-between">
                   <span className="text-gray-400 text-sm">Delivery Fee</span>
                   <span className="text-gray-900 text-sm">{restaurant.baseFee} TND</span>
                 </div>
-               )}
+              )}
             </div>
 
             {/* Total */}

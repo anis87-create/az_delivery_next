@@ -1,15 +1,16 @@
-import { useDispatch } from "react-redux"
-import { AppDispatch } from "./hooks";
-import { addCartItem, removeFromCartItem } from "../store/slices/cartItemSlice";
+import { useAddCartItemMutation, useRemoveFromCartItemMutation } from '../store/services/cartItems';
 
-export const useCartActions = () => {
-    const dispatch = useDispatch<AppDispatch>();
-    const incrementCounter = (id:string) => {
-        dispatch(addCartItem(id));
-    }
-    const decrementCounter = (id: string) => {
-        dispatch(removeFromCartItem(id));
-    }
+export const useCartActions = (): [(id: string) => void, (id: string) => void] => {
+  const [addCartItem] = useAddCartItemMutation();
+  const [removeFromCartItem] = useRemoveFromCartItemMutation();
 
-    return [incrementCounter, decrementCounter];
-}
+  const incrementCounter = (id: string) => {
+    addCartItem(id);
+  };
+
+  const decrementCounter = (id: string) => {
+    removeFromCartItem(id);
+  };
+
+  return [incrementCounter, decrementCounter];
+};

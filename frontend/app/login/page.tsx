@@ -7,7 +7,7 @@ import { useAppSelector, RootState } from '../hooks/hooks';
 
 const Login: React.FC = () => {
   const router = useRouter();
-  const { user, isLoading, isAuthenticated } = useAppSelector((state: RootState) => state.auth);
+  const { user, isAuthenticated } = useAppSelector((state: RootState) => state.auth);
 
   useEffect(() => {
     // Rediriger uniquement si l'utilisateur est connecté avec succès
@@ -18,15 +18,10 @@ const Login: React.FC = () => {
         router.push('/restaurantDashboard')
       }
     }
-
-    // Nettoyer le state quand le composant se démonte
-    /*return () => {
-      dispatch(reset())
-    }*/
   }, [user, isAuthenticated, router])
 
-  // Afficher le loading pendant le chargement ET pendant la redirection
-  if (isLoading || (isAuthenticated && user)) {
+  // Afficher le loading pendant la redirection seulement
+  if (isAuthenticated && user) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
         <div className="text-center">

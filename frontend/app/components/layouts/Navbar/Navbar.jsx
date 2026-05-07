@@ -7,7 +7,7 @@ import Avatar from '../../common/Avatar';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../../store/slices/authSlice';
 import { useRouter } from 'next/navigation';
-import { resetCart, selectTotalQuantityOfCartItems } from '@/app/store/slices/cartItemSlice';
+import { selectTotalQuantityOfCartItems, useGetCartItemQuery } from '@/app/store/services/cartItems';
 
 
 const Navbar = () => {
@@ -15,7 +15,7 @@ const Navbar = () => {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const { user, isAuthenticated } = useSelector(state => state.auth);
-  const { cartItem } = useSelector(state => state.cartItem);
+  const { data: cartItem } = useGetCartItemQuery(undefined, { skip: !isAuthenticated });
   const totalQuantity = useSelector(selectTotalQuantityOfCartItems);
   
 
@@ -161,7 +161,6 @@ const Navbar = () => {
                       <Link href="/login" className="w-full flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors"
                       onClick={() => {
                         dispatch(logout());
-                        dispatch(resetCart());
                         router.push('/login');
                       }}
                       >

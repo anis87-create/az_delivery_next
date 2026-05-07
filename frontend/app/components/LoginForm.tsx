@@ -1,9 +1,10 @@
+'use client'
 import React, { useState, ChangeEvent, FormEvent } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import { FaGoogle, FaFacebook } from 'react-icons/fa';
-import { useAppDispatch, useAppSelector, RootState } from '../hooks/hooks';
-import {login} from '../store/slices/authSlice';
+import { useLoginMutation } from '../store/services/auth';
 import type { LoginCredentials } from '@/app/types';
 import { z } from 'zod';
 
@@ -15,8 +16,9 @@ const LoginFormSchema = z.object({
   ),
 });
 
-const handleGoogle = () => window.location.href = `http://localhost:5000/api/auth/google`;
-const handleFacebook = () => window.location.href = `http://localhost:5000/api/auth/facebook`;
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000/api';
+const handleGoogle = () => window.location.href = `${API_BASE}/auth/google`;
+const handleFacebook = () => window.location.href = `${API_BASE}/auth/facebook`;
 
 type FieldErrors = Partial<Record<keyof LoginCredentials, string>>;
 
@@ -28,10 +30,15 @@ const LoginForm: React.FC = () => {
 
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [showPassword, setShowPassword] = useState(false);
-  const dispatch = useAppDispatch();
-  const { message, isError } = useAppSelector((state: RootState) => state.auth);
+  const [login, { isLoading, isError, error }] = useLoginMutation();
+  const router = useRouter();
 
-  const onSubmit = (e: FormEvent<HTMLFormElement>): void => {
+  // Extrait le message d'erreur renvoyé par le backend
+  const errorMessage = isError
+    ? (error as { data?: { msg?: string } })?.data?.msg ?? 'Erreur de connexion'
+    : null;
+
+  const onSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     const result = LoginFormSchema.safeParse(form);
     if (!result.success) {
@@ -44,7 +51,18 @@ const LoginForm: React.FC = () => {
       return;
     }
     setFieldErrors({});
-    dispatch(login(form));
+
+    try {
+      const data = await login(form).unwrap();
+      // Redirection basée sur le rôle récupéré dans la réponse
+      if (data.user.role === 'restaurant_owner') {
+        router.push('/restaurantDashboard');
+      } else {
+        router.push('/');
+      }
+    } catch {
+      // L'erreur est gérée via l'état `isError` du hook
+    }
   };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>): void => {
@@ -64,7 +82,9 @@ const LoginForm: React.FC = () => {
         </div>
 
         <form className="space-y-6" onSubmit={onSubmit}>
-          {isError && <div className="bg-red-100 p-2 font-weight mb-4">{message}</div>}
+          {isError && (
+            <div className="bg-red-100 p-2 font-weight mb-4">{errorMessage}</div>
+          )}
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
               Email Address
@@ -128,9 +148,10 @@ const LoginForm: React.FC = () => {
 
           <button
             type="submit"
-            className="w-full bg-orange-500 text-white py-3 px-4 rounded-lg font-medium hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors"
+            disabled={isLoading}
+            className="w-full bg-orange-500 text-white py-3 px-4 rounded-lg font-medium hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            Sign In
+            {isLoading ? 'Signing in...' : 'Sign In'}
           </button>
 
           <div className="relative flex items-center gap-3">

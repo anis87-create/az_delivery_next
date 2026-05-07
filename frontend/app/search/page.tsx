@@ -1,7 +1,6 @@
 'use client'
-import { useEffect, useState, useMemo, Suspense } from 'react';
-import { useAppDispatch, useAppSelector } from '@/app/hooks/hooks';
-import { getAllRestaurants } from '@/app/store/slices/restaurantSlice';
+import { useState, useMemo, Suspense } from 'react';
+import { useGetAllRestaurantsQuery } from '@/app/store/services/restaurant';
 import { HiSearch, HiX } from 'react-icons/hi';
 import { FaStar } from 'react-icons/fa';
 import { Restaurant } from '@/app/types/restaurant.types';
@@ -214,17 +213,12 @@ function SidebarFilters({
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 function SearchContent() {
-  const dispatch = useAppDispatch();
-  const { restaurants, isLoading } = useAppSelector(state => state.restaurant);
+  const { data: restaurants = [], isLoading } = useGetAllRestaurantsQuery();
 
   const [searchQuery, setSearchQuery]       = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedRating, setSelectedRating] = useState<number | null>(null);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
-
-  useEffect(() => {
-    dispatch(getAllRestaurants());
-  }, [dispatch]);
 
   const apiCategories = useMemo(() => {
     const cats = restaurants.map(r => r.category).filter(Boolean);

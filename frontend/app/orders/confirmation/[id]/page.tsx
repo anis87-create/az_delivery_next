@@ -1,19 +1,13 @@
 'use client'
-import { useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { useDispatch, useSelector } from 'react-redux'
-import { AppDispatch, RootState } from '@/app/hooks/hooks'
-import { getOneOrder } from '@/app/store/slices/orderSlice'
+import { useGetOneOrderQuery } from '@/app/store/services/order'
 
 export default function OrderConfirmationPage() {
   const { id } = useParams<{ id: string }>()
-  const dispatch = useDispatch<AppDispatch>()
   const router = useRouter()
-  const { order, isLoading } = useSelector((state: RootState) => state.orders)
 
-  useEffect(() => {
-    if (id) dispatch(getOneOrder(id))
-  }, [id, dispatch])
+  // RTK Query gère automatiquement le chargement et le cache
+  const { data: order, isLoading } = useGetOneOrderQuery(id, { skip: !id })
 
   if (isLoading) {
     return (
@@ -38,7 +32,7 @@ export default function OrderConfirmationPage() {
       {/* Title */}
       <h1 className="text-3xl font-bold text-gray-900 mb-3">Order Confirmed!</h1>
       <p className="text-gray-500 text-center max-w-sm mb-10">
-        Your order has been placed successfully. We've sent a confirmation to your email.
+        Your order has been placed successfully. We&apos;ve sent a confirmation to your email.
       </p>
 
       {/* Card */}

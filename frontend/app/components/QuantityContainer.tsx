@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux';
-import { getCartItem, clearItems } from '../store/slices/cartItemSlice';
-import { RootState, AppDispatch } from '../store/store';
+import { useState } from 'react'
+import { useSelector } from 'react-redux';
+import { RootState } from '../store/store';
 import { Item } from '../types/item.types';
 import { useCartActions } from '../hooks/userCartActions';
+import { useGetCartItemQuery, useClearItemsMutation } from '../store/services/cartItems';
+import { useGetOneRestaurantQuery } from '../store/services/restaurant';
 import {
   Alert,
   Snackbar,
@@ -22,46 +23,53 @@ interface Props {
 }
 
 const QuantityContainer = ({ item }: Props) => {
-  const dispatch = useDispatch<AppDispatch>();
-  const { cartItem } = useSelector((state: RootState) => state.cartItem);
   const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
   const [incrementCounter, decrementCounter] = useCartActions();
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [showRemoved, setShowRemoved] = useState(false);
-  const { restaurant: { items } } = useSelector((state: RootState) => state.restaurant);
 
+  // Données du panier depuis RTK Query
+  const { data: cartItem } = useGetCartItemQuery();
 
+  // Données du restaurant courant pour vérifier le conflit de restaurant
+  const { data: restaurantData } = useGetOneRestaurantQuery(item.restaurantId, {
+    skip: !item.restaurantId,
+  });
+
+  const [clearItems] = useClearItemsMutation();
 
   const cartItemsIds = new Set(
     cartItem?.items?.map(entry => entry._id).filter(Boolean)
   );
 
   let isItemFound = false;
-  if (cartItem !== null && cartItem?.items.length > 0) {
+  if (cartItem !== undefined && cartItem?.items.length > 0) {
     isItemFound = cartItemsIds.has(item._id);
   }
 
   const getItemQuantity = () => {
-    return cartItem!.items.find(i => i._id === item._id)?.quantity ?? 1;
-  }
+    return cartItem?.items.find(i => i._id === item._id)?.quantity ?? 1;
+  };
 
-  const handleClick = () => {                                                                      
-    if (!user?._id) return;                                                                        
-    if (cartItem && cartItem.items.length > 0) {                                                   
+  const handleClick = () => {
+    if (!user?._id) return;
+    if (cartItem && cartItem.items.length > 0) {
       const cartRestaurantIds = cartItem.items.map(e => e.restaurantId);
-      if (!items.some(menuItem => cartRestaurantIds.includes(menuItem.restaurantId))) {            
-        setShowConfirmModal(true);                                                                 
-        return;                                                                                    
-      }                                                                                            
-    }                                                       
-    incrementCounter(item._id);                                                                    
+      // Vérifie si les items du menu courant ont un restaurantId déjà dans le panier
+      const menuItems = restaurantData?.items ?? [];
+      if (!menuItems.some(menuItem => cartRestaurantIds.includes(menuItem.restaurantId))) {
+        setShowConfirmModal(true);
+        return;
+      }
+    }
+    incrementCounter(item._id);
     setShowSuccess(true);
-  }; 
+  };
 
   const handleConfirmClear = async () => {
     setShowConfirmModal(false);
-    await dispatch(clearItems());
+    await clearItems();
   };
 
   const handleDecrement = () => {
@@ -159,6 +167,6 @@ const QuantityContainer = ({ item }: Props) => {
   }
 
   return null;
-}
+};
 
-export default QuantityContainer
+export default QuantityContainer;

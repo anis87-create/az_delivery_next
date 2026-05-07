@@ -1,191 +1,34 @@
-import { createSlice , createAsyncThunk} from "@reduxjs/toolkit";
-import { authService } from "../services/auth";
-import type { User, LoginCredentials, RegisterData, LoginResponse, AuthState, IComparePasswordsCredentials } from '@/app/types';
-import type { UserProfile } from "@/app/types/auth.types";
+import { createSlice } from '@reduxjs/toolkit';
+import type { PayloadAction } from '@reduxjs/toolkit';
+import type { User } from '@/app/types';
+
+interface AuthState {
+  user: User | null;
+  isAuthenticated: boolean;
+}
 
 const initialState: AuthState = {
-    user: null,
-    isError: false,
-    isAuthenticated: false,
-    isLoading: false,
-    message: '',
+  user: null,
+  isAuthenticated: false,
 };
 
-export const register = createAsyncThunk<User, RegisterData, { rejectValue: string }>(
-  'auth/register',
-  async(user, thunkAPI) => {
-    try {
-       return await authService.register(user)
-    } catch (error) {
-      const message =
-        (error as { response?: { data?: { msg?: string } } }).response?.data?.msg ||
-        (error as Error).message ||
-        String(error);
-      return thunkAPI.rejectWithValue(message)
-    }
-  }
-)
-
-export const login = createAsyncThunk<LoginResponse, LoginCredentials, { rejectValue: string }>(
-  'auth/login',
-  async(user, thunkAPI) => {
-    try {
-        const minDelay = new Promise(resolve => setTimeout(resolve, 1000));
-        const [userData] = await Promise.all([
-            authService.login(user),
-            minDelay
-        ]);
-
-        return userData;
-    } catch (error) {
-      const message =
-        (error as { response?: { data?: { msg?: string } } }).response?.data?.msg ||
-        (error as Error).message ||
-        String(error);
-      return thunkAPI.rejectWithValue(message)
-    }
-  }
-)
-
-export const authMe = createAsyncThunk<User, void, { rejectValue: { message: string; isAuthError: boolean } }>(
-  'auth/authme',
-  async(_, thunkAPI) => {
-    try {
-        return await authService.getAuthenticatedUser();
-    } catch (error) {
-      const status = (error as { response?: { status?: number } }).response?.status;
-      const message =
-        (error as { response?: { data?: { msg?: string } } }).response?.data?.msg ||
-        (error as Error).message ||
-        String(error);
-      return thunkAPI.rejectWithValue({ message, isAuthError: status === 401 })
-    }
-  }
-);
-
-export const updateProfile= createAsyncThunk<UserProfile, FormData , { rejectValue: string }>(
-  'auth/updateProfile', 
-  async (user, thunkAPI) => {
-  try {
-    const minDelay = new Promise(resolve => setTimeout(resolve, 1000));
-        const [userUpdatedData] = await Promise.all([
-            authService.updateProfile(user),
-            minDelay
-        ]);
-        return userUpdatedData as User;
-  } catch (error) {
-    const message =
-        (error as { response?: { data?: { msg?: string } } }).response?.data?.msg ||
-        (error as Error).message ||
-        String(error);
-      return thunkAPI.rejectWithValue(message)
-  }
-});
-
-export const updatePassword = createAsyncThunk<void, IComparePasswordsCredentials,{ rejectValue: string } >(
-    'auth/updatePassword',
-    async (comparePasswordsFormData, thunkAPI) => {
-        try {
-            await authService.updatePassword(comparePasswordsFormData);
-        } catch (error) {
-            const message =
-        (error as { response?: { data?: { msg?: string } } }).response?.data?.msg ||
-        (error as Error).message ||
-        String(error);
-         return thunkAPI.rejectWithValue(message)
-        }
-    }
-)
-
-export const authSlice = createSlice({
-    name: 'auth',
-    initialState,
-    reducers:{
-        logout: (state) => {
-            state.isLoading = false,
-            state.isAuthenticated = false,
-            state.isError = false,
-            state.message = '',
-            state.user = null,
-            localStorage.removeItem('token');
-        }
+const authSlice = createSlice({
+  name: 'auth',
+  initialState,
+  reducers: {
+    setUser: (state, action: PayloadAction<User>) => {
+      state.user = action.payload;
+      state.isAuthenticated = true;
     },
-    extraReducers:(builder) => {
-        builder.addCase(register.pending, (state) => {
-            state.isLoading = true;
-        })
-        .addCase(register.fulfilled, (state, {payload}) => {
-            state.isLoading = false;
-            state.isAuthenticated = false;
-            state.user = payload;
-        })
-        .addCase(register.rejected, (state, {payload}) => {
-            state.isError = true;
-            state.message = payload ?? 'Une erreur est survenue';
-            state.user = null;
-            state.isLoading = false;
-        })
-        .addCase(login.pending, (state) => {
-            state.isLoading = true;
-        })
-        .addCase(login.fulfilled, (state, {payload}) => {
-            state.isLoading = false;
-            state.isAuthenticated = true;
-            state.user = payload.user;
-        })
-        .addCase(login.rejected, (state, {payload}) => {
-            state.isError = true;
-            state.message = payload ?? 'Une erreur est survenue';
-            state.user = null;
-            state.isLoading = false;
-        })
-        .addCase(authMe.pending, (state) => {
-            state.isLoading = true;
-        })
-        .addCase(authMe.fulfilled , (state, {payload}) => {
-            state.user = payload;
-            state.isAuthenticated = true;
-            state.isLoading = false
-        })
-        .addCase(authMe.rejected, (state, {payload}) => {
-            state.isError = true;
-            state.isLoading = false;
-            state.message = payload?.message ?? 'Une erreur est survenue';
-            if (payload?.isAuthError) {
-                state.user = null;
-                state.isAuthenticated = false;
-            }
-        })
-        .addCase(updateProfile.pending, (state) => {
-            state.isLoading = true;
-            state.isError = false;
-        })
-        .addCase(updateProfile.fulfilled , (state, {payload}) => {
-            state.user = state.user ? { ...state.user, ...payload } : null;
-            state.isAuthenticated = true;
-            state.isLoading = false;
-        })
-        .addCase(updateProfile.rejected, (state, {payload}) => {
-            state.isError = true;
-            state.isLoading = false;
-            state.message = payload ?? 'Une erreur est survenue';
-        })
-        .addCase(updatePassword.pending, (state) => {
-            state.isLoading = true;
-            state.isError = false;
-        })
-        .addCase(updatePassword.fulfilled, (state) =>{
-            state.isLoading = false;
-            state.isError = false;
-        })
-        .addCase(updatePassword.rejected, (state, {payload}) =>{
-            state.isLoading = false;
-            state.isError = true;
-            state.message = payload ?? 'Une erreur est survenue';
-        })
-    }
+    logout: (state) => {
+      state.user = null;
+      state.isAuthenticated = false;
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('token');
+      }
+    },
+  },
 });
 
-export const {logout} = authSlice.actions;
-
+export const { setUser, logout } = authSlice.actions;
 export default authSlice.reducer;

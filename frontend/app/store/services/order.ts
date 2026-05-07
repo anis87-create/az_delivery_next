@@ -1,29 +1,62 @@
-import { Order, OrderProps,  OrderSchema,  OrderStatus } from '@/app/types/order.types';
-import { privateApi } from './api';
-import {z} from 'zod';
-const API_URL = `/orders`;
-export const OrderService = {
-    async getAllOrders():Promise<Order[]>{
-        const res =  await privateApi.get(`${API_URL}/all`);
-        return  z.array(OrderSchema).parse(res.data);
-    },
-    async getOneOrder(id: string):Promise<Order>{
-        const res = await privateApi.get(`${API_URL}/${id}`);
-        return OrderSchema.parse(res.data);
-    },
-    async getOrderByUserId():Promise<Order[]>{
-        const res = await privateApi.get(API_URL);
-        return z.array(OrderSchema).parse(res.data);
-    },
-    async submitOrder(orderData: OrderProps):Promise<Order>{
-         const res = await privateApi.post(API_URL, orderData);
-         return OrderSchema.parse(res.data);
-    },
-    async updateStatus(id:string, status: OrderStatus):Promise<Order>{
-          const res = await privateApi.patch(`${API_URL}/${id}`, {status});
-          return OrderSchema.parse(res.data);  
-    },
-    async removeOrder(id: string):Promise<void>{
-         await privateApi.delete(`${API_URL}/${id}`);
-    } 
-}
+import { createApi } from '@reduxjs/toolkit/query/react';
+import type { Order, OrderProps, OrderStatus } from '@/app/types/order.types';
+import baseQuery from './api';
+
+export const orderAPI = createApi({
+  reducerPath: 'orderApi',
+  baseQuery,
+  tagTypes: ['Orders', 'Order'],
+  endpoints: (builder) => ({
+
+    getAllOrders: builder.query<Order[], void>({
+      query: () => '/orders/all',
+      providesTags: ['Orders'],
+    }),
+
+    getOrderByUserId: builder.query<Order[], void>({
+      query: () => '/orders',
+      providesTags: ['Orders'],
+    }),
+
+    getOneOrder: builder.query<Order, string>({
+      query: (id) => `/orders/${id}`,
+      providesTags: (_, __, id) => [{ type: 'Order', id }],
+    }),
+
+    addOrder: builder.mutation<Order, OrderProps>({
+      query: (orderData) => ({
+        url: '/orders',
+        method: 'POST',
+        body: orderData,
+      }),
+      invalidatesTags: ['Orders'],
+    }),
+
+    updateOrder: builder.mutation<Order, { id: string; status: OrderStatus }>({
+      query: ({ id, status }) => ({
+        url: `/orders/${id}`,
+        method: 'PATCH',
+        body: { status },
+      }),
+      invalidatesTags: (_, __, { id }) => ['Orders', { type: 'Order', id }],
+    }),
+
+    deleteOrder: builder.mutation<void, string>({
+      query: (id) => ({
+        url: `/orders/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: (_, __, id) => ['Orders', { type: 'Order', id }],
+    }),
+
+  }),
+});
+
+export const {
+  useGetAllOrdersQuery,
+  useGetOrderByUserIdQuery,
+  useGetOneOrderQuery,
+  useAddOrderMutation,
+  useUpdateOrderMutation,
+  useDeleteOrderMutation,
+} = orderAPI;

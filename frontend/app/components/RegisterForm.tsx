@@ -4,9 +4,7 @@ import React, { ChangeEvent, FormEvent, useState } from 'react'
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import { FaGoogle, FaFacebook } from 'react-icons/fa';
 import { v4 as uuidv4 } from 'uuid';
-import { register } from '../store/slices/authSlice';
-import { useSelector } from 'react-redux';
-import { RootState, useAppDispatch } from '../hooks/hooks';
+import { useRegisterMutation } from '../store/services/auth';
 import type { UserFormState, RestaurantFormState, RegisterFormProps, RegisterData } from '@/app/types';
 import { z } from 'zod';
 
@@ -67,8 +65,12 @@ const RegisterForm = ({ onRoleChange }: RegisterFormProps) => {
   const [tagInput, setTagInput] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
-  const dispatch = useAppDispatch();
-  const { message, isError } = useSelector((state: RootState) => state.auth);
+  const [register, { isLoading, isError, error }] = useRegisterMutation();
+
+  // Extrait le message d'erreur renvoyé par le backend
+  const errorMessage = isError
+    ? (error as { data?: { msg?: string } })?.data?.msg ?? 'Une erreur est survenue'
+    : null;
 
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -118,7 +120,7 @@ const RegisterForm = ({ onRoleChange }: RegisterFormProps) => {
     }
   }
 
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const isOwner = form.role === 'restaurant_owner';
@@ -142,46 +144,50 @@ const RegisterForm = ({ onRoleChange }: RegisterFormProps) => {
 
     setFieldErrors({});
 
-    if (isOwner) {
-      dispatch(register({
-        fullName: form.fullName,
-        email: form.email,
-        password: form.password,
-        phone: form.phoneNumber,
-        address: form.address,
-        role: 'restaurant_owner',
-        name: restaurantForm.name,
-        img: restaurantForm.img ? restaurantForm.img.name : null,
-        coverImg: restaurantForm.coverImg ? restaurantForm.coverImg.name : null,
-        type: restaurantForm.type,
-        category: restaurantForm.category,
-        tags: restaurantForm.tags,
-        deliveryZone: restaurantForm.deliveryZone,
-        street: restaurantForm.street,
-        city: restaurantForm.city,
-        zipCode: restaurantForm.zipCode,
-        restaurantEmail: restaurantForm.email,
-        description: restaurantForm.description
-      }));
-    } else {
-      dispatch(register({
-        id: uuidv4(),
-        fullName: form.fullName,
-        email: form.email,
-        password: form.password,
-        phoneNumber: form.phoneNumber,
-        address: form.address,
-        city: form.city,
-        zipCode: form.zipCode,
-        role: form.role
-      }));
+    try {
+      if (isOwner) {
+        await register({
+          fullName: form.fullName,
+          email: form.email,
+          password: form.password,
+          phone: form.phoneNumber,
+          address: form.address,
+          role: 'restaurant_owner',
+          name: restaurantForm.name,
+          img: restaurantForm.img ? restaurantForm.img.name : null,
+          coverImg: restaurantForm.coverImg ? restaurantForm.coverImg.name : null,
+          type: restaurantForm.type,
+          category: restaurantForm.category,
+          tags: restaurantForm.tags,
+          deliveryZone: restaurantForm.deliveryZone,
+          street: restaurantForm.street,
+          city: restaurantForm.city,
+          zipCode: restaurantForm.zipCode,
+          restaurantEmail: restaurantForm.email,
+          description: restaurantForm.description
+        }).unwrap();
+      } else {
+        await register({
+          id: uuidv4(),
+          fullName: form.fullName,
+          email: form.email,
+          password: form.password,
+          phoneNumber: form.phoneNumber,
+          address: form.address,
+          city: form.city,
+          zipCode: form.zipCode,
+          role: form.role
+        }).unwrap();
+      }
+    } catch {
+      // L'erreur est gérée via l'état `isError` du hook
     }
   }
 
   return (
     <div className="w-1/2 p-8 lg:p-12 flex items-center justify-center overflow-y-auto">
           <div className="max-w-md w-full my-8">
-              {isError && <div className='bg-red-100 border border-red-300 p-3 rounded-lg mb-4 text-red-700 text-sm'>{message}</div>}
+              {isError && <div className='bg-red-100 border border-red-300 p-3 rounded-lg mb-4 text-red-700 text-sm'>{errorMessage}</div>}
               <div className="text-center mb-8">
                 <h2 className="text-3xl font-bold text-gray-900">Create Account</h2>
                 <p className="mt-2 text-gray-600">
@@ -466,7 +472,7 @@ const RegisterForm = ({ onRoleChange }: RegisterFormProps) => {
                                 ))}
                               </div>
                             )}
-                            <p className="text-xs text-gray-500">💡 Tapez votre tag et appuyez sur Entrée ou cliquez sur &quot;Add&quot; pour l&apos;ajouter</p>
+                            <p className="text-xs text-gray-500">Tapez votre tag et appuyez sur Entrée ou cliquez sur &quot;Add&quot; pour l&apos;ajouter</p>
                           </div>
                         </div>
 
@@ -539,7 +545,7 @@ const RegisterForm = ({ onRoleChange }: RegisterFormProps) => {
                             id="restaurantEmail"
                             name="email"
                             type="email"
-                            className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${fieldErrors.email_restaurant ? 'border-red-400' : 'border-gray-300'}`}
+                            className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent`}
                             placeholder="Ex: contact@restaurant.com"
                             onChange={handleRestaurantChange}
                           />
@@ -610,10 +616,10 @@ const RegisterForm = ({ onRoleChange }: RegisterFormProps) => {
 
                 <button
                   type="submit"
-                  className="w-full bg-orange-500 text-white py-3 px-4 rounded-lg font-medium hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors"
-
+                  disabled={isLoading}
+                  className="w-full bg-orange-500 text-white py-3 px-4 rounded-lg font-medium hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
                 >
-                  Create Account
+                  {isLoading ? 'Creating account...' : 'Create Account'}
                 </button>
 
                 <div className="relative flex items-center gap-3">
@@ -625,7 +631,7 @@ const RegisterForm = ({ onRoleChange }: RegisterFormProps) => {
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     type="button"
-                    onClick={() => window.location.href = 'http://localhost:5000/api/auth/google'}
+                    onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000/api'}/auth/google`}
                     className="flex items-center justify-center gap-2 px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors cursor-pointer"
                   >
                     <FaGoogle className="w-4 h-4 text-red-500" />
@@ -633,7 +639,7 @@ const RegisterForm = ({ onRoleChange }: RegisterFormProps) => {
                   </button>
                   <button
                     type="button"
-                    onClick={() => window.location.href = 'http://localhost:5000/api/auth/facebook'}
+                    onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000/api'}/auth/facebook`}
                     className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-white bg-[#1877F2] hover:bg-[#166fe5] transition-colors cursor-pointer"
                   >
                     <FaFacebook className="w-4 h-4" />

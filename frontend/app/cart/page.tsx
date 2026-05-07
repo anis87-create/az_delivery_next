@@ -1,28 +1,32 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { RootState } from '../store/store';
-import { AppDispatch } from '../hooks/hooks';
-import {  getCartItem,  getDeliveryFees, selectCartItems, removeFromCartItem, clearItems, getTotalPrice, getSubTotalPrice } from '../store/slices/cartItemSlice';
-import {useCartActions} from '../hooks/userCartActions';
-
-
+import {
+  useGetCartItemQuery,
+  useClearItemsMutation,
+  useRemoveFromCartItemMutation,
+  selectCartItems,
+  getDeliveryFees,
+  getSubTotalPrice,
+  getTotalPrice,
+} from '../store/services/cartItems';
+import { useCartActions } from '../hooks/userCartActions';
 
 const Cart = () => {
   const items = useSelector(selectCartItems);
   const subTotalPrice = useSelector(getSubTotalPrice);
   const totalPrice = useSelector(getTotalPrice);
   const deliveryFees = useSelector(getDeliveryFees);
-  const dispatch = useDispatch<AppDispatch>();
-  const [incrementCounter, decrementCounter] = useCartActions();
-  const { user } = useSelector((state:RootState) => state.auth);
-  useEffect(() => {
-    dispatch(getCartItem());
-  }, [dispatch]);
 
- 
+  const [incrementCounter, decrementCounter] = useCartActions();
+  const [clearItems] = useClearItemsMutation();
+  const [removeFromCart] = useRemoveFromCartItemMutation();
+
+  // Initialise le cache RTK Query (nécessaire pour que les sélecteurs fonctionnent)
+  useGetCartItemQuery();
 
   return (
     <>
@@ -32,10 +36,9 @@ const Cart = () => {
             <div className="max-w-4xl mx-auto">
               <div className="flex items-center justify-between mb-8">
                 <h1 className="text-3xl font-bold">Your Cart</h1>
-                <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors border h-10 px-4 py-2 text-red-600 border-red-600 hover:bg-red-50 bg-transparent"
-                 onClick={() => {
-                  dispatch(clearItems());
-                 }}
+                <button
+                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors border h-10 px-4 py-2 text-red-600 border-red-600 hover:bg-red-50 bg-transparent"
+                  onClick={() => clearItems()}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 mr-2">
                     <path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /><line x1="10" x2="10" y1="11" y2="17" /><line x1="14" x2="14" y1="11" y2="17" />
@@ -51,59 +54,53 @@ const Cart = () => {
                     <div className="p-6">
                       <h2 className="text-xl font-semibold mb-4">Order Items</h2>
                       <div className="space-y-4">
-                        {/* Item row */}
-                        {
-                         items.map(item => (
-                        <div key={item._id} className="flex items-center gap-4 p-4 shadow-sm rounded-lg">
-                          {/* imageUrl sera remplacé par la vraie donnée */}
-                          <div className="w-16 h-16 shrink-0 overflow-hidden rounded-lg">
-                            <Image
-                              alt="image"
-                              className="w-full h-full object-cover"
-                              src={item.imageUrl}
-                              width={64}
-                              height={64}
-                              unoptimized
-                            />
+                        {items.map(item => (
+                          <div key={item._id} className="flex items-center gap-4 p-4 shadow-sm rounded-lg">
+                            <div className="w-16 h-16 shrink-0 overflow-hidden rounded-lg">
+                              <Image
+                                alt="image"
+                                className="w-full h-full object-cover"
+                                src={item.imageUrl}
+                                width={64}
+                                height={64}
+                                unoptimized
+                              />
+                            </div>
+
+                            <div className="flex-1">
+                              <h3 className="font-semibold">{item.name}</h3>
+                              <p className="text-gray-600 text-sm">{item.restaurantName ?? ''}</p>
+                              <p className="text-orange-500 font-semibold">{item.price} TND</p>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <button
+                                className="inline-flex items-center justify-center shadow-sm bg-background hover:bg-accent hover:text-accent-foreground h-8 w-8 rounded-md cursor-pointer"
+                                onClick={() => decrementCounter(item._id)}
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                                  <path d="M5 12h14" />
+                                </svg>
+                              </button>
+                              <span className="font-semibold min-w-8 text-center">{item.quantity}</span>
+                              <button
+                                className="inline-flex items-center justify-center shadow-sm bg-background hover:bg-accent hover:text-accent-foreground h-8 w-8 rounded-md cursor-pointer"
+                                onClick={() => incrementCounter(item._id)}
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                                  <path d="M5 12h14" /><path d="M12 5v14" />
+                                </svg>
+                              </button>
+                              <button
+                                className="inline-flex items-center justify-center h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md"
+                                onClick={() => removeFromCart(item._id)}
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                                  <path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /><line x1="10" x2="10" y1="11" y2="17" /><line x1="14" x2="14" y1="11" y2="17" />
+                                </svg>
+                              </button>
+                            </div>
                           </div>
-                          
-                          <div className="flex-1">
-                            <h3 className="font-semibold">{item.name}</h3>
-                            <p className="text-gray-600 text-sm">{item.restaurantName ?? ''}</p>
-                            <p className="text-orange-500 font-semibold">{item.price} TND</p>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <button className="inline-flex items-center justify-center shadow-sm bg-background hover:bg-accent hover:text-accent-foreground h-8 w-8 rounded-md cursor-pointer"
-                              onClick={() => decrementCounter(item._id)}
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
-                                <path d="M5 12h14" />
-                              </svg>
-                            </button>
-                            <span className="font-semibold min-w-8 text-center">{item.quantity}</span>
-                            <button className="inline-flex items-center justify-center shadow-sm bg-background hover:bg-accent hover:text-accent-foreground h-8 w-8 rounded-md cursor-pointer"
-                             onClick={() => {         
-                              incrementCounter(item._id);
-                            }
-                            }
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
-                                <path d="M5 12h14" /><path d="M12 5v14" />
-                              </svg>
-                            </button>
-                            <button className="inline-flex items-center justify-center h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md"
-                            onClick={() => {
-                                dispatch(removeFromCartItem(item._id))
-                            }}
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
-                                <path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /><line x1="10" x2="10" y1="11" y2="17" /><line x1="14" x2="14" y1="11" y2="17" />
-                              </svg>
-                            </button>
-                          </div>
-                        </div>
-                          ))
-                        }
+                        ))}
                       </div>
                     </div>
                   </div>

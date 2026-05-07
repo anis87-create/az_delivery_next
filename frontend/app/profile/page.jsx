@@ -8,11 +8,10 @@ import {
   FiEye, FiEyeOff,
 } from 'react-icons/fi';
 import Avatar from '@/app/components/common/Avatar.jsx';
-import { useAppDispatch, useAppSelector } from '../hooks/hooks';
-import { useEffect } from 'react';
-import { getOrderByUserId } from '../store/slices/orderSlice';
-import { authMe, updatePassword, updateProfile } from '../store/slices/authSlice';
-import { useRef } from 'react';
+import { useAppSelector } from '../hooks/hooks';
+import { useEffect, useRef } from 'react';
+import { useGetOrderByUserIdQuery } from '../store/services/order';
+import { useUpdateProfileMutation, useUpdatePasswordMutation } from '../store/services/auth';
 
 
 const MOCK_USER = {
@@ -48,7 +47,8 @@ const STATUS_STYLES = {
 // ── Section: Personal Info ────────────────────────────────────────────────────
 function PersonalInfo({ userProfile }) {
   const [editing, setEditing] = useState(false);
-  const { isLoading, user } = useAppSelector(state => state.auth);
+  const { user } = useAppSelector(state => state.auth);
+  const [updateProfile, { isLoading }] = useUpdateProfileMutation();
   const [form, setForm] = useState({
     fullName:    userProfile?.fullName    ?? '',
     email:       userProfile?.email       ?? '',
@@ -58,7 +58,6 @@ function PersonalInfo({ userProfile }) {
   const [previewUrl, setPreviewUrl] = useState(null);
   const [avatarFile, setAvatarFile] = useState(null);
 
-  const dispatch = useAppDispatch();
   const inputRef = useRef(null);
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
@@ -70,18 +69,19 @@ function PersonalInfo({ userProfile }) {
     setPreviewUrl(URL.createObjectURL(file));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const formData = new FormData();
     formData.append('fullName', form.fullName);
     formData.append('email', form.email);
     if (form.phoneNumber) formData.append('phoneNumber', form.phoneNumber);
     if (form.birthDate) formData.append('birthDate', form.birthDate);
     if (avatarFile) formData.append('avatar', avatarFile);
-    dispatch(updateProfile(formData)).then(() => {
+    try {
+      await updateProfile(formData).unwrap();
       setEditing(false);
       setPreviewUrl(null);
       setAvatarFile(null);
-    });
+    } catch {}
   };
 
   const handleCancel = () => {
@@ -246,16 +246,18 @@ function ChangePassword() {
   const [form, setForm] = useState({ oldPassword: '', newPassword: '', confirmPassword: '' });
   const [saved, setSaved] = useState(false);
   const [visible, setVisible] = useState({ oldPassword: false, newPassword: false, confirmPassword: false });
-  const dispatch = useAppDispatch();
+  const [updatePassword] = useUpdatePasswordMutation();
 
   const toggleVisible = (name) => setVisible(prev => ({ ...prev, [name]: !prev[name] }));
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
-    setForm({ oldPassword: '', newPassword: '', confirmPassword: '' });
-    dispatch(updatePassword(form));
+    try {
+      await updatePassword(form).unwrap();
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+      setForm({ oldPassword: '', newPassword: '', confirmPassword: '' });
+    } catch {}
   };
 
   return (
@@ -352,24 +354,18 @@ function OrderHistory({orders}) {
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export default function ProfilePage() {
   const { user } = useAppSelector(state => state.auth);
-  const { orders } = useAppSelector(state => state.orders);
+  const { data: orders = [] } = useGetOrderByUserIdQuery();
   const [activeTab, setActiveTab] = useState('info');
-  const dispatch = useAppDispatch();
-  
- 
+
   const renderContent = () => {
     switch (activeTab) {
       case 'info':      return <PersonalInfo key={user?._id} userProfile={user} />;
-      case 'addresse': return <DeliveryAddresses address={user.address} city={user.city} zipCode={user.zipCode} />;
+      case 'addresse': return <DeliveryAddresses address={user?.address} city={user?.city} zipCode={user?.zipCode} />;
       case 'password':  return <ChangePassword />;
       case 'orders':    return <OrderHistory orders={orders} />;
       default:          return null;
     }
   };
-
-  useEffect(() => {
-    dispatch(getOrderByUserId());
-  }, [dispatch]);
 
   
   return (

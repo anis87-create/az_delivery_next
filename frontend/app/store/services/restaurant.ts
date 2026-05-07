@@ -1,19 +1,37 @@
-import { RestaurantDetailSchema, RestaurantSchema } from '@/app/types/restaurant.types';
-import { privateApi, publicApi } from './api';
-import {z} from 'zod';
-const API_URL = '/restaurants';
+import { createApi } from '@reduxjs/toolkit/query/react';
+import type { Restaurant, RestaurantDetail } from '@/app/types/restaurant.types';
+import baseQuery from './api';
 
-export const restaurantService = {
-    async update(restaurantId: string, restaurantData: any) {
-        const response = await privateApi.put(`${API_URL}/${restaurantId}`, restaurantData);
-        return RestaurantSchema.parse(response.data);
-    },
-    async getAll() {
-        const response = await publicApi.get(`${API_URL}/all`);
-        return z.array(RestaurantSchema).parse(response.data);
-    },
-    async getOne(id: string) {
-        const response = await publicApi.get(`${API_URL}/${id}`);
-        return RestaurantDetailSchema.parse(response.data);
-    }
-}
+export const restaurantAPI = createApi({
+  reducerPath: 'restaurantApi',
+  baseQuery,
+  tagTypes: ['Restaurants', 'Restaurant'],
+  endpoints: (builder) => ({
+
+    getAllRestaurants: builder.query<Restaurant[], void>({
+      query: () => '/restaurants/all',
+      providesTags: ['Restaurants'],
+    }),
+
+    getOneRestaurant: builder.query<RestaurantDetail, string>({
+      query: (id) => `/restaurants/${id}`,
+      providesTags: (_, __, id) => [{ type: 'Restaurant', id }],
+    }),
+
+    updateRestaurantInfo: builder.mutation<void, { id: string; form: FormData }>({
+      query: ({ id, form }) => ({
+        url: `/restaurants/${id}`,
+        method: 'PUT',
+        body: form,
+      }),
+      invalidatesTags: (_, __, { id }) => ['Restaurants', { type: 'Restaurant', id }],
+    }),
+
+  }),
+});
+
+export const {
+  useGetAllRestaurantsQuery,
+  useGetOneRestaurantQuery,
+  useUpdateRestaurantInfoMutation,
+} = restaurantAPI;

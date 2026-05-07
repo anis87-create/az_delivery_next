@@ -1,21 +1,20 @@
 'use client'
-import { useAppDispatch, useAppSelector } from '@/app/hooks/hooks';
-import { deleteOrder, getAllOrders, updateOrder } from '@/app/store/slices/orderSlice';
-import {  OrderStatus } from '@/app/types/order.types';
-import { useEffect, useState } from 'react';
+import { useAppSelector } from '@/app/hooks/hooks';
+import { useGetAllOrdersQuery, useUpdateOrderMutation, useDeleteOrderMutation } from '@/app/store/services/order';
+import { OrderStatus } from '@/app/types/order.types';
+import { useState } from 'react';
 import { HiSearch, HiEye } from 'react-icons/hi';
 import { FiUser, FiClock } from 'react-icons/fi';
 import moment from 'moment';
 import { Order } from '@/app/types/order.types';
 
 const Dashboard = () => {
-  const dispatch = useAppDispatch();
-  const { orders } = useAppSelector(state => state.orders);
-
-  const users: {id: string; fullName: string}[] = [];
+  const { data: orders = [] } = useGetAllOrdersQuery();
+  const [updateOrder] = useUpdateOrderMutation();
+  const [deleteOrder] = useDeleteOrderMutation();
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [orderToDelete, setOrderToDelete] = useState<Order|null>(null);
+  const [orderToDelete, setOrderToDelete] = useState<Order | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
@@ -33,18 +32,14 @@ const Dashboard = () => {
     return statusConfig || { label: status, bgColor: 'bg-gray-100', textColor: 'text-gray-800' };
   };
 
-
-
   const updateStatus = async (orderId: string, newStatus: OrderStatus) => {
-    await dispatch(updateOrder({id: orderId, status: newStatus}))
+    await updateOrder({ id: orderId, status: newStatus });
   };
 
-
-
-  const findCustomerNameById = (userId: string | { fullName: string; [key: string]: any }) => {
-    if(!userId) return null;
+  const findCustomerNameById = (userId: string | { fullName: string; [key: string]: unknown }) => {
+    if (!userId) return null;
     if (typeof userId === 'object') return userId.fullName;
-    return users.find(user => user.id === userId)?.fullName || 'Unknown';
+    return 'Unknown';
   };
 
   const getTime = (dateString: string) => {
@@ -54,9 +49,8 @@ const Dashboard = () => {
     return `${hours}:${minutes}`;
   };
 
-  // Filter orders based on search query
   const filteredOrders = orders.filter(order => {
-    if(!order.userId) return null;
+    if (!order.userId) return null;
     const customerName = typeof order.userId === 'object' && order.userId.fullName || '';
     const orderId = order._id.toString().toLowerCase();
     const status = order?.status?.toLowerCase();
@@ -66,11 +60,6 @@ const Dashboard = () => {
            orderId.includes(query) ||
            status.includes(query);
   });
-
-  useEffect(() => {
-   dispatch(getAllOrders())
-  }, [dispatch]);
-
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -166,50 +155,47 @@ const Dashboard = () => {
         {/* Mobile view - Cards */}
         <div className="md:hidden">
           <div className="divide-y divide-gray-200">
-            {filteredOrders.map((order, index) => {
-              return (
-                <div key={order._id} className="p-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">ORDER#{order._id}</p>
-                      <p className="text-xs text-gray-500">{findCustomerNameById(order.userId)}</p>
-                    </div>
-                    <div className="flex space-x-2 cursor-pointer">
-                      <button
-                        onClick={() => setSelectedOrder(order)}
-                        className="text-blue-600 hover:text-blue-900 hover:bg-blue-50 p-2 rounded hover:cursor-pointer"
-                        title="View Details"
-                      >
-                        <HiEye className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => setShowDeleteConfirm(true)}
-                        className="text-red-600 hover:text-red-900 hover:bg-red-50 p-2 rounded"
-                        title="Delete"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </button>
-                    </div>
+            {filteredOrders.map((order) => (
+              <div key={order._id} className="p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">ORDER#{order._id}</p>
+                    <p className="text-xs text-gray-500">{findCustomerNameById(order.userId)}</p>
                   </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <div>
-                        <p className="text-xs text-gray-500">Amount</p>
-                        <p className="text-sm font-medium text-gray-900">{order.total.toFixed(2)} TND</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-500">Time</p>
-                        <p className="text-sm text-gray-600">{getTime(order.createdAt)}</p>
-                      </div>
-                    </div>
-
+                  <div className="flex space-x-2 cursor-pointer">
+                    <button
+                      onClick={() => setSelectedOrder(order)}
+                      className="text-blue-600 hover:text-blue-900 hover:bg-blue-50 p-2 rounded hover:cursor-pointer"
+                      title="View Details"
+                    >
+                      <HiEye className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => setShowDeleteConfirm(true)}
+                      className="text-red-600 hover:text-red-900 hover:bg-red-50 p-2 rounded"
+                      title="Delete"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
                   </div>
                 </div>
-              );
-            })}
+
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <div>
+                      <p className="text-xs text-gray-500">Amount</p>
+                      <p className="text-sm font-medium text-gray-900">{order.total.toFixed(2)} TND</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">Time</p>
+                      <p className="text-sm text-gray-600">{getTime(order.createdAt)}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -218,24 +204,12 @@ const Dashboard = () => {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Order
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Customer
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Amount
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Time
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -244,7 +218,7 @@ const Dashboard = () => {
                 return (
                   <tr key={order._id}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      ORDER-{index+1}
+                      ORDER-{index + 1}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {findCustomerNameById(order.userId)}
@@ -252,10 +226,7 @@ const Dashboard = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <select
                         value={order.status}
-                        onChange={(e) => {
-                          updateStatus(order._id, e.target.value as OrderStatus)
-                        }
-                        }
+                        onChange={(e) => updateStatus(order._id, e.target.value as OrderStatus)}
                         className={`px-2 py-1 text-xs font-semibold rounded-full border-0 ${statusDisplay.bgColor} ${statusDisplay.textColor} focus:ring-2 focus:ring-orange-500 focus:outline-none`}
                       >
                         {statusOptions.map((option) => (
@@ -283,10 +254,8 @@ const Dashboard = () => {
                         <button
                           onClick={() => {
                             setShowDeleteConfirm(true);
-                            setOrderToDelete(order);                             
-                          }
-                            
-                          }
+                            setOrderToDelete(order);
+                          }}
                           className="text-red-600 hover:text-red-900 hover:bg-red-50 p-1 rounded"
                           title="Delete"
                         >
@@ -308,8 +277,6 @@ const Dashboard = () => {
       {selectedOrder && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl">
-
-            {/* Header */}
             <div className="flex items-start justify-between mb-1">
               <div>
                 <h2 className="text-xl font-bold text-gray-900">
@@ -325,7 +292,6 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* Customer & Time */}
             <div className="border border-gray-200 rounded-xl p-4 mt-4 space-y-4">
               <div className="flex items-center gap-3">
                 <FiUser className="w-5 h-5 text-gray-400 shrink-0" />
@@ -343,7 +309,6 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* Items */}
             <div className="border border-gray-200 rounded-xl p-4 mt-3">
               <p className="text-sm font-bold text-gray-900 mb-2">Items ({selectedOrder.items.length})</p>
               <div className="space-y-1">
@@ -353,13 +318,11 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* Total */}
             <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
               <span className="font-bold text-gray-900">Total</span>
               <span className="font-bold text-green-500 text-lg">${selectedOrder.total.toFixed(2)}</span>
             </div>
 
-            {/* Buttons */}
             <div className="flex gap-3 mt-4">
               <button
                 onClick={() => setSelectedOrder(null)}
@@ -391,14 +354,16 @@ const Dashboard = () => {
 
             <div className="flex flex-col-reverse sm:flex-row space-y-2 space-y-reverse sm:space-y-0 sm:space-x-3">
               <button
-                onClick={() => setShowDeleteConfirm(null)}
+                onClick={() => setShowDeleteConfirm(false)}
                 className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
               >
                 Cancel
               </button>
               <button
                 onClick={() => {
-                  dispatch(deleteOrder(orderToDelete._id));
+                  if (orderToDelete) {
+                    deleteOrder(orderToDelete._id);
+                  }
                   setShowDeleteConfirm(false);
                 }}
                 className="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"

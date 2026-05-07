@@ -1,27 +1,18 @@
 'use client'
-import React, { useEffect } from 'react'
-import { useAppDispatch } from '../hooks/hooks'
-import { authMe } from '../store/slices/authSlice';
+import React from 'react'
+import { useGetAuthenticatedUserQuery } from '../store/services/auth';
 
 interface AuthInitProps {
   children: React.ReactNode;
 }
 
 const AuthInit: React.FC<AuthInitProps> = ({ children }) => {
-  const dispatch = useAppDispatch();
-  
-  useEffect(() => {
-    const token = localStorage.getItem('token');
+  // On vérifie la présence du token côté client uniquement
+  const hasToken = typeof window !== 'undefined' && !!localStorage.getItem('token');
 
-    if (token) {
-      dispatch(authMe()).unwrap()
-        .catch((error) => {
-          if (error?.isAuthError) {
-            localStorage.removeItem('token');
-          }
-        });
-    }
-  }, [dispatch])
+  // RTK Query déclenche automatiquement la requête et appelle setUser via onQueryStarted
+  // Si pas de token, on skip pour éviter une requête inutile (et une 401)
+  useGetAuthenticatedUserQuery(undefined, { skip: !hasToken });
 
   return <>{children}</>
 }

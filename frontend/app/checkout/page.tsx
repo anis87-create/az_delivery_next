@@ -1,76 +1,85 @@
 'use client'
-import { useEffect, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useState } from 'react'
+import { useSelector } from 'react-redux'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { AppDispatch, RootState } from '../hooks/hooks'
-import { clearItems, getCartItem,  getSubTotalPrice,  getTotalPrice } from '../store/slices/cartItemSlice'
-import { addOrder, getAllOrders } from '../store/slices/orderSlice'
+import { RootState } from '../hooks/hooks'
+import {
+  useGetCartItemQuery,
+  useClearItemsMutation,
+  getSubTotalPrice,
+  getTotalPrice,
+} from '../store/services/cartItems'
+import { useAddOrderMutation } from '../store/services/order'
 
 const inputClass =
   'flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 read-only:bg-gray-100 read-only:text-gray-500 read-only:cursor-not-allowed'
 
 const labelClass = 'block text-sm font-medium text-gray-700 mb-1'
 
-
 export default function CheckoutPage() {
-  const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
-  const {cartItem} = useSelector((state:RootState)=> state.cartItem);
-  const { user } = useSelector((state:RootState) => state.auth);
+  const { user } = useSelector((state: RootState) => state.auth);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'cash'>('cash');
+
+  // RTK Query hooks
+  const { data: cartItem } = useGetCartItemQuery();
+  const [clearItems] = useClearItemsMutation();
+  const [addOrder] = useAddOrderMutation();
+
+  // Sélecteurs calculés depuis le cache RTK Query
   const totalPrice = useSelector(getTotalPrice);
   const subTotal = useSelector(getSubTotalPrice);
+
   const firstName = user?.fullName.split(' ')[0] || '';
   const lastName  = user?.fullName.split(' ')[1] || '';
-  const restaurantId= [...new Set(cartItem?.items?.map(item => item.restaurantId))];
+  const restaurantId = [...new Set(cartItem?.items?.map(item => item.restaurantId))];
 
-  useEffect(() => {
-     dispatch(getCartItem());
-     dispatch(getAllOrders());
-  }, [dispatch]);
   const submitOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    const result = await dispatch(addOrder({
-      userId: user?._id || '',
-      restaurantId: restaurantId[0] || '',
-      firstName,
-      lastName,
-      email: user?.email || '',
-      phoneNumber: user?.phoneNumber || '',
-      items: cartItem?.items.map((item) => ({
-        itemId: item._id,
-        restaurantId: item.restaurantId,
-        name: item.name,
-        price: item.price,
-        quantity: item.quantity,
-        imageUrl: item.imageUrl
-      })) || [],
-      subTotal,
-      total: totalPrice,
-      deliveryAddress: {
-        street: user?.address || '',
-        city: user?.city || '',
-        zipCode: user?.zipCode || '',
-      },
-      paymentMethod,
-      paymentStatus: 'pending',
-      status: 'pending'
-    }));
-    if (addOrder.fulfilled.match(result)) {
-      dispatch(clearItems());
-      router.push(`orders/confirmation/${result.payload._id}`);
-    } else {
+
+    try {
+      const result = await addOrder({
+        userId: user?._id || '',
+        restaurantId: restaurantId[0] || '',
+        firstName,
+        lastName,
+        email: user?.email || '',
+        phoneNumber: user?.phoneNumber || '',
+        items: cartItem?.items.map((item) => ({
+          itemId: item._id,
+          restaurantId: item.restaurantId,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          imageUrl: item.imageUrl
+        })) || [],
+        subTotal,
+        total: totalPrice,
+        deliveryAddress: {
+          street: user?.address || '',
+          city: user?.city || '',
+          zipCode: user?.zipCode || '',
+        },
+        paymentMethod,
+        paymentStatus: 'pending',
+        status: 'pending'
+      }).unwrap();
+
+      await clearItems();
+      router.push(`orders/confirmation/${result._id}`);
+    } catch {
       setIsSubmitting(false);
     }
-  }
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
-{/* Main */}
+      {/* Main */}
       <main className="flex-1 container px-6 py-16 mt-20">
-        <form className="grid grid-cols-1 lg:grid-cols-3 gap-8" onSubmit={(e) => submitOrder(e)}>
+        <form className="grid grid-cols-1 lg:grid-cols-3 gap-8" onSubmit={submitOrder}>
           {/* Left column */}
           <div className="lg:col-span-2 space-y-8">
             {/* Delivery Information */}
@@ -95,7 +104,7 @@ export default function CheckoutPage() {
                 </div>
                 <div>
                   <label className={labelClass} htmlFor="phone">Phone Number</label>
-                  <input className={inputClass} id="phone" name="phoneNumber" placeholder="+1 (555) 123-4567"  value={user?.phoneNumber || ''} readOnly />
+                  <input className={inputClass} id="phone" name="phoneNumber" placeholder="+1 (555) 123-4567" value={user?.phoneNumber || ''} readOnly />
                 </div>
               </div>
 
@@ -103,7 +112,6 @@ export default function CheckoutPage() {
                 <label className={labelClass} htmlFor="address">Street Address*</label>
                 <input className={inputClass} id="address" name="address" placeholder="123 Main St" required value={user?.address || ''} readOnly />
               </div>
-
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
@@ -173,7 +181,7 @@ export default function CheckoutPage() {
                 </label>
               </div>
 
-              {/* Card details — shown only when card is selected */}
+              {/* Card details */}
               {paymentMethod === 'card' && (
                 <div className="space-y-4">
                   <div>
@@ -204,34 +212,33 @@ export default function CheckoutPage() {
             {/* Order Summary */}
             <div className="rounded-lg border border-gray-100 bg-white shadow-sm p-8">
               <h2 className="text-xl font-semibold mb-6">Order Summary</h2>
-            
-              {/* Item(s) */}
+
+              {/* Items */}
               {cartItem?.items.map((item) => (
                 <div className="space-y-4 mb-6" key={item._id}>
-                <div className="flex items-start">
-                  <div className="relative w-14 h-14 shrink-0 mr-4">
-                    <Image
-                      alt="image"
-                      className="w-full h-full object-cover rounded-md"
-                      src={item.imageUrl}
-                      width={56}
-                      height={56}
-                      unoptimized
-                    />
-                    <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                      {item.quantity}
-                    </span>
+                  <div className="flex items-start">
+                    <div className="relative w-14 h-14 shrink-0 mr-4">
+                      <Image
+                        alt="image"
+                        className="w-full h-full object-cover rounded-md"
+                        src={item.imageUrl}
+                        width={56}
+                        height={56}
+                        unoptimized
+                      />
+                      <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                        {item.quantity}
+                      </span>
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-medium text-sm">{item.name}</h3>
+                      <p className="text-xs text-gray-500">{item.restaurantName}</p>
+                      <p className="text-xs text-green-600 font-medium">{item.baseFee ? `${item.baseFee} TND` : 'Free delivery'}</p>
+                    </div>
+                    <div className="text-sm font-medium">{item.price} TND</div>
                   </div>
-                  <div className="flex-1">
-                    <h3 className="font-medium text-sm">{item.name}</h3>
-                    <p className="text-xs text-gray-500">{item.restaurantName}</p>
-                    <p className="text-xs text-green-600 font-medium">{item.baseFee ? `${item.baseFee} TND` : 'Free delivery'}</p>
-                  </div>
-                  <div className="text-sm font-medium">{item.price} TND</div>
                 </div>
-              </div>
               ))}
-              
 
               <hr className="my-5" />
 

@@ -9,16 +9,15 @@ import RestaurantCard from "./components/RestaurantCard.jsx";
 import PopularDish from "./components/PopularDish.jsx";
 import SpecialOffer from "./components/SpecialOffer.jsx";
 import { useRouter } from 'next/navigation';
-import { useDispatch, useSelector } from 'react-redux';
-import { getAllRestaurants } from "./store/slices/restaurantSlice";
-import { getCartItem } from "./store/slices/cartItemSlice";
+import { useSelector } from 'react-redux';
+import { useGetAllRestaurantsQuery } from './store/services/restaurant';
+import { useGetCartItemQuery } from './store/services/cartItems';
 
 export default function Home() {
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
   const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
-  const {isLoading , user} = useSelector(state => state.auth);
-  const dispatch = useDispatch();
+  const { user } = useSelector(state => state.auth);
 
   const categories = [
   {
@@ -101,7 +100,8 @@ export default function Home() {
   const [currentSlide, setCurrentSlide] = useState(0);
  // const {favorites} = useAppSelector(state => state.favorites);
 
-  const { restaurants } = useAppSelector(state => state.restaurant);
+  const { data: restaurants = [] } = useGetAllRestaurantsQuery();
+  useGetCartItemQuery(undefined, { skip: !user });
 
   // Mock data - à remplacer par des données du backend plus tard
   const favoriteIds = new Set();
@@ -155,38 +155,26 @@ export default function Home() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMounted(true);
-    dispatch(getAllRestaurants());
-    dispatch(getCartItem());
-  }, [dispatch]);
+  }, []);
 
   // Vérifier l'authentification et rediriger si nécessaire
   useEffect(() => {
     if (!isMounted) return;
 
-    // Si on est encore en train de charger les données, attendre
-    if (isLoading) return;
-
-    // Vérifier si on a un token
-    const token = localStorage.getItem('token');
-
-    // Si on a un token et les données user sont chargées
-    if (token && user) {
-      // Rediriger les restaurant_owner vers leur dashboard
-      if (user.role === 'restaurant_owner') {
-        router.replace('/restaurantDashboard');
-        return;
-      }
-      // Les customers restent sur Home
+    if (user?.role === 'restaurant_owner') {
+      router.replace('/restaurantDashboard');
+      return;
     }
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setHasCheckedAuth(true);
-  }, [isMounted, isLoading, user, router]);
+  }, [isMounted, user, router]);
 
   // Afficher loading si :
   // 1. On est en train de charger les données (isLoading)
   // 2. Ou on n'a pas encore vérifié l'authentification (!hasCheckedAuth)
   // Cela empêche d'afficher Home avant de savoir où rediriger
-  if(isLoading || !hasCheckedAuth){
+  if(!hasCheckedAuth){
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-50">
         <div className="text-center">

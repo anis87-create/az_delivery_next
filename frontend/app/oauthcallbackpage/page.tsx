@@ -1,8 +1,8 @@
 'use client'
 import React, { useEffect, Suspense } from 'react'
-import { useAppDispatch } from '../hooks/hooks';
-import { authMe } from '../store/slices/authSlice';
+import { useGetAuthenticatedUserQuery } from '../store/services/auth';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { useAppSelector, RootState } from '../hooks/hooks';
 
 const Spinner = () => (
   <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
@@ -14,19 +14,36 @@ const Spinner = () => (
 );
 
 const OAuthCallbackContent: React.FC = () => {
-  const dispatch = useAppDispatch();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const token = searchParams.get('token');
 
+  // On stocke d'abord le token si présent
   useEffect(() => {
-    const token = searchParams.get('token');
     if (token) {
       localStorage.setItem('token', token);
-      dispatch(authMe()).then(() => router.push('/'));
     } else {
       router.push('/login');
     }
-  }, [searchParams, dispatch, router]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Le hook skip tant qu'il n'y a pas de token stocké
+  // Une fois le token sauvegardé dans le useEffect ci-dessus,
+  // on recharge avec la présence du token en localStorage
+  const hasToken = !!token;
+  const { isSuccess, isError } = useGetAuthenticatedUserQuery(undefined, {
+    skip: !hasToken,
+  });
+
+  useEffect(() => {
+    if (isSuccess) {
+      router.push('/');
+    }
+    if (isError) {
+      router.push('/login');
+    }
+  }, [isSuccess, isError, router]);
 
   return <Spinner />;
 }

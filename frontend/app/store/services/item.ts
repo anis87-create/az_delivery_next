@@ -1,23 +1,50 @@
-import { privateApi } from './api';
-import { Item, ItemProps, ItemSchema } from '@/app/types/item.types';
-import { z } from 'zod';
+import { createApi } from '@reduxjs/toolkit/query/react';
+import type { Item, ItemProps, ItemFormUpdate } from '@/app/types/item.types';
+import baseQuery from './api';
 
-const API_URL = '/items';
+export const itemAPI = createApi({
+  reducerPath: 'itemApi',
+  baseQuery,
+  tagTypes: ['Items'],
+  endpoints: (builder) => ({
 
-export const ItemService = {
-  async getAll(): Promise<Item[]> {
-    const res = await privateApi.get(API_URL);
-    return z.array(ItemSchema).parse(res.data);
-  },
-  async create(form: ItemProps): Promise<Item> {
-    const res = await privateApi.post(API_URL, form);
-    return ItemSchema.parse(res.data);
-  },
-  async remove(id: string): Promise<void> {
-    await privateApi.delete(`${API_URL}/${id}`);
-  },
-  async update(form: ItemProps, id: string): Promise<Item> {
-    const res = await privateApi.put(`${API_URL}/${id}`, form);
-    return ItemSchema.parse(res.data);
-  },
-};
+    getAllItems: builder.query<Item[], void>({
+      query: () => '/items',
+      providesTags: ['Items'],
+    }),
+
+    createItem: builder.mutation<Item, ItemProps>({
+      query: (form) => ({
+        url: '/items',
+        method: 'POST',
+        body: form,
+      }),
+      invalidatesTags: ['Items'],
+    }),
+
+    updateItem: builder.mutation<Item, ItemFormUpdate>({
+      query: ({ id, itemForm }) => ({
+        url: `/items/${id}`,
+        method: 'PUT',
+        body: itemForm,
+      }),
+      invalidatesTags: ['Items'],
+    }),
+
+    deleteItem: builder.mutation<void, string>({
+      query: (id) => ({
+        url: `/items/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Items'],
+    }),
+
+  }),
+});
+
+export const {
+  useGetAllItemsQuery,
+  useCreateItemMutation,
+  useUpdateItemMutation,
+  useDeleteItemMutation,
+} = itemAPI;
