@@ -17,6 +17,10 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'azdeliverynext-production.up.railway.app',
+      },
+      {
+        protocol: 'https',
         hostname: 'platform-lookaside.fbsbx.com',
       },
       {
