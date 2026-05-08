@@ -5,7 +5,9 @@
   "main": "server.ts",
   "scripts": {
     "test": "echo \"Error: no test specifixed\" && exit 1",
-    "dev": "nodemon server"
+    "dev": "nodemon server",
+    "build": "tsc",
+    "start": "node dist/server.js"
   },
   "keywords": [],
   "author": "",

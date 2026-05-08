@@ -21,11 +21,24 @@ connectDB();
 passportConfig(passport);
 // Middleware
 app.use(express.json());
-app.use(cors());
+const allowedOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',')
+  : ['http://localhost:3000'];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS blocked: ${origin}`));
+    }
+  },
+  credentials: true,
+}));
 app.use('/images', express.static(path.join(process.cwd(), 'images')));
 //sessions
 app.use(session({
-  secret: 'keyboard cat',
+  secret: process.env.SESSION_SECRET ?? 'keyboard cat',
   resave: false,
   saveUninitialized: false
 }))
