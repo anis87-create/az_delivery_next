@@ -19,7 +19,8 @@ router.get('/google/callback', passport.authenticate('google', {
   failureRedirect: '/'
 }), (req, res) => {
   const token = authCtrl.generateToken(req.user!._id);
-  res.redirect(`http://localhost:3000/oauthcallbackpage?token=${token}`);
+  const frontendUrl = process.env.FRONTEND_URL ?? 'http://localhost:3000';
+  res.redirect(`${frontendUrl}/oauthcallbackpage?token=${token}`);
 });
 
 router.get('/facebook', passport.authenticate('facebook', { scope: ['public_profile'] }));
@@ -27,7 +28,8 @@ router.get('/facebook/callback', passport.authenticate('facebook', {
   failureRedirect: '/'
 }), (req, res) => {
   const token = authCtrl.generateToken(req.user!._id);
-  res.redirect(`http://localhost:3000/oauthcallbackpage?token=${token}`);
+  const frontendUrl = process.env.FRONTEND_URL ?? 'http://localhost:3000';
+  res.redirect(`${frontendUrl}/oauthcallbackpage?token=${token}`);
 });
 
 export default router;
