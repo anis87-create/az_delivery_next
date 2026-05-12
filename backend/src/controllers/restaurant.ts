@@ -46,14 +46,12 @@ export const updateRestaurant = async (req: Request, res: Response) => {
         ...restOfBody
       };
 
-      // Ajouter img seulement si un nouveau fichier a été uploadé
       if (imgFile) {
-        updateData.img = `${req.protocol}://${req.get('host')}/images/${imgFile.filename}`;
+        updateData.img = imgFile.path;
       }
 
-      // Ajouter coverImg seulement si un nouveau fichier a été uploadé
       if (coverFile) {
-        updateData.coverImg = `${req.protocol}://${req.get('host')}/images/${coverFile.filename}`;
+        updateData.coverImg = coverFile.path;
       }
       // Parser openingHours si présent
       if (openingHours) {
