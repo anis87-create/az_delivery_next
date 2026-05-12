@@ -25,15 +25,11 @@ const allowedOrigins = process.env.CORS_ORIGIN
   ? process.env.CORS_ORIGIN.split(',').map(o => o.trim())
   : ['http://localhost:3000'];
 
-const allowedPatterns = process.env.CORS_PATTERN
-  ? process.env.CORS_PATTERN.split(',').map(p => new RegExp(p.trim()))
-  : [];
-
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
     if (allowedOrigins.includes(origin)) return callback(null, true);
-    if (allowedPatterns.some(pattern => pattern.test(origin))) return callback(null, true);
+    if (origin.includes('az-delivery-next') && origin.endsWith('.vercel.app')) return callback(null, true);
     callback(new Error(`CORS blocked: ${origin}`));
   },
   credentials: true,
