@@ -94,13 +94,17 @@ const RestaurantPage = () => {
     <div className="min-h-screen bg-gray-50 mt-32.5">
       {/* Header */}
       <div className="relative h-64 md:h-80 lg:h-96 overflow-hidden">
-        <Image
-          src={restaurant?.restaurant.coverImg ?? ''}
-          alt={restaurant?.restaurant.name}
-          className="w-full h-full object-cover"
-          width={1200} height={400}
-          unoptimized
-        />
+        {restaurant?.restaurant.coverImg?.startsWith('https://') ? (
+          <Image
+            src={restaurant.restaurant.coverImg}
+            alt={restaurant?.restaurant.name}
+            className="w-full h-full object-cover"
+            width={1200} height={400}
+            unoptimized
+          />
+        ) : (
+          <div className="w-full h-full bg-gray-800" />
+        )}
         <div className="absolute inset-0 bg-black/40"></div>
 
         <Link

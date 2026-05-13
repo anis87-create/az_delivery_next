@@ -14,7 +14,7 @@ const RestaurantCard = React.memo(({ id, img, name, rate, time, tags, baseFee = 
     <Link href={`/restaurants/${id}`} className="block group cursor-pointer">
       {/* Image */}
       <div className="relative overflow-hidden rounded-xl mb-3">
-        {img ? (
+        {img && img.startsWith('https://') ? (
           <Image
             src={img}
             alt={name}

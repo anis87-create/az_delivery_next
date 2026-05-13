@@ -100,7 +100,7 @@ const SettingsManagement = () => {
       if (dbImage.startsWith('http://') || dbImage.startsWith('https://')) {
         return dbImage;
       }
-      return `${(process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000/api').replace('/api', '')}/images/${dbImage}`;
+      return undefined;
     }
     return undefined;
   };
