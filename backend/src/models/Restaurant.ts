@@ -33,14 +33,32 @@ export const RestaurantSchema = z.object({
     description: z.string().optional(),
     email: emailSchema,
     tags: z.array(z.string()).optional(),
-    baseFee: z.coerce.number().positive(),
+    baseFee: z.number().positive(),
+    openingHours: scheduleZodSchema.optional(),
+    estimatedDeliveryTime: z.string().optional(),
+    createdAt: z.date().optional(),
+    updatedAt: z.date().optional()
+});
+
+export const RestaurantUpdateSchema = z.object({
+    name: inputTextSchema.optional(),
+    category: inputTextSchema.optional(),
+    type: z.string().optional(),
+    img: z.string().optional(),
+    coverImg: z.string().optional(),
+    street: inputTextSchema.optional(),
+    city: inputTextSchema.optional(),
+    zipCode: z.string().min(4).max(10).optional(),
+    phone: phoneSchema,
+    description: z.string().optional(),
+    email: emailSchema.optional(),
+    tags: z.array(z.string()).optional(),
+    baseFee: z.coerce.number().positive().optional(),
     openingHours: z.preprocess(
         (val) => { try { return typeof val === 'string' ? JSON.parse(val) : val; } catch { return val; } },
         scheduleZodSchema
     ).optional(),
     estimatedDeliveryTime: z.string().optional(),
-    createdAt: z.date().optional(),
-    updatedAt: z.date().optional()
 });
 
 export type IRestaurant = z.infer<typeof RestaurantSchema>;
