@@ -53,9 +53,8 @@ export const updateRestaurant = async (req: Request, res: Response) => {
       if (coverFile) {
         updateData.coverImg = coverFile.path;
       }
-      // Parser openingHours si présent
       if (openingHours) {
-        updateData.openingHours = JSON.parse(openingHours);
+        updateData.openingHours = openingHours;
       }
 
       await Restaurant.updateOne({_id: userId}, updateData);

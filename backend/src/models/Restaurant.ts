@@ -20,7 +20,7 @@ const scheduleZodSchema = z.object({
 });
 
 export const RestaurantSchema = z.object({
-    owner: objectIdSchema,
+    owner: objectIdSchema.optional(),
     name: inputTextSchema,
     category: inputTextSchema,
     type: z.string().optional(),
@@ -33,8 +33,11 @@ export const RestaurantSchema = z.object({
     description: z.string().optional(),
     email: emailSchema,
     tags: z.array(z.string()).optional(),
-    baseFee: z.number().positive(),
-    openingHours: scheduleZodSchema.optional(),
+    baseFee: z.coerce.number().positive(),
+    openingHours: z.preprocess(
+        (val) => { try { return typeof val === 'string' ? JSON.parse(val) : val; } catch { return val; } },
+        scheduleZodSchema
+    ).optional(),
     estimatedDeliveryTime: z.string().optional(),
     createdAt: z.date().optional(),
     updatedAt: z.date().optional()

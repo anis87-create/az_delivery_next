@@ -125,12 +125,14 @@ const SettingsManagement = () => {
   const handleSaveChanges = async () => {
     const form = new FormData();
     form.append('name', restaurantData.name);
+    form.append('category', restaurantData.category);
     form.append('email', restaurantData.email);
     form.append('phone', restaurantData.phone);
     form.append('description', restaurantData.description);
     form.append('street', restaurantData.street);
     form.append('city', restaurantData.city);
     form.append('zipCode', restaurantData.zipCode);
+    form.append('type', restaurantData.type);
     form.append('openingHours', JSON.stringify(restaurantData.openingHours));
     form.append('baseFee', String(restaurantData.baseFee));
     form.append('estimatedDeliveryTime', restaurantData.estimatedDeliveryTime);
